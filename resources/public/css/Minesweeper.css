@@ -1,5 +1,28 @@
-.minesweeper .row .square {
-  display: inline-block;
-  width: 16px;
-  height: 16px;
+.minesweeper-wrap.st-victorious {
+  background-color: green;
+}
+.minesweeper-wrap .minesweeper .row {
+  display: flex;
+  height: 20px;
+}
+.minesweeper-wrap .minesweeper .row .cell {
+  box-sizing: border-box;
+  width: 20px;
+  height: 20px;
+  text-align: center;
+}
+.minesweeper-wrap .minesweeper .row .cell span {
+  height: 20px;
+  vertical-align: middle;
+}
+.minesweeper-wrap .minesweeper .row .cell.revealed {
+  background-color: #fcfcfc;
+  border: 1px solid #dddddd;
+}
+.minesweeper-wrap .minesweeper .row .cell.hidden {
+  background-color: #eeeeee;
+  border: 1px solid #999999;
+}
+.minesweeper-wrap .minesweeper .row .cell.hidden.flagged {
+  background-color: red;
 }

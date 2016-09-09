@@ -1,8 +1,41 @@
-.minesweeper {
-  .row {
-    .square {
-      width: 30px;
-      height: 30px;
+@cellSz: 20px;
+
+.minesweeper-wrap {
+  &.st-victorious {
+    background-color: green;
+  }
+
+  .minesweeper {
+    .row {
+      display: flex;
+      height: @cellSz;
+
+      .cell {
+        box-sizing: border-box;
+        width: @cellSz;
+        height: @cellSz;
+        text-align: center;
+
+        span {
+          height: @cellSz;
+          vertical-align: middle;
+        }
+
+        &.revealed {
+          background-color: #fcfcfc;
+          border: 1px solid #dddddd;
+        }
+
+        &.hidden {
+          background-color: #eeeeee;
+          border: 1px solid #999999;
+
+          &.flagged {
+            background-color: red;
+          }
+        }
+      }
     }
   }
 }
+
