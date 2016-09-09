@@ -6,9 +6,9 @@
 
 (enable-console-print!)
 
-(def rows 10)
-(def cols 10)
-(def num-mines 10)
+(def rows 15)
+(def cols 20)
+(def num-mines 40)
 
 (def empty-row (vec (repeat cols 0)))
 
@@ -77,16 +77,6 @@
               labelled))
           grid
           (flatten-grid grid)))
-
-(defn player-victory?
-  [grid mask]
-  (= num-mines 
-     (reduce (fn [total [r c n]]
-               (if (= 0 n)
-                 (inc total)
-                 total))
-             0
-             (flatten-grid mask))))
 
 (defn new-state []
   {:rows rows
@@ -187,6 +177,7 @@
             (dom/div #js {:className (str "minesweeper-wrap"
                                           (case game-state
                                             :victorious " st-victorious"
+                                            :dead " st-dead"
                                             ""))}
                      (dom/button
                       #js {:onClick (fn [e] (om/transact! this `[(reset)]))}
@@ -201,40 +192,58 @@
   [state [row col]]
   (swap! state assoc :game-state :dead))
 
-;; TODO: Instead of modifying the state here, have this function
-;; return the set of cells
-(defn sweep-zeros-r!
-  "Sweep this zero's neighbours and any zeros around it"
+(defn zero-region
   [state [row col] swept]
-  (if (contains? swept [row col])
-    swept
-    (reduce (fn [swept [nx ny]]
-              (do (swap! state assoc-in [:mask nx ny] 1)
-                  (if (= 0 (get-in @state [:grid nx ny]))
-                    (clojure.set/union swept (sweep-zeros-r! state [nx ny] swept))
-                    swept)))
-            (conj swept [row col])
-            (neighbour-coords row col))))
+  (let [neighbours (neighbour-coords row col)]
+    (if (= 0 (get-in @state [:grid row col]))
+      (reduce (fn [swept [nx ny]]
+                (if (not (contains? swept [nx ny]))
+                  (clojure.set/union swept (zero-region state [nx ny] swept))
+                  swept))
+              (conj swept [row col])
+              neighbours)
+      (conj swept [row col]))))
 
-(defn sweep-zeros!
-  [state [row col]]
-  (sweep-zeros-r! state [row col] #{}))
+(defn sweep-cells
+  [mask cells]
+  (reduce (fn [mask [r c]]
+            (assoc-in mask [r c] 1))
+          mask
+          cells))
+
+(defn calc-game-state
+  [grid mask [row col]]
+  (let [num-hidden 
+        (reduce (fn [total [r c n]]
+                  (if (= 0 n)
+                    (inc total)
+                    total))
+                0
+                (flatten-grid mask))
+        value (get-in grid [row col])
+        dead (= :X value)]
+    (if dead
+      :dead
+      (if (= num-mines num-hidden)
+        :victorious
+        :alive))))
 
 (defn sweep-cell!
   [state [row col]]
-  (swap! state assoc-in [:mask row col] 1)
-
-  (if (= 0 (get-in @state [:grid row col]))
-    (sweep-zeros! state [row col])
-
-    (if (= :X (get-in @state [:grid row col]))
-      (player-death! state [row col]))))
+  (let [grid (get @state :grid)
+        mask-1 (get @state :mask)
+        sweep-region (if (= 0 (get-in @state [:grid row col]))
+                       (zero-region state [row col] #{})
+                       [[row col]])
+        mask-2 (sweep-cells mask-1 sweep-region)
+        game-state (calc-game-state grid mask-2 [row col])]
+    (swap! state assoc-in [:game-state] (calc-game-state grid mask-2 [row col]))
+    (swap! state assoc :mask mask-2)))
 
 (defn sweep-spread!
   [state [row col]]
   (let [value (get-in @state [:grid row col])
         num-flags (count-nearby-flags (get @state :flags) row col)]
-    (println (str "value=" value ",num-flags=" num-flags))
     (if (= value num-flags)
       (doseq [cell (neighbour-coords row col)]
         (if (not= 1 (get-in @state (concat [:flags] cell)))
@@ -242,40 +251,35 @@
 
 (defn flag-cell!
   [state [row col]]
-  (println (str "Flagging cell " row "," col))
   (swap! state assoc-in [:flags row col] 1))
 
 (defn unflag-cell!
   [state [row col]]
-  (println (str "Unflagging cell " row "," col))
   (swap! state assoc-in [:flags row col] 0))
 
 (defn restart-game!
   [state]
   (reset! state (new-state)))
 
-(defn update-game-state!
-  [{:keys [grid mask] :as state}]
-  (println "Updating game state")
-  (if (player-victory? grid mask)
-    (swap! state assoc-in [:game-state] :victorious)))
-
 (defmulti read (fn [env key params] key))
 
 (defmethod read :default
   [{:keys [state query] :as env} key params]
   (let [st @state]
-    (println (str "key=" key))
     (if-let [[_ v] (find st key)]
       {:value v}
       {:value :not-found})))
 
 (defmulti mutate (fn [env key params] key))
 
+(defn if-alive
+  [state fn & args]
+  (if (= :alive (get @state :game-state))
+    (apply fn args)))
+
 (defmethod mutate `sweep
   [{:keys [state]} key {:keys [row col]}]
-  {:action #(do (sweep-cell! state [row col])
-                (update-game-state! state))})
+  {:action #(if-alive state sweep-cell! state [row col])})
 
 (defmethod mutate `reset
   [{:keys [state]} key params]
@@ -283,15 +287,15 @@
 
 (defmethod mutate `clear
   [{:keys [state]} key {:keys [row col]}]
-  {:action #(sweep-spread! state [row col])})
+  {:action #(if-alive state sweep-spread! state [row col])})
 
 (defmethod mutate `flag
   [{:keys [state]} key {:keys [row col]}]
-  {:action #(flag-cell! state [row col])})
+  {:action #(if-alive state flag-cell! state [row col])})
 
 (defmethod mutate `unflag
   [{:keys [state]} key {:keys [row col]}]
-  {:action #(unflag-cell! state [row col])})
+  {:action #(if-alive state unflag-cell! state [row col])})
 
 (def parser (om/parser {:read read :mutate mutate}))
 

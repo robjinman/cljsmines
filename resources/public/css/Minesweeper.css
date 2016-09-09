@@ -1,6 +1,9 @@
 .minesweeper-wrap.st-victorious {
   background-color: green;
 }
+.minesweeper-wrap.st-dead {
+  background-color: red;
+}
 .minesweeper-wrap .minesweeper .row {
   display: flex;
   height: 20px;
