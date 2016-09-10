@@ -1,31 +1,75 @@
-.minesweeper-wrap.st-victorious {
+.noselect {
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+.st-victorious {
   background-color: green;
 }
-.minesweeper-wrap.st-dead {
-  background-color: red;
+.minesweeper {
+  cursor: default;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
 }
-.minesweeper-wrap .minesweeper .row {
+.minesweeper .row {
   display: flex;
   height: 20px;
 }
-.minesweeper-wrap .minesweeper .row .cell {
+.minesweeper .row .cell {
   box-sizing: border-box;
   width: 20px;
   height: 20px;
   text-align: center;
 }
-.minesweeper-wrap .minesweeper .row .cell span {
+.minesweeper .row .cell span {
   height: 20px;
   vertical-align: middle;
 }
-.minesweeper-wrap .minesweeper .row .cell.revealed {
+.minesweeper .row .cell.revealed {
   background-color: #fcfcfc;
   border: 1px solid #dddddd;
 }
-.minesweeper-wrap .minesweeper .row .cell.hidden {
+.minesweeper .row .cell.revealed.one {
+  color: blue;
+}
+.minesweeper .row .cell.revealed.two {
+  color: green;
+}
+.minesweeper .row .cell.revealed.three {
+  color: red;
+}
+.minesweeper .row .cell.revealed.four {
+  color: darkblue;
+}
+.minesweeper .row .cell.revealed.five {
+  color: firebrick;
+}
+.minesweeper .row .cell.revealed.six {
+  color: darkcyan;
+}
+.minesweeper .row .cell.revealed.seven {
+  color: magenta;
+}
+.minesweeper .row .cell.revealed.eight {
+  color: black;
+}
+.minesweeper .row .cell.revealed.mine {
+  background-image: url('../img/mine.png');
+}
+.st-dead .minesweeper .row .cell.revealed.mine {
+  background-color: red;
+}
+.minesweeper .row .cell.hidden {
   background-color: #eeeeee;
   border: 1px solid #999999;
 }
-.minesweeper-wrap .minesweeper .row .cell.hidden.flagged {
-  background-color: red;
+.minesweeper .row .cell.hidden.flagged {
+  background-image: url('../img/flag.png');
 }

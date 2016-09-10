@@ -98,11 +98,23 @@
   (render [this]
           (let [{:keys [row col value]} (om/get-computed this)]
             (println (str "Rendering exposed cell (" row "," col "," value ")"))            
-            (dom/div #js {:className "cell revealed"
+            (dom/div #js {:className (str "cell revealed "
+                                          (case value
+                                            1 "one"
+                                            2 "two"
+                                            3 "three"
+                                            4 "four"
+                                            5 "five"
+                                            6 "six"
+                                            7 "seven"
+                                            8 "eight"
+                                            :X "mine"
+                                            ""))
                           :onClick (fn [e] (om/transact! this `[(clear {:row ~row :col ~col}) :mask :game-state]))}
                      (dom/span nil
-                               (if (= :X value)
-                                 "X"
+                               (case value
+                                 :X ""
+                                 0 ""
                                  value))))))
 
 (def exposed-cell-view (om/factory ExposedCellView))
@@ -174,11 +186,12 @@
   (render [this]
           (let [{:keys [rows cols grid mask flags game-state]} (om/props this)]
             (println "Rendering main view")
-            (dom/div #js {:className (str "minesweeper-wrap"
+            (dom/div #js {:className (str "minesweeper-wrap "
                                           (case game-state
-                                            :victorious " st-victorious"
-                                            :dead " st-dead"
-                                            ""))}
+                                            :victorious "st-victorious"
+                                            :dead "st-dead"
+                                            ""))
+                          :onContextMenu (fn [e] (.preventDefault e))}
                      (dom/button
                       #js {:onClick (fn [e] (om/transact! this `[(reset)]))}
                       "Reset")
@@ -193,16 +206,17 @@
   (swap! state assoc :game-state :dead))
 
 (defn zero-region
-  [state [row col] swept]
-  (let [neighbours (neighbour-coords row col)]
+  [state [row col] region]
+  (let [neighbours (neighbour-coords row col)
+        region (conj region [row col])]
     (if (= 0 (get-in @state [:grid row col]))
-      (reduce (fn [swept [nx ny]]
-                (if (not (contains? swept [nx ny]))
-                  (clojure.set/union swept (zero-region state [nx ny] swept))
-                  swept))
-              (conj swept [row col])
+      (reduce (fn [region [nx ny]]
+                (if (not (contains? region [nx ny]))
+                  (clojure.set/union region (zero-region state [nx ny] region))
+                  region))
+              region
               neighbours)
-      (conj swept [row col]))))
+      region)))
 
 (defn sweep-cells
   [mask cells]

@@ -1,42 +1,65 @@
 @cellSz: 20px;
 
-.minesweeper-wrap {
-  &.st-victorious {
-    background-color: green;
-  }
+.noselect {
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
 
-  &.st-dead {
-    background-color: red;
-  }
+.st-victorious {
+  background-color: green;
+}
 
-  .minesweeper {
-    .row {
-      display: flex;
+.minesweeper {
+  cursor: default;
+  .noselect();
+
+  .row {
+    display: flex;
+    height: @cellSz;
+
+    .cell {
+      box-sizing: border-box;
+      width: @cellSz;
       height: @cellSz;
+      text-align: center;
 
-      .cell {
-        box-sizing: border-box;
-        width: @cellSz;
+      span {
         height: @cellSz;
-        text-align: center;
+        vertical-align: middle;
+      }
 
-        span {
-          height: @cellSz;
-          vertical-align: middle;
-        }
+      &.revealed {
+        background-color: #fcfcfc;
+        border: 1px solid #dddddd;
 
-        &.revealed {
-          background-color: #fcfcfc;
-          border: 1px solid #dddddd;
-        }
+        &.one { color: blue; }
+        &.two { color: green; }
+        &.three { color: red; }
+        &.four { color: darkblue; }
+        &.five { color: firebrick; }
+        &.six { color: darkcyan; }
+        &.seven { color: magenta; }
+        &.eight { color: black; }
 
-        &.hidden {
-          background-color: #eeeeee;
-          border: 1px solid #999999;
-
-          &.flagged {
+        &.mine {
+          .st-dead & {
             background-color: red;
           }
+
+          background-image: url('../img/mine.png');
+        }
+      }
+
+      &.hidden {
+        background-color: #eeeeee;
+        border: 1px solid #999999;
+
+        &.flagged {
+          background-image: url('../img/flag.png');
         }
       }
     }
