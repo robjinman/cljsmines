@@ -206,27 +206,31 @@
   (swap! state assoc :game-state :dead))
 
 (defn zero-region
-  [state [row col] region]
+  [grid [row col] region]
   (let [neighbours (neighbour-coords row col)
         region (conj region [row col])]
-    (if (= 0 (get-in @state [:grid row col]))
+    (if (= 0 (get-in grid [row col]))
       (reduce (fn [region [nx ny]]
                 (if (not (contains? region [nx ny]))
-                  (clojure.set/union region (zero-region state [nx ny] region))
+                  (clojure.set/union region (zero-region grid [nx ny] region))
                   region))
               region
               neighbours)
       region)))
 
-(defn sweep-cells
+(defn update-mask
   [mask cells]
   (reduce (fn [mask [r c]]
             (assoc-in mask [r c] 1))
           mask
           cells))
 
+(defn values-at
+  [grid cells]
+  (map #(get-in grid %) cells))
+
 (defn calc-game-state
-  [grid mask [row col]]
+  [grid mask swept-cells]
   (let [num-hidden 
         (reduce (fn [total [r c n]]
                   (if (= 0 n)
@@ -234,34 +238,63 @@
                     total))
                 0
                 (flatten-grid mask))
-        value (get-in grid [row col])
-        dead (= :X value)]
+        values (values-at grid swept-cells)
+        dead (contains? (set values) :X)]
     (if dead
       :dead
       (if (= num-mines num-hidden)
         :victorious
         :alive))))
 
+(defn sweep-cell
+  "Returns a new mask"
+  [grid mask [row col]]
+  (let [sweep-region (if (= 0 (get-in grid [row col]))
+                       (zero-region grid [row col] #{})
+                       [[row col]])]
+    (update-mask mask sweep-region)))
+
+(defn sweep-cells
+  [grid mask cells]
+  (reduce (fn [mask cell]
+            (sweep-cell grid mask cell))
+          mask
+          cells))
+
+(defn update-game-state!
+  [state mask swept-cells]
+  (let [grid (get @state :grid)]
+    (swap! state assoc-in [:game-state] (calc-game-state grid mask swept-cells))))
+
+(defn update-mask!
+  [state mask]
+  (swap! state assoc :mask mask))
+
 (defn sweep-cell!
   [state [row col]]
   (let [grid (get @state :grid)
-        mask-1 (get @state :mask)
-        sweep-region (if (= 0 (get-in @state [:grid row col]))
-                       (zero-region state [row col] #{})
-                       [[row col]])
-        mask-2 (sweep-cells mask-1 sweep-region)
-        game-state (calc-game-state grid mask-2 [row col])]
-    (swap! state assoc-in [:game-state] (calc-game-state grid mask-2 [row col]))
-    (swap! state assoc :mask mask-2)))
+        mask (get @state :mask)
+        new-mask (sweep-cell grid mask [row col])]
+    (update-game-state! state new-mask [[row col]])
+    (update-mask! state new-mask)))
 
 (defn sweep-spread!
   [state [row col]]
-  (let [value (get-in @state [:grid row col])
-        num-flags (count-nearby-flags (get @state :flags) row col)]
+  (let [grid (get @state :grid)
+        mask (get @state :mask)
+        flags (get @state :flags)
+        value (get-in grid [row col])
+        num-flags (count-nearby-flags flags row col)]
     (if (= value num-flags)
-      (doseq [cell (neighbour-coords row col)]
-        (if (not= 1 (get-in @state (concat [:flags] cell)))
-          (sweep-cell! state cell))))))
+      (let [swept (reduce (fn [swept cell]
+                            (if (= 0 (get-in flags cell))
+                              (conj swept cell)
+                              swept))
+                          []
+                          (neighbour-coords row col))
+            new-mask (sweep-cells grid mask swept)]
+        (update-mask! state new-mask)
+        (update-game-state! state new-mask swept)))))
 
 (defn flag-cell!
   [state [row col]]
