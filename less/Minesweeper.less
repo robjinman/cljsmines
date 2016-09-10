@@ -36,6 +36,10 @@
         background-color: #fcfcfc;
         border: 1px solid #dddddd;
 
+        &.spread:hover {
+          border: 1px solid #999999;
+        }
+
         &.one { color: blue; }
         &.two { color: green; }
         &.three { color: red; }
@@ -58,8 +62,20 @@
         background-color: #eeeeee;
         border: 1px solid #999999;
 
+        &:hover {
+          background-color: #fefefe;
+        }
+
+        &.mine {
+          background-image: url('../img/mine.png');
+        }
+
         &.flagged {
           background-image: url('../img/flag.png');
+
+          .st-dead &.safe {
+            background-image: url('../img/cross.png');
+          }
         }
       }
     }
