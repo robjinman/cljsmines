@@ -116,8 +116,8 @@
      :flags (empty-flags [rows cols])
      :time-started (get-time)
      :tick-count 0
-     ;; Valid values are: :alive :dead :victorious
-     :game-state :alive}))
+     ;; Valid values are: :pending :alive :dead :victorious
+     :game-state :pending}))
 
 (def app-state
   (atom (new-state "intermediate")))
@@ -144,7 +144,7 @@
             (dom/div #js {:className (str "cell revealed "
                                           str-val
                                           (if can-spread " spread" ""))
-                          :onClick (fn [e] (om/transact! this `[(clear {:row ~row :col ~col}) :mask :game-state]))}
+                          :onClick (fn [e] (om/transact! this `[(spread-sweep {:row ~row :col ~col}) :mask :game-state]))}
                      (dom/span nil
                                (case value
                                  :X ""
@@ -406,10 +406,16 @@
   [state [row col]]
   (swap! state assoc-in [:flags row col] 0))
 
-(defn restart-game!
+(defn reset-game!
   [state]
   (let [level (get-in @state [:controls :level])]
     (reset! state (new-state level))))
+
+(defn start-game!
+  [state]
+  (do (swap! state assoc :game-state :alive)
+      (swap! state assoc :time-started (get-time))
+      (println "Started game")))
 
 (defn tick!
   [state]
@@ -424,12 +430,23 @@
       {:value v}
       {:value :not-found})))
 
-(defmulti mutate (fn [env key params] key))
-
 (defn if-alive
   [state fn & args]
   (if (= :alive (get @state :game-state))
     (apply fn args)))
+
+(defn alive-or-pending?
+  [state]
+  (contains? #{:pending :alive} (get @state :game-state)))
+
+(defn start-game-if-pending!
+  [state]
+  (if (= :pending (get @state :game-state))
+    (do
+      (println "Starting game!")
+      (start-game! state))))
+
+(defmulti mutate (fn [env key params] key))
 
 (defmethod mutate `tick
   [{:keys [state]} key params]
@@ -437,19 +454,23 @@
 
 (defmethod mutate `sweep
   [{:keys [state]} key {:keys [row col]}]
-  {:action #(if-alive state sweep-cell! state [row col])})
+  {:action #(if (alive-or-pending? state)
+              (do (start-game-if-pending! state)
+                  (sweep-cell! state [row col])))})
 
 (defmethod mutate `reset
   [{:keys [state]} key params]
-  {:action #(restart-game! state)})
+  {:action #(reset-game! state)})
 
-(defmethod mutate `clear
+(defmethod mutate `spread-sweep
   [{:keys [state]} key {:keys [row col]}]
   {:action #(if-alive state sweep-spread! state [row col])})
 
 (defmethod mutate `flag
   [{:keys [state]} key {:keys [row col]}]
-  {:action #(if-alive state flag-cell! state [row col])})
+  {:action #(if (alive-or-pending? state)
+              (do (start-game-if-pending! state)
+                  (flag-cell! state [row col])))})
 
 (defmethod mutate `unflag
   [{:keys [state]} key {:keys [row col]}]
