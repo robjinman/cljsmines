@@ -1,80 +1,103 @@
-@cellSz: 20px;
+@cellSz: 24px;
+@digitSz: 18px;
 
-.noselect {
-  -webkit-touch-callout: none;
-  -webkit-user-select: none;
-  -khtml-user-select: none;
-  -moz-user-select: none;
-  -ms-user-select: none;
-  user-select: none;
+.cell-image(@imgUrl) {
+  background-image: url(@imgUrl);
+  background-repeat: no-repeat;
+  background-size: cover;
 }
 
-.st-victorious {
-  background-color: green;
-}
+#app {
+  display: block;
+  text-align: center;
 
-.minesweeper {
-  cursor: default;
-  .noselect();
+  .noselect {
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+  }
 
-  .row {
-    display: flex;
-    height: @cellSz;
+  .minesweeper-wrap {
+    display: inline-block;
 
-    .cell {
-      box-sizing: border-box;
-      width: @cellSz;
-      height: @cellSz;
-      text-align: center;
-
-      span {
-        height: @cellSz;
-        vertical-align: middle;
-      }
-
-      &.revealed {
-        background-color: #fcfcfc;
-        border: 1px solid #dddddd;
-
-        &.spread:hover {
-          border: 1px solid #999999;
+    &.st-dead {
+      .row .cell {
+        &.revealed.mine {
+          background-color: red;
         }
 
-        &.one { color: blue; }
-        &.two { color: green; }
-        &.three { color: red; }
-        &.four { color: darkblue; }
-        &.five { color: firebrick; }
-        &.six { color: darkcyan; }
-        &.seven { color: magenta; }
-        &.eight { color: black; }
+        &.hidden.flagged.safe {
+          .cell-image('../img/cross.svg');
+        }
+      }
+    }
 
-        &.mine {
-          .st-dead & {
-            background-color: red;
+    &.st-victorious {
+      .timer span {
+        background-color: yellow;
+      }
+    }
+
+    .minesweeper {
+      font-family: "Courier New", Courier, monospace;
+      cursor: default;
+      .noselect();
+
+      .row {
+        display: flex;
+        height: @cellSz;
+
+        .cell {
+          box-sizing: border-box;
+          width: @cellSz;
+          height: @cellSz;
+          text-align: center;
+
+          span {
+            font-size: @digitSz;
+            line-height: @cellSz - 2px;
           }
 
-          background-image: url('../img/mine.png');
-        }
-      }
+          &.revealed {
+            background-color: #fcfcfc;
+            border: 1px solid #dddddd;
 
-      &.hidden {
-        background-color: #eeeeee;
-        border: 1px solid #999999;
+            &.spread:hover {
+              border: 1px solid #999999;
+            }
 
-        &:hover {
-          background-color: #fefefe;
-        }
+            &.one { color: blue; }
+            &.two { color: green; }
+            &.three { color: red; }
+            &.four { color: darkblue; }
+            &.five { color: firebrick; }
+            &.six { color: darkcyan; }
+            &.seven { color: magenta; }
+            &.eight { color: black; }
 
-        &.mine {
-          background-image: url('../img/mine.png');
-        }
+            &.mine {
+              .cell-image('../img/mine.svg');
+            }
+          }
 
-        &.flagged {
-          background-image: url('../img/flag.png');
+          &.hidden {
+            background-color: #eeeeee;
+            border: 1px solid #999999;
 
-          .st-dead &.safe {
-            background-image: url('../img/cross.png');
+            &:hover {
+              background-color: #fefefe;
+            }
+
+            &.mine {
+              .cell-image('../img/mine.svg');
+            }
+
+            &.flagged {
+              .cell-image('../img/flag.svg');
+            }
           }
         }
       }
