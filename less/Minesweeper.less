@@ -8,6 +8,7 @@
 }
 
 #app {
+  font-family: "Courier New", Courier, monospace;
   display: block;
   text-align: center;
 
@@ -21,6 +22,7 @@
   }
 
   .minesweeper-wrap {
+    font-family: "Courier New", Courier, monospace;
     display: inline-block;
 
     &.st-dead {
@@ -36,8 +38,20 @@
     }
 
     &.st-victorious {
-      .timer span {
+      .info .timer span {
         background-color: yellow;
+      }
+    }
+
+    .info {
+      margin-bottom: 5px;
+    }
+
+    .panel {
+      margin-top: 10px;
+
+      .control {
+        margin-right: 5px;
       }
     }
 
@@ -66,7 +80,8 @@
             border: 1px solid #dddddd;
 
             &.spread:hover {
-              border: 1px solid #999999;
+              //border: 1px solid #999999;
+              background-color: #ddffff;
             }
 
             &.one { color: blue; }
@@ -88,7 +103,8 @@
             border: 1px solid #999999;
 
             &:hover {
-              background-color: #fefefe;
+              background-color: #ddffff;
+              //border: 1px solid #ffdddd;
             }
 
             &.mine {

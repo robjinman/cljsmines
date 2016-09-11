@@ -249,19 +249,33 @@
           (let [{:keys [level]} (om/props this)]
             (println (str "Level=" level))
             (dom/div #js {:className "panel"}
-                     (dom/button
-                      #js {:onClick (fn [e] (om/transact! this `[(reset) :level]))}
-                      "New Game")
-                     (dom/select #js {:className "sct-level"
+                     (dom/select #js {:className "control"
                                       :value level
                                       :onChange (fn [e]
                                                   (let [value (-> e .-target .-value)]
                                                     (om/transact! this `[(level-select {:level ~value})])))}
                                  (dom/option #js {:value "beginner"} "Beginner")
                                  (dom/option #js {:value "intermediate"} "Intermediate")
-                                 (dom/option #js {:value "expert"} "Expert"))))))
+                                 (dom/option #js {:value "expert"} "Expert"))
+                     (dom/button
+                      #js {:className "control"
+                           :onClick (fn [e] (om/transact! this `[(reset) :level]))}
+                      "Reset")))))
 
 (def controls-view (om/factory ControlsView))
+
+(defui InfoView
+  static om/IQuery
+  (query [this]
+         [])
+  Object
+  (render [this]
+          (let [{:keys [time-started tick-count]} (om/get-computed this)]
+            (dom/div #js {:className "info"}
+                     (timer-view (om/computed {} {:time-started time-started
+                                                  :tick-count tick-count}))))))
+
+(def info-view (om/factory InfoView))
 
 (defui MainView
   static om/IQuery
@@ -282,8 +296,8 @@
                                             :dead "st-dead"
                                             ""))
                           :onContextMenu (fn [e] (.preventDefault e))}
-                     (timer-view (om/computed {:react-key "timer"} {:time-started time-started
-                                                                    :tick-count tick-count}))
+                     (info-view (om/computed {:react-key "info"} {:time-started time-started
+                                                                  :tick-count tick-count}))
                      (grid-view {:game-state game-state
                                  :game-size game-size
                                  :grid grid
