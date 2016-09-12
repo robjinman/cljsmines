@@ -2,11 +2,48 @@
 <html>
   <head>
     <meta charset="UTF-8">
+
+    <script src="https://code.jquery.com/jquery-3.1.0.min.js"></script>
+
+    <script src="highlight/highlight.pack.js"></script>
+    <link rel="stylesheet" href="highlight/styles/github-gist.css">
+
     <link href="css/Minesweeper.css" rel="stylesheet" type="text/css">
+
     <title>Minesweeper</title>
   </head>
   <body>
+    <h2 class="title">CLJS Mines</h2>
     <div id="app"></div>
-    <script src="js/cljsmines.js"></script>
+    <div id="description">
+      <h3>Description</h3>
+      <p>A Minesweeper clone written in ClojureScript.</p>
+      <ul>
+        <li>Left-click to sweep a blank cell (avoid the mines!)</li>
+        <li>Right-click a blank cell to plant a flag</li>
+        <li>If a numbered cell is surrounded by precisely the correct number of flags,
+            left-click the cell to sweep its unflagged neighbours</li>
+        <li>You do not have to flag every mine; just clear every safe cell</li>
+      </ul>
+    </div>
+    <div id="src-listing">
+      <h3>Source Listing</h3>
+      <pre>
+        <code class="clojure"></code>
+      </pre>
+    </div>
+
+    <script src="js/cljsmines.js" type="text/javascript"></script>
+
+    <script type="text/javascript">
+      var srcUrl = "https://raw.githubusercontent.com/RobJinman/cljsmines/master/src/minesweeper/core.cljs";
+
+      $.get(srcUrl, function(data) {
+        var elem = $("#src-listing pre code");
+        elem.text(data);
+
+        hljs.highlightBlock(elem.get(0));
+      });
+    </script>
   </body>
 </html>
