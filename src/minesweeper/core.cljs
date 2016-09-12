@@ -1,5 +1,7 @@
 (ns minesweeper.core
   (:require [goog.dom :as gdom]
+            [goog.string :as gstring]
+            [goog.string.format]
             [om.next :as om :refer-macros [defui]]
             [om.dom :as dom]
             [clojure.set]))
@@ -26,7 +28,7 @@
 (defn empty-flags [[rows cols]]
   (vec (repeat rows (empty-row cols))))
 
-(defn update-high-score!
+(defn set-high-score!
   [level score]
   (.setItem js/localStorage level score))
 
@@ -248,20 +250,6 @@
 
 (def grid-view (om/factory GridView))
 
-(defui TimerView
-  static om/IQuery
-  (query [this]
-         [])
-  Object
-  (render [this]
-          (let [{:keys [elapsed]} (om/get-computed this)]
-            (println "Rendering timer")
-            (dom/div #js {:className "timer"}
-                     "Time Elapsed: "
-                     (dom/span nil elapsed)))))
-
-(def timer-view (om/factory TimerView))
-
 (defui ControlsView
   static om/IQuery
   (query [this]
@@ -286,6 +274,20 @@
 
 (def controls-view (om/factory ControlsView))
 
+(defui TimerView
+  static om/IQuery
+  (query [this]
+         [])
+  Object
+  (render [this]
+          (let [{:keys [elapsed]} (om/get-computed this)]
+            (println "Rendering timer")
+            (dom/div #js {:className "timer"}
+                     "Time "
+                     (dom/span nil (gstring/format "%03d" elapsed))))))
+
+(def timer-view (om/factory TimerView))
+
 (defui InfoView
   static om/IQuery
   (query [this]
@@ -297,13 +299,13 @@
             (dom/div #js {:className "info"}
                      (timer-view (om/computed {} {:elapsed (calc-elapsed time-started)}))
                      (dom/div #js {:className "high-score"}
-                              "Best: "
+                              "Best "
                               (dom/span nil
-                                        (if (nil? high-score) "-" high-score)))
+                                        (if (nil? high-score) "---" (gstring/format "%03d" high-score))))
                      (dom/div #js {:className "remaining"}
-                              "Remaining: "
+                              "Mines "
                               (dom/span nil
-                                        num-remaining))))))
+                                        (gstring/format "%03d" num-remaining)))))))
 
 (def info-view (om/factory InfoView))
 
@@ -405,6 +407,16 @@
           flags
           (flatten-grid grid)))
 
+(defn update-high-score!
+  [state]
+  (let [level (get-in @state [:controls :level])
+        time-started (get @state :time-started)
+        elapsed (calc-elapsed time-started)
+        high-score (get-high-score level)]
+    (if (< elapsed high-score)
+      (do (swap! state assoc :high-score elapsed)
+          (set-high-score! level elapsed)))))
+
 (defn sweep-cell!
   [state [row col]]
   (let [[rows cols] (get-in @state [:level :size])
@@ -418,12 +430,7 @@
     (swap! state assoc :mask new-mask)
     (if (= :victorious game-state)
       (do (swap! state assoc :flags (flag-remaining flags grid))
-          (let [level (get-in @state [:controls :level])
-                time-started (get @state :time-started)
-                elapsed (calc-elapsed time-started)
-                high-score (get-high-score level)]
-            (if (< elapsed)
-              (update-high-score! level elapsed)))))))
+          (update-high-score! state)))))
 
 (defn sweep-spread!
   [state [row col]]
@@ -445,12 +452,7 @@
         (swap! state assoc :game-state game-state)
         (if (= :victorious game-state)
           (do (swap! state assoc :flags (flag-remaining flags grid))
-              (let [level (get-in @state [:controls :level])
-                    time-started (get @state :time-started)
-                    elapsed (calc-elapsed time-started)
-                    high-score (get-high-score level)]
-                (if (< elapsed)
-                  (update-high-score! level elapsed)))))))))
+              (update-high-score! state)))))))
 
 (defn flag-cell!
   [state [row col]]
