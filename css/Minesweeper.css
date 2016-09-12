@@ -1,0 +1,129 @@
+#app {
+  font-family: "Courier New", Courier, monospace;
+  display: block;
+  text-align: center;
+}
+#app .noselect {
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+#app .minesweeper-wrap {
+  font-family: "Courier New", Courier, monospace;
+  display: block;
+}
+#app .minesweeper-wrap.st-dead .row .cell.revealed.mine {
+  background-color: red;
+}
+#app .minesweeper-wrap.st-dead .row .cell.hidden.flagged.safe {
+  background-image: url('../img/cross.svg');
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+#app .minesweeper-wrap.st-dead .minesweeper {
+  -webkit-box-shadow: 0px 0px 3px 2px #ff0000;
+  -moz-box-shadow: 0px 0px 3px 2px #ff0000;
+  box-shadow: 0px 0px 3px 2px #ff0000;
+}
+#app .minesweeper-wrap.st-victorious .minesweeper {
+  -webkit-box-shadow: 0px 0px 3px 2px #008000;
+  -moz-box-shadow: 0px 0px 3px 2px #008000;
+  box-shadow: 0px 0px 3px 2px #008000;
+}
+#app .minesweeper-wrap .info {
+  margin-bottom: 10px;
+}
+#app .minesweeper-wrap .info div {
+  display: inline-block;
+  padding-right: 20px;
+}
+#app .minesweeper-wrap .panel {
+  margin-top: 10px;
+}
+#app .minesweeper-wrap .panel .control {
+  margin-right: 5px;
+}
+#app .minesweeper-wrap .minesweeper {
+  display: inline-block;
+  -webkit-box-shadow: 0px 0px 3px 2px cornflowerblue;
+  -moz-box-shadow: 0px 0px 3px 2px cornflowerblue;
+  box-shadow: 0px 0px 3px 2px cornflowerblue;
+  font-family: "Courier New", Courier, monospace;
+  cursor: default;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+#app .minesweeper-wrap .minesweeper .row {
+  display: flex;
+  height: 24px;
+}
+#app .minesweeper-wrap .minesweeper .row .cell {
+  box-sizing: border-box;
+  width: 24px;
+  height: 24px;
+  text-align: center;
+}
+#app .minesweeper-wrap .minesweeper .row .cell span {
+  font-size: 18px;
+  line-height: 22px;
+}
+#app .minesweeper-wrap .minesweeper .row .cell.revealed {
+  background-color: #fcfcfc;
+  border: 1px solid #dddddd;
+}
+#app .minesweeper-wrap .minesweeper .row .cell.revealed.spread:hover {
+  background-color: #ddffff;
+}
+#app .minesweeper-wrap .minesweeper .row .cell.revealed.one {
+  color: blue;
+}
+#app .minesweeper-wrap .minesweeper .row .cell.revealed.two {
+  color: green;
+}
+#app .minesweeper-wrap .minesweeper .row .cell.revealed.three {
+  color: red;
+}
+#app .minesweeper-wrap .minesweeper .row .cell.revealed.four {
+  color: darkblue;
+}
+#app .minesweeper-wrap .minesweeper .row .cell.revealed.five {
+  color: firebrick;
+}
+#app .minesweeper-wrap .minesweeper .row .cell.revealed.six {
+  color: darkcyan;
+}
+#app .minesweeper-wrap .minesweeper .row .cell.revealed.seven {
+  color: magenta;
+}
+#app .minesweeper-wrap .minesweeper .row .cell.revealed.eight {
+  color: black;
+}
+#app .minesweeper-wrap .minesweeper .row .cell.revealed.mine {
+  background-image: url('../img/mine.svg');
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+#app .minesweeper-wrap .minesweeper .row .cell.hidden {
+  background-color: #eeeeee;
+  border: 1px solid #999999;
+}
+#app .minesweeper-wrap .minesweeper .row .cell.hidden:hover {
+  background-color: #ddffff;
+}
+#app .minesweeper-wrap .minesweeper .row .cell.hidden.mine {
+  background-image: url('../img/mine.svg');
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+#app .minesweeper-wrap .minesweeper .row .cell.hidden.flagged {
+  background-image: url('../img/flag.svg');
+  background-repeat: no-repeat;
+  background-size: cover;
+}
