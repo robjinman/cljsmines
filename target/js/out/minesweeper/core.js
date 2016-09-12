@@ -41,6 +41,9 @@ return parseInt(score);
 return null;
 }
 });
+minesweeper.core.dbg_clear_high_score_BANG_ = (function minesweeper$core$dbg_clear_high_score_BANG_(level){
+return localStorage.removeItem(level);
+});
 /**
  * Takes an empty grid and populates it randomly with mines
  */
@@ -2246,7 +2249,7 @@ var level = cljs.core.get_in.cljs$core$IFn$_invoke$arity$2((cljs.core.deref.cljs
 var time_started = cljs.core.get.cljs$core$IFn$_invoke$arity$2((cljs.core.deref.cljs$core$IFn$_invoke$arity$1 ? cljs.core.deref.cljs$core$IFn$_invoke$arity$1(state) : cljs.core.deref.call(null,state)),cljs.core.cst$kw$time_DASH_started);
 var elapsed = minesweeper.core.calc_elapsed(time_started);
 var high_score = minesweeper.core.get_high_score(level);
-if((elapsed < high_score)){
+if((cljs.core._EQ_.cljs$core$IFn$_invoke$arity$2(null,high_score)) || ((elapsed < high_score))){
 cljs.core.swap_BANG_.cljs$core$IFn$_invoke$arity$4(state,cljs.core.assoc,cljs.core.cst$kw$high_DASH_score,elapsed);
 
 return minesweeper.core.set_high_score_BANG_(level,elapsed);
