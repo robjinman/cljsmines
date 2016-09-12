@@ -26,6 +26,17 @@
 (defn empty-flags [[rows cols]]
   (vec (repeat rows (empty-row cols))))
 
+(defn update-high-score!
+  [level score]
+  (.setItem js/localStorage level score))
+
+(defn get-high-score
+  [level]
+  (let [score (.getItem js/localStorage level)]
+    (if score
+      (js/parseInt score)
+      nil)))
+
 (defn populate-grid
   "Takes an empty grid and populates it randomly with mines"
   [grid [rows cols] num-mines]
@@ -84,6 +95,13 @@
         [j val] (map-indexed vector row)]
     [i j val]))
 
+(defn count-flags
+  [flags]
+  (reduce (fn [sum [_ _ n]]
+            (+ sum n))
+          0
+          (flatten-grid flags)))
+
 (defn label-grid
   "Takes a populated grid and sets the numbers"
   [[rows cols] grid]
@@ -105,6 +123,10 @@
   (let [millis (.getTime (js/Date.))]
     (/ millis 1000)))
 
+(defn calc-elapsed
+  [time-started]
+  (int (- (get-time) time-started)))
+
 (defn new-state [level]
   (let [[rows cols] (get-in levels [level :size])
         num-mines (get-in levels [level :mines])]
@@ -117,7 +139,8 @@
      :time-started (get-time)
      :tick-count 0
      ;; Valid values are: :pending :alive :dead :victorious
-     :game-state :pending}))
+     :game-state :pending
+     :high-score (get-high-score level)}))
 
 (def app-state
   (atom (new-state "intermediate")))
@@ -231,12 +254,11 @@
          [])
   Object
   (render [this]
-          (let [{:keys [time-started]} (om/get-computed this)
-                elapsed (- (get-time) time-started)]
+          (let [{:keys [elapsed]} (om/get-computed this)]
             (println "Rendering timer")
             (dom/div #js {:className "timer"}
                      "Time Elapsed: "
-                     (dom/span nil (int elapsed))))))
+                     (dom/span nil elapsed)))))
 
 (def timer-view (om/factory TimerView))
 
@@ -267,28 +289,38 @@
 (defui InfoView
   static om/IQuery
   (query [this]
-         [])
+         [:high-score :flags])
   Object
   (render [this]
-          (let [{:keys [time-started tick-count]} (om/get-computed this)]
+          (let [{:keys [high-score]} (om/props this)
+                {:keys [time-started tick-count num-remaining]} (om/get-computed this)]
             (dom/div #js {:className "info"}
-                     (timer-view (om/computed {} {:time-started time-started
-                                                  :tick-count tick-count}))))))
+                     (timer-view (om/computed {} {:elapsed (calc-elapsed time-started)}))
+                     (dom/div #js {:className "high-score"}
+                              "Best: "
+                              (dom/span nil
+                                        (if (nil? high-score) "-" high-score)))
+                     (dom/div #js {:className "remaining"}
+                              "Remaining: "
+                              (dom/span nil
+                                        num-remaining))))))
 
 (def info-view (om/factory InfoView))
 
 (defui MainView
   static om/IQuery
   (query [this]
-         [:level :grid :mask :flags :game-state :time-started :tick-count
+         [:level :grid :mask :flags :game-state :time-started :tick-count :high-score
           {:controls (om/get-query ControlsView)}])
   Object
   (componentDidMount [this]
                      (println "MainView mounted")
                      (js/setInterval #(om/transact! this `[(tick) :tick-count]) 1000))
   (render [this]
-          (let [{:keys [controls level grid mask flags game-state time-started tick-count]} (om/props this)
-                game-size (get level :size)]
+          (let [{:keys [controls level grid mask flags game-state time-started tick-count high-score]} (om/props this)
+                game-size (get level :size)
+                num-mines (get level :mines)
+                num-remaining (- num-mines (count-flags flags))]
             (println "Rendering main view")
             (dom/div #js {:className (str "minesweeper-wrap "
                                           (case game-state
@@ -296,8 +328,11 @@
                                             :dead "st-dead"
                                             ""))
                           :onContextMenu (fn [e] (.preventDefault e))}
-                     (info-view (om/computed {:react-key "info"} {:time-started time-started
-                                                                  :tick-count tick-count}))
+                     (info-view (om/computed {:react-key "info"
+                                              :high-score high-score}
+                                             {:time-started time-started
+                                              :tick-count tick-count
+                                              :num-remaining num-remaining}))
                      (grid-view {:game-state game-state
                                  :game-size game-size
                                  :grid grid
@@ -361,24 +396,34 @@
           mask
           cells))
 
-(defn update-game-state!
-  [state mask num-mines swept-cells]
-  (let [grid (get @state :grid)]
-    (swap! state assoc-in [:game-state] (calc-game-state grid mask num-mines swept-cells))))
-
-(defn update-mask!
-  [state mask]
-  (swap! state assoc :mask mask))
+(defn flag-remaining
+  [flags grid]
+  (reduce (fn [flags [r c val]]
+            (if (= :X val)
+              (assoc-in flags [r c] 1)
+              flags))
+          flags
+          (flatten-grid grid)))
 
 (defn sweep-cell!
   [state [row col]]
   (let [[rows cols] (get-in @state [:level :size])
         grid (get @state :grid)
         mask (get @state :mask)
+        flags (get @state :flags)
         num-mines (get-in @state [:level :mines])
-        new-mask (sweep-cell [rows cols] grid mask [row col])]
-    (update-game-state! state new-mask num-mines [[row col]])
-    (update-mask! state new-mask)))
+        new-mask (sweep-cell [rows cols] grid mask [row col])
+        game-state (calc-game-state grid new-mask num-mines [[row col]])]
+    (swap! state assoc :game-state game-state)
+    (swap! state assoc :mask new-mask)
+    (if (= :victorious game-state)
+      (do (swap! state assoc :flags (flag-remaining flags grid))
+          (let [level (get-in @state [:controls :level])
+                time-started (get @state :time-started)
+                elapsed (calc-elapsed time-started)
+                high-score (get-high-score level)]
+            (if (< elapsed)
+              (update-high-score! level elapsed)))))))
 
 (defn sweep-spread!
   [state [row col]]
@@ -394,9 +439,18 @@
                               swept))
                           []
                           (neighbour-coords [rows cols] [row col]))
-            new-mask (sweep-cells [rows cols] grid mask swept)]
-        (update-mask! state new-mask)
-        (update-game-state! state new-mask num-mines swept)))))
+            new-mask (sweep-cells [rows cols] grid mask swept)
+            game-state (calc-game-state grid new-mask num-mines swept)]
+        (swap! state assoc :mask new-mask)
+        (swap! state assoc :game-state game-state)
+        (if (= :victorious game-state)
+          (do (swap! state assoc :flags (flag-remaining flags grid))
+              (let [level (get-in @state [:controls :level])
+                    time-started (get @state :time-started)
+                    elapsed (calc-elapsed time-started)
+                    high-score (get-high-score level)]
+                (if (< elapsed)
+                  (update-high-score! level elapsed)))))))))
 
 (defn flag-cell!
   [state [row col]]
