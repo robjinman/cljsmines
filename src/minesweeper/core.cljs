@@ -39,6 +39,10 @@
       (js/parseInt score)
       nil)))
 
+(defn dbg-clear-high-score!
+  [level]
+  (.removeItem js/localStorage level))
+
 (defn populate-grid
   "Takes an empty grid and populates it randomly with mines"
   [grid [rows cols] num-mines]
@@ -413,7 +417,7 @@
         time-started (get @state :time-started)
         elapsed (calc-elapsed time-started)
         high-score (get-high-score level)]
-    (if (< elapsed high-score)
+    (if (or (= nil high-score) (< elapsed high-score))
       (do (swap! state assoc :high-score elapsed)
           (set-high-score! level elapsed)))))
 
