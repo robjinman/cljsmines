@@ -44,7 +44,7 @@
   (.removeItem js/localStorage level))
 
 (defn populate-grid
-  "Takes an empty grid and populates it randomly with mines"
+  "Takes an empty grid and populates it randomly with mines."
   [grid [rows cols] num-mines]
   (loop [i 0
          grid grid]
@@ -69,6 +69,7 @@
             indices)))
 
 (defn count-nearby-flags
+  "Returns the number of flags surrounding the cell."
   [[rows cols] flags [row col]]
   (reduce (fn [count cell]
             (let [flag (get-in flags cell)]
@@ -79,12 +80,16 @@
 (def count-nearby-exposed count-nearby-flags)
 
 (defn count-nearby-hidden
+  "Returns the number of hidden cells surrounding the cell."
   [[rows cols] mask [row col]]
   (let [num-neighbours (count (neighbour-coords [rows cols] [row col]))
         num-exposed (count-nearby-exposed [rows cols] mask [row col])]
     (- num-neighbours num-exposed)))
 
 (defn can-spread-sweep?
+  "If the cell is surrounded by precisely the correct number of flags in addition
+  to at least 1 unflagged cell, the player can perform a spread-sweep by clicking
+  this cell."
   [[rows cols] grid mask flags [row col]]
   (let [value (get-in grid [row col])
         num-flags (count-nearby-flags [rows cols] flags [row col])
@@ -94,14 +99,16 @@
          (< num-flags num-hidden))))
 
 (defn flatten-grid
-  "Returns a flat vector of [row col value] vectors to enable easy
-  iteration over the grid"
+  "Returns a flat vector of [row col value] vectors to enable easy iteration over
+  the grid."
   [grid]
   (for [[i row] (map-indexed vector grid)
         [j val] (map-indexed vector row)]
     [i j val]))
 
 (defn count-flags
+  "This actually sums all the numbers in whatever 2D array it is given. When given
+  the flags array, it will return the total number of flags."
   [flags]
   (reduce (fn [sum [_ _ n]]
             (+ sum n))
@@ -109,7 +116,7 @@
           (flatten-grid flags)))
 
 (defn label-grid
-  "Takes a populated grid and sets the numbers"
+  "Takes a grid populated with mines and adds in the numbers."
   [[rows cols] grid]
   (reduce (fn [labelled [i j val]]
             (if (= :X val)
@@ -124,7 +131,7 @@
           (flatten-grid grid)))
 
 (defn get-time
-  "Seconds since epoch"
+  "Seconds since the epoch."
   []
   (let [millis (.getTime (js/Date.))]
     (/ millis 1000)))
@@ -133,7 +140,81 @@
   [time-started]
   (int (- (get-time) time-started)))
 
-(defn new-state [level]
+(defn zero-region
+  "Returns a list of cell coords belonging to the zero region surrounding the cell. The
+  cell is expected to have a value of 0 in grid."
+  [[rows cols] grid [row col] region]
+  (let [neighbours (neighbour-coords [rows cols] [row col])
+        region (conj region [row col])]
+    (if (= 0 (get-in grid [row col]))
+      (reduce (fn [region [nx ny]]
+                (if (not (contains? region [nx ny]))
+                  (clojure.set/union region (zero-region [rows cols] grid [nx ny] region))
+                  region))
+              region
+              neighbours)
+      region)))
+
+(defn update-mask
+  "Sets the mask to 1 (corresponding to exposed) at each cell."
+  [mask cells]
+  (reduce (fn [mask [r c]]
+            (assoc-in mask [r c] 1))
+          mask
+          cells))
+
+(defn values-at
+  "List of values at the locations given by cells."
+  [grid cells]
+  (map #(get-in grid %) cells))
+
+(defn calc-game-state
+  "Returns one of :alive, :dead, or :victorious."
+  [grid mask num-mines swept-cells]
+  (let [num-hidden 
+        (reduce (fn [total [r c n]]
+                  (if (= 0 n)
+                    (inc total)
+                    total))
+                0
+                (flatten-grid mask))
+        values (values-at grid swept-cells)
+        dead (contains? (set values) :X)]
+    (if dead
+      :dead
+      (if (= num-mines num-hidden)
+        :victorious
+        :alive))))
+
+(defn sweep-cell
+  "Returns a new mask."
+  [[rows cols] grid mask [row col]]
+  (let [sweep-region (if (= 0 (get-in grid [row col]))
+                       (zero-region [rows cols] grid [row col] #{})
+                       [[row col]])]
+    (update-mask mask sweep-region)))
+
+(defn sweep-cells
+  "Returns a new mask."
+  [[rows cols] grid mask cells]
+  (reduce (fn [mask cell]
+            (sweep-cell [rows cols] grid mask cell))
+          mask
+          cells))
+
+(defn flag-remaining
+  "Flag any unflagged mines."
+  [flags grid]
+  (reduce (fn [flags [r c val]]
+            (if (= :X val)
+              (assoc-in flags [r c] 1)
+              flags))
+          flags
+          (flatten-grid grid)))
+
+(defn new-state
+  "Construct a fresh game state for the given difficulty level."
+  [level]
   (let [[rows cols] (get-in levels [level :size])
         num-mines (get-in levels [level :mines])]
     {:controls {:level level
@@ -144,12 +225,153 @@
      :flags (empty-flags [rows cols])
      :time-started (get-time)
      :tick-count 0
-     ;; Valid values are: :pending :alive :dead :victorious
+     ;; Valid values are :pending :alive, :dead, and :victorious
      :game-state :pending
      :high-score (get-high-score level)}))
 
+(defn update-high-score!
+  "If the time elapsed repesents a new high-score, persist it to local
+  storage."
+  [state]
+  (let [level (get-in @state [:controls :level])
+        time-started (get @state :time-started)
+        elapsed (calc-elapsed time-started)
+        high-score (get-high-score level)]
+    (if (or (= nil high-score) (< elapsed high-score))
+      (do (swap! state assoc :high-score elapsed)
+          (set-high-score! level elapsed)))))
+
+(defn sweep-cell!
+  "Perform the sweep, and update the app state."
+  [state [row col]]
+  (let [[rows cols] (get-in @state [:level :size])
+        grid (get @state :grid)
+        mask (get @state :mask)
+        flags (get @state :flags)
+        num-mines (get-in @state [:level :mines])
+        new-mask (sweep-cell [rows cols] grid mask [row col])
+        game-state (calc-game-state grid new-mask num-mines [[row col]])]
+    (swap! state assoc :game-state game-state)
+    (swap! state assoc :mask new-mask)
+    (if (= :victorious game-state)
+      (do (swap! state assoc :flags (flag-remaining flags grid))
+          (update-high-score! state)))))
+
+(defn sweep-spread!
+  "Perform a spread-sweep and update the app state."
+  [state [row col]]
+  (let [[rows cols] (get-in @state [:level :size])
+        grid (get @state :grid)
+        mask (get @state :mask)
+        flags (get @state :flags)
+        num-mines (get-in @state [:level :mines])]
+    (if (can-spread-sweep? [rows cols] grid mask flags [row col])
+      (let [swept (reduce (fn [swept cell]
+                            (if (= 0 (get-in flags cell))
+                              (conj swept cell)
+                              swept))
+                          []
+                          (neighbour-coords [rows cols] [row col]))
+            new-mask (sweep-cells [rows cols] grid mask swept)
+            game-state (calc-game-state grid new-mask num-mines swept)]
+        (swap! state assoc :mask new-mask)
+        (swap! state assoc :game-state game-state)
+        (if (= :victorious game-state)
+          (do (swap! state assoc :flags (flag-remaining flags grid))
+              (update-high-score! state)))))))
+
+(defn flag-cell!
+  [state [row col]]
+  (swap! state assoc-in [:flags row col] 1))
+
+(defn unflag-cell!
+  [state [row col]]
+  (swap! state assoc-in [:flags row col] 0))
+
+(defn reset-game!
+  [state]
+  (let [level (get-in @state [:controls :level])]
+    (reset! state (new-state level))))
+
+(defn start-game!
+  "Transition the game state from :pending to :alive."
+  [state]
+  (do (swap! state assoc :game-state :alive)
+      (swap! state assoc :time-started (get-time))))
+
+(defn tick!
+  "Any components that need regular refreshing can depend on :tick-count,
+  which is incremented periodically."
+  [state]
+  (swap! state update :tick-count inc))
+
+(defmulti read (fn [env key params] key))
+
+(defmethod read :default
+  [{:keys [state query] :as env} key params]
+  (let [st @state]
+    (if-let [[_ v] (find st key)]
+      {:value v}
+      {:value :not-found})))
+
+(defn if-alive
+  "Call the function if the game-state is :alive."
+  [state fn & args]
+  (if (= :alive (get @state :game-state))
+    (apply fn args)))
+
+(defn alive-or-pending?
+  [state]
+  (contains? #{:pending :alive} (get @state :game-state)))
+
+(defn start-game-if-pending!
+  [state]
+  (if (= :pending (get @state :game-state))
+    (start-game! state)))
+
+(defmulti mutate (fn [env key params] key))
+
+(defmethod mutate `tick
+  [{:keys [state]} key params]
+  {:action #(if-alive state tick! state)})
+
+(defmethod mutate `sweep
+  [{:keys [state]} key {:keys [row col]}]
+  {:action #(if (alive-or-pending? state)
+              (do (start-game-if-pending! state)
+                  (sweep-cell! state [row col])))})
+
+(defmethod mutate `reset
+  [{:keys [state]} key params]
+  {:action #(reset-game! state)})
+
+(defmethod mutate `spread-sweep
+  [{:keys [state]} key {:keys [row col]}]
+  {:action #(if-alive state sweep-spread! state [row col])})
+
+(defmethod mutate `flag
+  [{:keys [state]} key {:keys [row col]}]
+  {:action #(if (alive-or-pending? state)
+              (do (start-game-if-pending! state)
+                  (flag-cell! state [row col])))})
+
+(defmethod mutate `unflag
+  [{:keys [state]} key {:keys [row col]}]
+  {:action #(if-alive state unflag-cell! state [row col])})
+
+(defmethod mutate `level-select
+  [{:keys [state]} key {:keys [level]}]
+  {:action #(swap! state assoc-in [:controls :level] level)})
+
+(def parser (om/parser {:read read :mutate mutate}))
+
 (def app-state
   (atom (new-state "intermediate")))
+
+(def reconciler
+  (om/reconciler
+   {:state app-state
+    :parser parser}))
 
 (defui ExposedCellView
   static om/IQuery
@@ -229,9 +451,9 @@
          [])
   Object
   (render [this]
+          (println "Rendering grid view")
           (let [{:keys [game-state game-size grid mask flags] :as props} (om/props this)
                 key #(+ (* %1 7) %2)] ;; Generate unique key from row and col
-            (println "Rendering grid")
             (apply dom/div
                    #js {:className "minesweeper"}
                    (map-indexed (fn [r row] (apply dom/div
@@ -260,8 +482,8 @@
          [:level])
   Object
   (render [this]
+          (println "Rendering controls view")
           (let [{:keys [level]} (om/props this)]
-            (println (str "Level=" level))
             (dom/div #js {:className "panel"}
                      (dom/select #js {:className "control"
                                       :value level
@@ -284,8 +506,8 @@
          [])
   Object
   (render [this]
+          (println "Rendering timer view")
           (let [{:keys [elapsed]} (om/get-computed this)]
-            (println "Rendering timer")
             (dom/div #js {:className "timer"}
                      "Time "
                      (dom/span nil (gstring/format "%03d" elapsed))))))
@@ -298,6 +520,7 @@
          [:high-score :flags])
   Object
   (render [this]
+          (println "Rendering info view")
           (let [{:keys [high-score]} (om/props this)
                 {:keys [time-started tick-count num-remaining]} (om/get-computed this)]
             (dom/div #js {:className "info"}
@@ -323,11 +546,11 @@
                      (println "MainView mounted")
                      (js/setInterval #(om/transact! this `[(tick) :tick-count]) 1000))
   (render [this]
+          (println "Rendering main view")
           (let [{:keys [controls level grid mask flags game-state time-started tick-count high-score]} (om/props this)
                 game-size (get level :size)
                 num-mines (get level :mines)
                 num-remaining (- num-mines (count-flags flags))]
-            (println "Rendering main view")
             (dom/div #js {:className (str "minesweeper-wrap "
                                           (case game-state
                                             :victorious "st-victorious"
@@ -346,206 +569,6 @@
                                  :flags flags})
                      (controls-view controls)))))
 
-(defn zero-region
-  [[rows cols] grid [row col] region]
-  (let [neighbours (neighbour-coords [rows cols] [row col])
-        region (conj region [row col])]
-    (if (= 0 (get-in grid [row col]))
-      (reduce (fn [region [nx ny]]
-                (if (not (contains? region [nx ny]))
-                  (clojure.set/union region (zero-region [rows cols] grid [nx ny] region))
-                  region))
-              region
-              neighbours)
-      region)))
-
-(defn update-mask
-  [mask cells]
-  (reduce (fn [mask [r c]]
-            (assoc-in mask [r c] 1))
-          mask
-          cells))
-
-(defn values-at
-  [grid cells]
-  (map #(get-in grid %) cells))
-
-(defn calc-game-state
-  [grid mask num-mines swept-cells]
-  (let [num-hidden 
-        (reduce (fn [total [r c n]]
-                  (if (= 0 n)
-                    (inc total)
-                    total))
-                0
-                (flatten-grid mask))
-        values (values-at grid swept-cells)
-        dead (contains? (set values) :X)]
-    (if dead
-      :dead
-      (if (= num-mines num-hidden)
-        :victorious
-        :alive))))
-
-(defn sweep-cell
-  "Returns a new mask"
-  [[rows cols] grid mask [row col]]
-  (let [sweep-region (if (= 0 (get-in grid [row col]))
-                       (zero-region [rows cols] grid [row col] #{})
-                       [[row col]])]
-    (update-mask mask sweep-region)))
-
-(defn sweep-cells
-  [[rows cols] grid mask cells]
-  (reduce (fn [mask cell]
-            (sweep-cell [rows cols] grid mask cell))
-          mask
-          cells))
-
-(defn flag-remaining
-  [flags grid]
-  (reduce (fn [flags [r c val]]
-            (if (= :X val)
-              (assoc-in flags [r c] 1)
-              flags))
-          flags
-          (flatten-grid grid)))
-
-(defn update-high-score!
-  [state]
-  (let [level (get-in @state [:controls :level])
-        time-started (get @state :time-started)
-        elapsed (calc-elapsed time-started)
-        high-score (get-high-score level)]
-    (if (or (= nil high-score) (< elapsed high-score))
-      (do (swap! state assoc :high-score elapsed)
-          (set-high-score! level elapsed)))))
-
-(defn sweep-cell!
-  [state [row col]]
-  (let [[rows cols] (get-in @state [:level :size])
-        grid (get @state :grid)
-        mask (get @state :mask)
-        flags (get @state :flags)
-        num-mines (get-in @state [:level :mines])
-        new-mask (sweep-cell [rows cols] grid mask [row col])
-        game-state (calc-game-state grid new-mask num-mines [[row col]])]
-    (swap! state assoc :game-state game-state)
-    (swap! state assoc :mask new-mask)
-    (if (= :victorious game-state)
-      (do (swap! state assoc :flags (flag-remaining flags grid))
-          (update-high-score! state)))))
-
-(defn sweep-spread!
-  [state [row col]]
-  (let [[rows cols] (get-in @state [:level :size])
-        grid (get @state :grid)
-        mask (get @state :mask)
-        flags (get @state :flags)
-        num-mines (get-in @state [:level :mines])]
-    (if (can-spread-sweep? [rows cols] grid mask flags [row col])
-      (let [swept (reduce (fn [swept cell]
-                            (if (= 0 (get-in flags cell))
-                              (conj swept cell)
-                              swept))
-                          []
-                          (neighbour-coords [rows cols] [row col]))
-            new-mask (sweep-cells [rows cols] grid mask swept)
-            game-state (calc-game-state grid new-mask num-mines swept)]
-        (swap! state assoc :mask new-mask)
-        (swap! state assoc :game-state game-state)
-        (if (= :victorious game-state)
-          (do (swap! state assoc :flags (flag-remaining flags grid))
-              (update-high-score! state)))))))
-
-(defn flag-cell!
-  [state [row col]]
-  (swap! state assoc-in [:flags row col] 1))
-
-(defn unflag-cell!
-  [state [row col]]
-  (swap! state assoc-in [:flags row col] 0))
-
-(defn reset-game!
-  [state]
-  (let [level (get-in @state [:controls :level])]
-    (reset! state (new-state level))))
-
-(defn start-game!
-  [state]
-  (do (swap! state assoc :game-state :alive)
-      (swap! state assoc :time-started (get-time))
-      (println "Started game")))
-
-(defn tick!
-  [state]
-  (swap! state update :tick-count inc))
-
-(defmulti read (fn [env key params] key))
-
-(defmethod read :default
-  [{:keys [state query] :as env} key params]
-  (let [st @state]
-    (if-let [[_ v] (find st key)]
-      {:value v}
-      {:value :not-found})))
-
-(defn if-alive
-  [state fn & args]
-  (if (= :alive (get @state :game-state))
-    (apply fn args)))
-
-(defn alive-or-pending?
-  [state]
-  (contains? #{:pending :alive} (get @state :game-state)))
-
-(defn start-game-if-pending!
-  [state]
-  (if (= :pending (get @state :game-state))
-    (do
-      (println "Starting game!")
-      (start-game! state))))
-
-(defmulti mutate (fn [env key params] key))
-
-(defmethod mutate `tick
-  [{:keys [state]} key params]
-  {:action #(if-alive state tick! state)})
-
-(defmethod mutate `sweep
-  [{:keys [state]} key {:keys [row col]}]
-  {:action #(if (alive-or-pending? state)
-              (do (start-game-if-pending! state)
-                  (sweep-cell! state [row col])))})
-
-(defmethod mutate `reset
-  [{:keys [state]} key params]
-  {:action #(reset-game! state)})
-
-(defmethod mutate `spread-sweep
-  [{:keys [state]} key {:keys [row col]}]
-  {:action #(if-alive state sweep-spread! state [row col])})
-
-(defmethod mutate `flag
-  [{:keys [state]} key {:keys [row col]}]
-  {:action #(if (alive-or-pending? state)
-              (do (start-game-if-pending! state)
-                  (flag-cell! state [row col])))})
-
-(defmethod mutate `unflag
-  [{:keys [state]} key {:keys [row col]}]
-  {:action #(if-alive state unflag-cell! state [row col])})
-
-(defmethod mutate `level-select
-  [{:keys [state]} key {:keys [level]}]
-  {:action #(swap! state assoc-in [:controls :level] level)})
-
-(def parser (om/parser {:read read :mutate mutate}))
-
-(def reconciler
-  (om/reconciler
-   {:state app-state
-    :parser parser}))
-
 (om/add-root! reconciler
               MainView (gdom/getElement "app"))
+
