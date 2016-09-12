@@ -10,7 +10,7 @@
     :source-paths ["src"]
     :compiler {:main 'minesweeper.core
                :asset-path "js"
-               :output-to "resources/public/js/main.js"
+               :output-to "resources/public/js/cljsmines.js"
                :output-dir "resources/public/js"
                :verbose true}}]})
 
