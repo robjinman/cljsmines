@@ -25,6 +25,7 @@
              :update         false
              :includes       [#".*"]
              :excludes       [#".*~"
+                              #".*/\.gitignore"
                               #"resources/public/js/.*"]
              :silent         false
              :verbose        false
