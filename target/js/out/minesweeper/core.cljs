@@ -12,21 +12,23 @@
              "intermediate" {:size [16 16] :mines 40}
              "expert" {:size [16 30] :mines 99}})
 
-(defn empty-row [cols]
-  (vec (repeat cols 0)))
+(defn vec-zeros [n]
+  (vec (repeat n 0)))
 
-;; A number between 0 and 8 corresponds to the number of surrounding mines.
-;; A value of :X represents a mine.
-(defn empty-grid [[rows cols]]
-  (vec (repeat rows (empty-row cols))))
+(defn vec-zeros-2 [[rows cols]]
+  (vec (repeat rows (vec-zeros cols))))
 
-;; 1 = revealed cell, 0 = hidden cell
-(defn empty-mask [[rows cols]]
-  (vec (repeat rows (empty-row cols))))
-
-;; 1 = flag, 0 = no flag
-(defn empty-flags [[rows cols]]
-  (vec (repeat rows (empty-row cols))))
+(defn neighbour-coords
+  [[rows cols] [row col]]
+  (let [indices [[-1 -1] [0 -1] [1 -1] [-1 0] [1 0] [-1 1] [0 1] [1 1]]]
+    (reduce (fn [coords [i j]]
+              (let [x (+ row i)
+                    y (+ col j)]
+                (if (and (< -1 x rows) (< -1 y cols))
+                  (conj coords [x y])
+                  coords)))
+            []
+            indices)))
 
 (defn set-high-score!
   [level score]
@@ -43,9 +45,22 @@
   [level]
   (.removeItem js/localStorage level))
 
+(defn count-surrounding
+  "Returns the number of cells with value value around cell [row col]."
+  [value [rows cols] grid [row col]]
+  (reduce (fn [count cell]
+            (if (= value (get-in grid cell))
+              (inc count)
+              count))
+          0
+          (neighbour-coords [rows cols] [row col])))
+
+(def count-surrounding-zeros (partial count-surrounding 0))
+(def count-surrounding-ones (partial count-surrounding 1))
+
 (defn populate-grid
   "Takes an empty grid and populates it randomly with mines."
-  [grid [rows cols] num-mines]
+  [[rows cols] grid num-mines]
   (loop [i 0
          grid grid]
     (let [row (rand rows)
@@ -56,44 +71,14 @@
                (if is-mine grid (assoc-in grid [row col] :X)))
         grid))))
 
-(defn neighbour-coords
-  [[rows cols] [row col]]
-  (let [indices [[-1 -1] [0 -1] [1 -1] [-1 0] [1 0] [-1 1] [0 1] [1 1]]]
-    (reduce (fn [coords [i j]]
-              (let [x (+ row i)
-                    y (+ col j)]
-                (if (and (< -1 x rows) (< -1 y cols))
-                  (conj coords [x y])
-                  coords)))
-            []
-            indices)))
-
-(defn count-nearby-flags
-  "Returns the number of flags surrounding the cell."
-  [[rows cols] flags [row col]]
-  (reduce (fn [count cell]
-            (let [flag (get-in flags cell)]
-              (+ count flag)))
-          0
-          (neighbour-coords [rows cols] [row col])))
-
-(def count-nearby-exposed count-nearby-flags)
-
-(defn count-nearby-hidden
-  "Returns the number of hidden cells surrounding the cell."
-  [[rows cols] mask [row col]]
-  (let [num-neighbours (count (neighbour-coords [rows cols] [row col]))
-        num-exposed (count-nearby-exposed [rows cols] mask [row col])]
-    (- num-neighbours num-exposed)))
-
 (defn can-spread-sweep?
   "If the cell is surrounded by precisely the correct number of flags in addition
   to at least 1 unflagged cell, the player can perform a spread-sweep by clicking
   this cell."
   [[rows cols] grid mask flags [row col]]
   (let [value (get-in grid [row col])
-        num-flags (count-nearby-flags [rows cols] flags [row col])
-        num-hidden (count-nearby-hidden [rows cols] mask [row col])]
+        num-flags (count-surrounding-ones [rows cols] flags [row col])
+        num-hidden (count-surrounding-zeros [rows cols] mask [row col])]
     (and (> value 0)
          (= value num-flags)
          (< num-flags num-hidden))))
@@ -106,14 +91,21 @@
         [j val] (map-indexed vector row)]
     [i j val]))
 
-(defn count-flags
-  "This actually sums all the numbers in whatever 2D array it is given. When given
-  the flags array, it will return the total number of flags."
-  [flags]
+(defn sum-grid
+  [grid]
   (reduce (fn [sum [_ _ n]]
             (+ sum n))
           0
-          (flatten-grid flags)))
+          (flatten-grid grid)))
+
+(defn count-in-grid
+  [grid value]
+  (reduce (fn [total [_ _ v]]
+            (if (= value v)
+              (inc total)
+              total))
+          0
+          (flatten-grid grid)))
 
 (defn label-grid
   "Takes a grid populated with mines and adds in the numbers."
@@ -141,8 +133,8 @@
   (int (- (get-time) time-started)))
 
 (defn zero-region
-  "Returns a list of cell coords belonging to the zero region surrounding the cell. The
-  cell is expected to have a value of 0 in grid."
+  "If this cell is zero, add its neighbours to the region. Repeat for each neighbour,
+  recursively."
   [[rows cols] grid [row col] region]
   (let [neighbours (neighbour-coords [rows cols] [row col])
         region (conj region [row col])]
@@ -155,12 +147,12 @@
               neighbours)
       region)))
 
-(defn update-mask
-  "Sets the mask to 1 (corresponding to exposed) at each cell."
-  [mask cells]
-  (reduce (fn [mask [r c]]
-            (assoc-in mask [r c] 1))
-          mask
+(defn set-in-grid
+  "Sets the grid to value at each cell."
+  [grid cells value]
+  (reduce (fn [grid [r c]]
+            (assoc-in grid [r c] value))
+          grid
           cells))
 
 (defn values-at
@@ -171,13 +163,7 @@
 (defn calc-game-state
   "Returns one of :alive, :dead, or :victorious."
   [grid mask num-mines swept-cells]
-  (let [num-hidden 
-        (reduce (fn [total [r c n]]
-                  (if (= 0 n)
-                    (inc total)
-                    total))
-                0
-                (flatten-grid mask))
+  (let [num-hidden (count-in-grid mask 0)
         values (values-at grid swept-cells)
         dead (contains? (set values) :X)]
     (if dead
@@ -187,19 +173,18 @@
         :alive))))
 
 (defn sweep-cell
-  "Returns a new mask."
-  [[rows cols] grid mask [row col]]
-  (let [sweep-region (if (= 0 (get-in grid [row col]))
-                       (zero-region [rows cols] grid [row col] #{})
-                       [[row col]])]
-    (update-mask mask sweep-region)))
+  "Returns the region to be swept"
+  [[rows cols] grid [row col]]
+  (if (= 0 (get-in grid [row col]))
+    (zero-region [rows cols] grid [row col] #{})
+    #{[row col]}))
 
 (defn sweep-cells
-  "Returns a new mask."
-  [[rows cols] grid mask cells]
-  (reduce (fn [mask cell]
-            (sweep-cell [rows cols] grid mask cell))
-          mask
+  "Returns the region to be swept."
+  [[rows cols] grid cells]
+  (reduce (fn [region cell]
+            (clojure.set/union region (sweep-cell [rows cols] grid cell)))
+          #{}
           cells))
 
 (defn flag-remaining
@@ -220,9 +205,12 @@
     {:controls {:level level
                 :react-key "controls"}
      :level (get levels level)
-     :grid (label-grid [rows cols] (populate-grid (empty-grid [rows cols]) [rows cols] num-mines))
-     :mask (empty-mask [rows cols])
-     :flags (empty-flags [rows cols])
+     :grid (label-grid [rows cols]
+                       (populate-grid [rows cols]
+                                      (vec-zeros-2 [rows cols])
+                                      num-mines))
+     :mask (vec-zeros-2 [rows cols])
+     :flags (vec-zeros-2 [rows cols])
      :time-started (get-time)
      :tick-count 0
      ;; Valid values are :pending :alive, :dead, and :victorious
@@ -249,12 +237,15 @@
         mask (get @state :mask)
         flags (get @state :flags)
         num-mines (get-in @state [:level :mines])
-        new-mask (sweep-cell [rows cols] grid mask [row col])
+        sweep-region (sweep-cell [rows cols] grid [row col])
+        new-mask (set-in-grid mask sweep-region 1)
+        new-flags (set-in-grid flags sweep-region 0)
         game-state (calc-game-state grid new-mask num-mines [[row col]])]
     (swap! state assoc :game-state game-state)
     (swap! state assoc :mask new-mask)
+    (swap! state assoc :flags new-flags)
     (if (= :victorious game-state)
-      (do (swap! state assoc :flags (flag-remaining flags grid))
+      (do (swap! state assoc :flags (flag-remaining new-flags grid))
           (update-high-score! state)))))
 
 (defn sweep-spread!
@@ -272,9 +263,12 @@
                               swept))
                           []
                           (neighbour-coords [rows cols] [row col]))
-            new-mask (sweep-cells [rows cols] grid mask swept)
+            sweep-region (sweep-cells [rows cols] grid swept)
+            new-mask (set-in-grid mask sweep-region 1)
+            new-flags (set-in-grid flags sweep-region 0)
             game-state (calc-game-state grid new-mask num-mines swept)]
         (swap! state assoc :mask new-mask)
+        (swap! state assoc :flags new-flags)
         (swap! state assoc :game-state game-state)
         (if (= :victorious game-state)
           (do (swap! state assoc :flags (flag-remaining flags grid))
@@ -423,7 +417,7 @@
                                                (om/transact! this `[(unflag {:row ~row :col ~col}) :flags])))})
               (dom/div
                #js {:className (str "cell hidden " status-str)
-                    :onClick (fn [e] (om/transact! this `[(sweep {:row ~row :col ~col}) :mask :game-state]))
+                    :onClick (fn [e] (om/transact! this `[(sweep {:row ~row :col ~col}) :mask :flags :game-state]))
                     :onContextMenu (fn [e] (do (.preventDefault e)
                                                (om/transact! this `[(flag {:row ~row :col ~col}) :flags])))})))))
 
@@ -550,7 +544,7 @@
           (let [{:keys [controls level grid mask flags game-state time-started tick-count high-score]} (om/props this)
                 game-size (get level :size)
                 num-mines (get level :mines)
-                num-remaining (- num-mines (count-flags flags))]
+                num-remaining (- num-mines (sum-grid flags))]
             (dom/div #js {:className (str "minesweeper-wrap "
                                           (case game-state
                                             :victorious "st-victorious"
