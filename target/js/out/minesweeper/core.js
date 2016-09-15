@@ -937,8 +937,6 @@ return "";
 }
 }
 })();
-cljs.core.println.cljs$core$IFn$_invoke$arity$variadic(cljs.core.array_seq([[cljs.core.str("Rendering exposed cell ("),cljs.core.str(row),cljs.core.str(","),cljs.core.str(col),cljs.core.str(","),cljs.core.str(value),cljs.core.str(")")].join('')], 0));
-
 var G__13919 = {"className": [cljs.core.str("cell revealed "),cljs.core.str(str_val),cljs.core.str((cljs.core.truth_(can_spread)?" spread":""))].join(''), "onClick": ((function (map__13916,map__13916__$1,row,col,value,can_spread,str_val,_STAR_reconciler_STAR_13911,_STAR_depth_STAR_13912,_STAR_shared_STAR_13913,_STAR_instrument_STAR_13914,_STAR_parent_STAR_13915,this$,this__12529__auto__,x13902_13927){
 return (function (e){
 return om.next.transact_BANG_.cljs$core$IFn$_invoke$arity$2(this$,cljs.core.vec(cljs.core.sequence.cljs$core$IFn$_invoke$arity$1(cljs.core.seq(cljs.core.concat.cljs$core$IFn$_invoke$arity$variadic(cljs.core._conj(cljs.core.List.EMPTY,cljs.core.sequence.cljs$core$IFn$_invoke$arity$1(cljs.core.seq(cljs.core.concat.cljs$core$IFn$_invoke$arity$2(cljs.core._conj(cljs.core.List.EMPTY,cljs.core.cst$sym$minesweeper$core_SLASH_spread_DASH_sweep),cljs.core._conj(cljs.core.List.EMPTY,cljs.core.apply.cljs$core$IFn$_invoke$arity$2(cljs.core.array_map,cljs.core.sequence.cljs$core$IFn$_invoke$arity$1(cljs.core.seq(cljs.core.concat.cljs$core$IFn$_invoke$arity$variadic(cljs.core._conj(cljs.core.List.EMPTY,cljs.core.cst$kw$row),cljs.core._conj(cljs.core.List.EMPTY,row),cljs.core.array_seq([cljs.core._conj(cljs.core.List.EMPTY,cljs.core.cst$kw$col),cljs.core._conj(cljs.core.List.EMPTY,col)], 0)))))))))),cljs.core._conj(cljs.core.List.EMPTY,cljs.core.cst$kw$mask),cljs.core.array_seq([cljs.core._conj(cljs.core.List.EMPTY,cljs.core.cst$kw$game_DASH_state)], 0))))));
@@ -1168,8 +1166,6 @@ var col = cljs.core.get.cljs$core$IFn$_invoke$arity$2(map__13952__$1,cljs.core.c
 var value = cljs.core.get.cljs$core$IFn$_invoke$arity$2(map__13952__$1,cljs.core.cst$kw$value);
 var flag = cljs.core.get.cljs$core$IFn$_invoke$arity$2(map__13952__$1,cljs.core.cst$kw$flag);
 var status_str = ((cljs.core._EQ_.cljs$core$IFn$_invoke$arity$2(cljs.core.cst$kw$dead,game_state))?((cljs.core._EQ_.cljs$core$IFn$_invoke$arity$2(cljs.core.cst$kw$X,value))?"mine":"safe"):"");
-cljs.core.println.cljs$core$IFn$_invoke$arity$variadic(cljs.core.array_seq([[cljs.core.str("Rendering hidden cell ("),cljs.core.str(row),cljs.core.str(","),cljs.core.str(col),cljs.core.str(","),cljs.core.str(flag),cljs.core.str(")")].join('')], 0));
-
 if(cljs.core._EQ_.cljs$core$IFn$_invoke$arity$2((1),flag)){
 var G__13955 = {"className": [cljs.core.str("cell hidden flagged "),cljs.core.str(status_str)].join(''), "onContextMenu": ((function (map__13951,map__13951__$1,game_state,map__13952,map__13952__$1,row,col,value,flag,status_str,_STAR_reconciler_STAR_13946,_STAR_depth_STAR_13947,_STAR_shared_STAR_13948,_STAR_instrument_STAR_13949,_STAR_parent_STAR_13950,this$,this__12529__auto__,x13937_13959){
 return (function (e){
@@ -1607,9 +1603,7 @@ om.next._STAR_instrument_STAR_ = om.next.instrument(this__12529__auto__);
 
 om.next._STAR_parent_STAR_ = this__12529__auto__;
 
-try{cljs.core.println.cljs$core$IFn$_invoke$arity$variadic(cljs.core.array_seq(["Rendering grid view"], 0));
-
-var map__14017 = om.next.props(this$);
+try{var map__14017 = om.next.props(this$);
 var map__14017__$1 = ((((!((map__14017 == null)))?((((map__14017.cljs$lang$protocol_mask$partition0$ & (64))) || (map__14017.cljs$core$ISeq$))?true:false):false))?cljs.core.apply.cljs$core$IFn$_invoke$arity$2(cljs.core.hash_map,map__14017):map__14017);
 var props = map__14017__$1;
 var game_state = cljs.core.get.cljs$core$IFn$_invoke$arity$2(map__14017__$1,cljs.core.cst$kw$game_DASH_state);
@@ -1830,9 +1824,7 @@ om.next._STAR_instrument_STAR_ = om.next.instrument(this__12529__auto__);
 
 om.next._STAR_parent_STAR_ = this__12529__auto__;
 
-try{cljs.core.println.cljs$core$IFn$_invoke$arity$variadic(cljs.core.array_seq(["Rendering controls view"], 0));
-
-var map__14046 = om.next.props(this$);
+try{var map__14046 = om.next.props(this$);
 var map__14046__$1 = ((((!((map__14046 == null)))?((((map__14046.cljs$lang$protocol_mask$partition0$ & (64))) || (map__14046.cljs$core$ISeq$))?true:false):false))?cljs.core.apply.cljs$core$IFn$_invoke$arity$2(cljs.core.hash_map,map__14046):map__14046);
 var level = cljs.core.get.cljs$core$IFn$_invoke$arity$2(map__14046__$1,cljs.core.cst$kw$level);
 var G__14048 = {"className": "panel"};
@@ -2063,9 +2055,7 @@ om.next._STAR_instrument_STAR_ = om.next.instrument(this__12529__auto__);
 
 om.next._STAR_parent_STAR_ = this__12529__auto__;
 
-try{cljs.core.println.cljs$core$IFn$_invoke$arity$variadic(cljs.core.array_seq(["Rendering timer view"], 0));
-
-var map__14089 = om.next.get_computed.cljs$core$IFn$_invoke$arity$1(this$);
+try{var map__14089 = om.next.get_computed.cljs$core$IFn$_invoke$arity$1(this$);
 var map__14089__$1 = ((((!((map__14089 == null)))?((((map__14089.cljs$lang$protocol_mask$partition0$ & (64))) || (map__14089.cljs$core$ISeq$))?true:false):false))?cljs.core.apply.cljs$core$IFn$_invoke$arity$2(cljs.core.hash_map,map__14089):map__14089);
 var elapsed = cljs.core.get.cljs$core$IFn$_invoke$arity$2(map__14089__$1,cljs.core.cst$kw$elapsed);
 var G__14091 = {"className": "timer"};
@@ -2273,9 +2263,7 @@ om.next._STAR_instrument_STAR_ = om.next.instrument(this__12529__auto__);
 
 om.next._STAR_parent_STAR_ = this__12529__auto__;
 
-try{cljs.core.println.cljs$core$IFn$_invoke$arity$variadic(cljs.core.array_seq(["Rendering info view"], 0));
-
-var map__14122 = om.next.props(this$);
+try{var map__14122 = om.next.props(this$);
 var map__14122__$1 = ((((!((map__14122 == null)))?((((map__14122.cljs$lang$protocol_mask$partition0$ & (64))) || (map__14122.cljs$core$ISeq$))?true:false):false))?cljs.core.apply.cljs$core$IFn$_invoke$arity$2(cljs.core.hash_map,map__14122):map__14122);
 var high_score = cljs.core.get.cljs$core$IFn$_invoke$arity$2(map__14122__$1,cljs.core.cst$kw$high_DASH_score);
 var map__14123 = om.next.get_computed.cljs$core$IFn$_invoke$arity$1(this$);
@@ -2517,9 +2505,7 @@ om.next._STAR_instrument_STAR_ = om.next.instrument(this__12529__auto__);
 
 om.next._STAR_parent_STAR_ = this__12529__auto__;
 
-try{cljs.core.println.cljs$core$IFn$_invoke$arity$variadic(cljs.core.array_seq(["Rendering main view"], 0));
-
-var map__14169 = om.next.props(this$);
+try{var map__14169 = om.next.props(this$);
 var map__14169__$1 = ((((!((map__14169 == null)))?((((map__14169.cljs$lang$protocol_mask$partition0$ & (64))) || (map__14169.cljs$core$ISeq$))?true:false):false))?cljs.core.apply.cljs$core$IFn$_invoke$arity$2(cljs.core.hash_map,map__14169):map__14169);
 var controls = cljs.core.get.cljs$core$IFn$_invoke$arity$2(map__14169__$1,cljs.core.cst$kw$controls);
 var level = cljs.core.get.cljs$core$IFn$_invoke$arity$2(map__14169__$1,cljs.core.cst$kw$level);

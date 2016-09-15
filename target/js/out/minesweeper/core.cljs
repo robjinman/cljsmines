@@ -385,7 +385,7 @@
                           8 "eight"
                           :X "mine"
                           "")]
-            (println (str "Rendering exposed cell (" row "," col "," value ")"))            
+            ;; (println (str "Rendering exposed cell (" row "," col "," value ")"))            
             (dom/div #js {:className (str "cell revealed "
                                           str-val
                                           (if can-spread " spread" ""))
@@ -409,7 +409,7 @@
                 status-str (if (= :dead game-state)
                              (if (= :X value) "mine" "safe")
                              "")]
-            (println (str "Rendering hidden cell (" row "," col "," flag ")"))
+            ;; (println (str "Rendering hidden cell (" row "," col "," flag ")"))
             (if (= 1 flag)
               (dom/div
                #js {:className (str "cell hidden flagged " status-str)
@@ -445,7 +445,7 @@
          [])
   Object
   (render [this]
-          (println "Rendering grid view")
+          ;; (println "Rendering grid view")
           (let [{:keys [game-state game-size grid mask flags] :as props} (om/props this)
                 key #(+ (* %1 7) %2)] ;; Generate unique key from row and col
             (apply dom/div
@@ -476,7 +476,7 @@
          [:level])
   Object
   (render [this]
-          (println "Rendering controls view")
+          ;; (println "Rendering controls view")
           (let [{:keys [level]} (om/props this)]
             (dom/div #js {:className "panel"}
                      (dom/select #js {:className "control"
@@ -500,7 +500,7 @@
          [])
   Object
   (render [this]
-          (println "Rendering timer view")
+          ;; (println "Rendering timer view")
           (let [{:keys [elapsed]} (om/get-computed this)]
             (dom/div #js {:className "timer"}
                      "Time "
@@ -514,7 +514,7 @@
          [:high-score :flags])
   Object
   (render [this]
-          (println "Rendering info view")
+          ;; (println "Rendering info view")
           (let [{:keys [high-score]} (om/props this)
                 {:keys [time-started tick-count num-remaining]} (om/get-computed this)]
             (dom/div #js {:className "info"}
@@ -540,8 +540,16 @@
                      (println "MainView mounted")
                      (js/setInterval #(om/transact! this `[(tick) :tick-count]) 1000))
   (render [this]
-          (println "Rendering main view")
-          (let [{:keys [controls level grid mask flags game-state time-started tick-count high-score]} (om/props this)
+          ;; (println "Rendering main view")
+          (let [{:keys [controls
+                        level
+                        grid
+                        mask
+                        flags
+                        game-state
+                        time-started
+                        tick-count
+                        high-score]} (om/props this)
                 game-size (get level :size)
                 num-mines (get level :mines)
                 num-remaining (- num-mines (sum-grid flags))]
