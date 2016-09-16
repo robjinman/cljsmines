@@ -213,7 +213,7 @@
      :flags (vec-zeros-2 [rows cols])
      :time-started (get-time)
      :tick-count 0
-     ;; Valid values are :pending :alive, :dead, and :victorious
+     ;; Valid values are :pending, :alive, :dead, and :victorious
      :game-state :pending
      :high-score (get-high-score level)}))
 
@@ -225,9 +225,9 @@
         time-started (get @state :time-started)
         elapsed (calc-elapsed time-started)
         high-score (get-high-score level)]
-    (if (or (= nil high-score) (< elapsed high-score))
-      (do (swap! state assoc :high-score elapsed)
-          (set-high-score! level elapsed)))))
+    (when (or (= nil high-score) (< elapsed high-score))
+      (swap! state assoc :high-score elapsed)
+      (set-high-score! level elapsed))))
 
 (defn sweep-cell!
   "Perform the sweep, and update the app state."
@@ -244,9 +244,9 @@
     (swap! state assoc :game-state game-state)
     (swap! state assoc :mask new-mask)
     (swap! state assoc :flags new-flags)
-    (if (= :victorious game-state)
-      (do (swap! state assoc :flags (flag-remaining new-flags grid))
-          (update-high-score! state)))))
+    (when (= :victorious game-state)
+      (swap! state assoc :flags (flag-remaining new-flags grid))
+      (update-high-score! state))))
 
 (defn sweep-spread!
   "Perform a spread-sweep and update the app state."
@@ -270,9 +270,9 @@
         (swap! state assoc :mask new-mask)
         (swap! state assoc :flags new-flags)
         (swap! state assoc :game-state game-state)
-        (if (= :victorious game-state)
-          (do (swap! state assoc :flags (flag-remaining flags grid))
-              (update-high-score! state)))))))
+        (when (= :victorious game-state)
+          (swap! state assoc :flags (flag-remaining flags grid))
+          (update-high-score! state))))))
 
 (defn flag-cell!
   [state [row col]]
@@ -290,8 +290,8 @@
 (defn start-game!
   "Transition the game state from :pending to :alive."
   [state]
-  (do (swap! state assoc :game-state :alive)
-      (swap! state assoc :time-started (get-time))))
+  (swap! state assoc :game-state :alive)
+  (swap! state assoc :time-started (get-time)))
 
 (defn tick!
   "Any components that need regular refreshing can depend on :tick-count,
@@ -331,9 +331,9 @@
 
 (defmethod mutate `sweep
   [{:keys [state]} key {:keys [row col]}]
-  {:action #(if (alive-or-pending? state)
-              (do (start-game-if-pending! state)
-                  (sweep-cell! state [row col])))})
+  {:action #(when (alive-or-pending? state)
+              (start-game-if-pending! state)
+              (sweep-cell! state [row col]))})
 
 (defmethod mutate `reset
   [{:keys [state]} key params]
@@ -345,9 +345,9 @@
 
 (defmethod mutate `flag
   [{:keys [state]} key {:keys [row col]}]
-  {:action #(if (alive-or-pending? state)
-              (do (start-game-if-pending! state)
-                  (flag-cell! state [row col])))})
+  {:action #(when (alive-or-pending? state)
+              (start-game-if-pending! state)
+              (flag-cell! state [row col]))})
 
 (defmethod mutate `unflag
   [{:keys [state]} key {:keys [row col]}]
