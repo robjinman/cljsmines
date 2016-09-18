@@ -1,0 +1,137 @@
+.noselect {
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+.ms-title {
+  text-align: center;
+  margin-bottom: 50px;
+}
+#description {
+  margin: 50px 0 50px 0;
+}
+#cljsmines {
+  font-family: Arial, Helvetica, sans-serif;
+  display: block;
+  text-align: center;
+}
+#cljsmines .ms-cljsmines {
+  font-family: "Courier New", Courier, monospace;
+  display: block;
+}
+#cljsmines .ms-cljsmines.ms-st-dead .ms-row .ms-cell.ms-revealed.ms-mine {
+  background-color: red;
+}
+#cljsmines .ms-cljsmines.ms-st-dead .ms-row .ms-cell.ms-hidden.ms-flagged.ms-safe {
+  background-image: url('../img/cross.svg');
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+#cljsmines .ms-cljsmines.ms-st-dead .ms-grid {
+  -webkit-box-shadow: 0px 0px 3px 2px #ff0000;
+  -moz-box-shadow: 0px 0px 3px 2px #ff0000;
+  box-shadow: 0px 0px 3px 2px #ff0000;
+}
+#cljsmines .ms-cljsmines.ms-st-victorious .ms-grid {
+  -webkit-box-shadow: 0px 0px 3px 2px #008000;
+  -moz-box-shadow: 0px 0px 3px 2px #008000;
+  box-shadow: 0px 0px 3px 2px #008000;
+}
+#cljsmines .ms-cljsmines .ms-info {
+  margin-bottom: 10px;
+}
+#cljsmines .ms-cljsmines .ms-info div {
+  display: inline-block;
+  padding-right: 20px;
+}
+#cljsmines .ms-cljsmines .ms-panel {
+  margin-top: 10px;
+}
+#cljsmines .ms-cljsmines .ms-panel .ms-control {
+  margin-right: 5px;
+  height: 24px;
+}
+#cljsmines .ms-cljsmines .ms-grid {
+  display: inline-block;
+  -webkit-box-shadow: 0px 0px 3px 2px cornflowerblue;
+  -moz-box-shadow: 0px 0px 3px 2px cornflowerblue;
+  box-shadow: 0px 0px 3px 2px cornflowerblue;
+  font-family: "Courier New", Courier, monospace;
+  cursor: default;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+#cljsmines .ms-cljsmines .ms-grid .ms-row {
+  display: flex;
+  height: 24px;
+}
+#cljsmines .ms-cljsmines .ms-grid .ms-row .ms-cell {
+  box-sizing: border-box;
+  width: 24px;
+  height: 24px;
+  text-align: center;
+}
+#cljsmines .ms-cljsmines .ms-grid .ms-row .ms-cell span {
+  font-size: 18px;
+  line-height: 22px;
+}
+#cljsmines .ms-cljsmines .ms-grid .ms-row .ms-cell.ms-revealed {
+  background-color: #fcfcfc;
+  border: 1px solid #dddddd;
+}
+#cljsmines .ms-cljsmines .ms-grid .ms-row .ms-cell.ms-revealed.ms-spread:hover {
+  background-color: #ddffff;
+}
+#cljsmines .ms-cljsmines .ms-grid .ms-row .ms-cell.ms-revealed.ms-one {
+  color: blue;
+}
+#cljsmines .ms-cljsmines .ms-grid .ms-row .ms-cell.ms-revealed.ms-two {
+  color: green;
+}
+#cljsmines .ms-cljsmines .ms-grid .ms-row .ms-cell.ms-revealed.ms-three {
+  color: red;
+}
+#cljsmines .ms-cljsmines .ms-grid .ms-row .ms-cell.ms-revealed.ms-four {
+  color: darkblue;
+}
+#cljsmines .ms-cljsmines .ms-grid .ms-row .ms-cell.ms-revealed.ms-five {
+  color: firebrick;
+}
+#cljsmines .ms-cljsmines .ms-grid .ms-row .ms-cell.ms-revealed.ms-six {
+  color: darkcyan;
+}
+#cljsmines .ms-cljsmines .ms-grid .ms-row .ms-cell.ms-revealed.ms-seven {
+  color: magenta;
+}
+#cljsmines .ms-cljsmines .ms-grid .ms-row .ms-cell.ms-revealed.ms-eight {
+  color: black;
+}
+#cljsmines .ms-cljsmines .ms-grid .ms-row .ms-cell.ms-revealed.ms-mine {
+  background-image: url('../img/mine.svg');
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+#cljsmines .ms-cljsmines .ms-grid .ms-row .ms-cell.ms-hidden {
+  background-color: #eeeeee;
+  border: 1px solid #999999;
+}
+#cljsmines .ms-cljsmines .ms-grid .ms-row .ms-cell.ms-hidden:hover {
+  background-color: #ddffff;
+}
+#cljsmines .ms-cljsmines .ms-grid .ms-row .ms-cell.ms-hidden.ms-mine {
+  background-image: url('../img/mine.svg');
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+#cljsmines .ms-cljsmines .ms-grid .ms-row .ms-cell.ms-hidden.ms-flagged {
+  background-image: url('../img/flag.svg');
+  background-repeat: no-repeat;
+  background-size: cover;
+}
