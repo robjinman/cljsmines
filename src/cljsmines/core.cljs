@@ -386,9 +386,9 @@
                           :X "mine"
                           "")]
             ;; (println (str "Rendering exposed cell (" row "," col "," value ")"))            
-            (dom/div #js {:className (str "cell revealed "
-                                          str-val
-                                          (if can-spread " spread" ""))
+            (dom/div #js {:className (str "ms-cell ms-revealed "
+                                          (str "ms-" str-val)
+                                          (if can-spread " ms-spread" ""))
                           :onClick (fn [e] (om/transact! this `[(spread-sweep {:row ~row :col ~col}) :mask :game-state]))}
                      (dom/span nil
                                (case value
@@ -407,16 +407,16 @@
           (let [{:keys [game-state]} (om/props this)
                 {:keys [row col value flag]} (om/get-computed this)
                 status-str (if (= :dead game-state)
-                             (if (= :X value) "mine" "safe")
+                             (if (= :X value) "ms-mine" "ms-safe")
                              "")]
             ;; (println (str "Rendering hidden cell (" row "," col "," flag ")"))
             (if (= 1 flag)
               (dom/div
-               #js {:className (str "cell hidden flagged " status-str)
+               #js {:className (str "ms-cell ms-hidden ms-flagged " status-str)
                     :onContextMenu (fn [e] (do (.preventDefault e)
                                                (om/transact! this `[(unflag {:row ~row :col ~col}) :flags])))})
               (dom/div
-               #js {:className (str "cell hidden " status-str)
+               #js {:className (str "ms-cell ms-hidden " status-str)
                     :onClick (fn [e] (om/transact! this `[(sweep {:row ~row :col ~col}) :mask :flags :game-state]))
                     :onContextMenu (fn [e] (do (.preventDefault e)
                                                (om/transact! this `[(flag {:row ~row :col ~col}) :flags])))})))))
@@ -449,9 +449,9 @@
           (let [{:keys [game-state game-size grid mask flags] :as props} (om/props this)
                 key #(+ (* %1 7) %2)] ;; Generate unique key from row and col
             (apply dom/div
-                   #js {:className "minesweeper"}
+                   #js {:className "ms-grid"}
                    (map-indexed (fn [r row] (apply dom/div
-                                   #js {:className "row"}
+                                   #js {:className "ms-row"}
                                    (map-indexed (fn [c val]
                                                   (cell-view (om/computed {:react-key (key r c)
                                                                            :game-state game-state}
@@ -478,8 +478,8 @@
   (render [this]
           ;; (println "Rendering controls view")
           (let [{:keys [level]} (om/props this)]
-            (dom/div #js {:className "panel"}
-                     (dom/select #js {:className "control"
+            (dom/div #js {:className "ms-panel"}
+                     (dom/select #js {:className "ms-control"
                                       :value level
                                       :onChange (fn [e]
                                                   (let [value (-> e .-target .-value)]
@@ -488,7 +488,7 @@
                                  (dom/option #js {:value "intermediate"} "Intermediate")
                                  (dom/option #js {:value "expert"} "Expert"))
                      (dom/button
-                      #js {:className "control"
+                      #js {:className "ms-control"
                            :onClick (fn [e] (om/transact! this `[(reset) :level]))}
                       "Reset")))))
 
@@ -502,7 +502,7 @@
   (render [this]
           ;; (println "Rendering timer view")
           (let [{:keys [elapsed]} (om/get-computed this)]
-            (dom/div #js {:className "timer"}
+            (dom/div #js {:className "ms-timer"}
                      "Time "
                      (dom/span nil (gstring/format "%03d" elapsed))))))
 
@@ -517,13 +517,13 @@
           ;; (println "Rendering info view")
           (let [{:keys [high-score]} (om/props this)
                 {:keys [time-started tick-count num-remaining]} (om/get-computed this)]
-            (dom/div #js {:className "info"}
+            (dom/div #js {:className "ms-info"}
                      (timer-view (om/computed {} {:elapsed (calc-elapsed time-started)}))
-                     (dom/div #js {:className "high-score"}
+                     (dom/div #js {:className "ms-high-score"}
                               "Best "
                               (dom/span nil
                                         (if (nil? high-score) "---" (gstring/format "%03d" high-score))))
-                     (dom/div #js {:className "remaining"}
+                     (dom/div #js {:className "ms-remaining"}
                               "Mines "
                               (dom/span nil
                                         (gstring/format "%03d" num-remaining)))))))
@@ -537,7 +537,7 @@
           {:controls (om/get-query ControlsView)}])
   Object
   (componentDidMount [this]
-                     (println "MainView mounted")
+                     ;; (println "MainView mounted")
                      (js/setInterval #(om/transact! this `[(tick) :tick-count]) 1000))
   (render [this]
           ;; (println "Rendering main view")
@@ -553,10 +553,10 @@
                 game-size (get level :size)
                 num-mines (get level :mines)
                 num-remaining (- num-mines (sum-grid flags))]
-            (dom/div #js {:className (str "minesweeper-wrap "
+            (dom/div #js {:className (str "ms-cljsmines "
                                           (case game-state
-                                            :victorious "st-victorious"
-                                            :dead "st-dead"
+                                            :victorious "ms-st-victorious"
+                                            :dead "ms-st-dead"
                                             ""))
                           :onContextMenu (fn [e] (.preventDefault e))}
                      (info-view (om/computed {:react-key "info"
@@ -572,5 +572,5 @@
                      (controls-view controls)))))
 
 (om/add-root! reconciler
-              MainView (gdom/getElement "app"))
+              MainView (gdom/getElement "cljsmines"))
 

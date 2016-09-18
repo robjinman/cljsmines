@@ -13,14 +13,16 @@
   box-shadow: @args;
 }
 
-body {
-  font-family: Arial, Helvetica, sans-serif;
-  width: 800px;
-  margin-left: auto;
-  margin-right: auto;
+.noselect {
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
 }
 
-.title {
+.ms-title {
   text-align: center;
   margin-bottom: 50px;
 }
@@ -29,47 +31,38 @@ body {
   margin: 50px 0 50px 0;
 }
 
-#app {
-  font-family: "Courier New", Courier, monospace;
+#cljsmines {
+  font-family: Arial, Helvetica, sans-serif;
   display: block;
   text-align: center;
 
-  .noselect {
-    -webkit-touch-callout: none;
-    -webkit-user-select: none;
-    -khtml-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
-    user-select: none;
-  }
-
-  .minesweeper-wrap {
+  .ms-cljsmines {
     font-family: "Courier New", Courier, monospace;
     display: block;
 
-    &.st-dead {
-      .row .cell {
-        &.revealed.mine {
+    &.ms-st-dead {
+      .ms-row .ms-cell {
+        &.ms-revealed.ms-mine {
           background-color: red;
         }
 
-        &.hidden.flagged.safe {
+        &.ms-hidden.ms-flagged.ms-safe {
           .cell-image('../img/cross.svg');
         }
       }
 
-      .minesweeper {
+      .ms-grid {
         .box-shadow(0px 0px 3px 2px red);
       }
     }
 
-    &.st-victorious {
-      .minesweeper {
+    &.ms-st-victorious {
+      .ms-grid {
         .box-shadow(0px 0px 3px 2px green);
       }
     }
 
-    .info {
+    .ms-info {
       margin-bottom: 10px;
 
       div {
@@ -77,36 +70,37 @@ body {
         padding-right: 20px;
       }
 
-      .timer {
+      .ms-timer {
       }
 
-      .high-score {
+      .ms-high-score {
       }
 
-      .remaining {
+      .ms-remaining {
       }
     }
 
-    .panel {
+    .ms-panel {
       margin-top: 10px;
 
-      .control {
+      .ms-control {
         margin-right: 5px;
+        height: 24px;
       }
     }
 
-    .minesweeper {
+    .ms-grid {
       display: inline-block;
       .box-shadow(0px 0px 3px 2px ~"cornflowerblue");
       font-family: "Courier New", Courier, monospace;
       cursor: default;
       .noselect();
 
-      .row {
+      .ms-row {
         display: flex;
         height: @cellSz;
 
-        .cell {
+        .ms-cell {
           box-sizing: border-box;
           width: @cellSz;
           height: @cellSz;
@@ -117,29 +111,29 @@ body {
             line-height: @cellSz - 2px;
           }
 
-          &.revealed {
+          &.ms-revealed {
             background-color: #fcfcfc;
             border: 1px solid #dddddd;
 
-            &.spread:hover {
+            &.ms-spread:hover {
               background-color: #ddffff;
             }
 
-            &.one { color: blue; }
-            &.two { color: green; }
-            &.three { color: red; }
-            &.four { color: darkblue; }
-            &.five { color: firebrick; }
-            &.six { color: darkcyan; }
-            &.seven { color: magenta; }
-            &.eight { color: black; }
+            &.ms-one { color: blue; }
+            &.ms-two { color: green; }
+            &.ms-three { color: red; }
+            &.ms-four { color: darkblue; }
+            &.ms-five { color: firebrick; }
+            &.ms-six { color: darkcyan; }
+            &.ms-seven { color: magenta; }
+            &.ms-eight { color: black; }
 
-            &.mine {
+            &.ms-mine {
               .cell-image('../img/mine.svg');
             }
           }
 
-          &.hidden {
+          &.ms-hidden {
             background-color: #eeeeee;
             border: 1px solid #999999;
 
@@ -147,11 +141,11 @@ body {
               background-color: #ddffff;
             }
 
-            &.mine {
+            &.ms-mine {
               .cell-image('../img/mine.svg');
             }
 
-            &.flagged {
+            &.ms-flagged {
               .cell-image('../img/flag.svg');
             }
           }
