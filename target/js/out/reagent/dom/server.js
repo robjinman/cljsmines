@@ -48,9 +48,9 @@ try{return (reagent.dom.server.module()["renderToString"])(reagent.impl.template
 reagent.dom.server.render_to_static_markup = (function reagent$dom$server$render_to_static_markup(component){
 reagent.ratom.flush_BANG_();
 
-var _STAR_non_reactive_STAR_12833 = reagent.impl.util._STAR_non_reactive_STAR_;
+var _STAR_non_reactive_STAR_12829 = reagent.impl.util._STAR_non_reactive_STAR_;
 reagent.impl.util._STAR_non_reactive_STAR_ = true;
 
 try{return (reagent.dom.server.module()["renderToStaticMarkup"])(reagent.impl.template.as_element(component));
-}finally {reagent.impl.util._STAR_non_reactive_STAR_ = _STAR_non_reactive_STAR_12833;
+}finally {reagent.impl.util._STAR_non_reactive_STAR_ = _STAR_non_reactive_STAR_12829;
 }});

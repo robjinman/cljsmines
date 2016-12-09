@@ -221,9 +221,6 @@
      :game-state :pending
      :high-score (get-high-score level)}))
 
-(def initial-state
-  (new-state "intermediate"))
-
 
 ;; -- State Updater Functions----------------------------------------------
 
@@ -328,9 +325,9 @@
 ;; -- Event Handlers ------------------------------------------------------
 
 (reg-event-db
- :initialize
+ :initialise
  (fn [state _]
-   (merge state initial-state)))
+   (new-state "intermediate")))
 
 (reg-event-db
  :tick
@@ -590,6 +587,6 @@
 
 (defn ^:export run
   []
-  (dispatch-sync [:initialize])
+  (dispatch-sync [:initialise])
   (reagent/render [main-view]
                   (gdom/getElement "cljsmines")))
