@@ -2,8 +2,13 @@
   (:require [goog.dom :as gdom]
             [goog.string :as gstring]
             [goog.string.format]
-            [om.next :as om :refer-macros [defui]]
-            [om.dom :as dom]
+            [reagent.core :as reagent]
+            [re-frame.core :refer [reg-event-db
+                                   path
+                                   reg-sub
+                                   dispatch
+                                   dispatch-sync
+                                   subscribe]]
             [clojure.set]))
 
 (enable-console-print!)
@@ -173,7 +178,7 @@
         :alive))))
 
 (defn sweep-cell
-  "Returns the region to be swept"
+  "Returns the region to be swept."
   [[rows cols] grid [row col]]
   (if (= 0 (get-in grid [row col]))
     (zero-region [rows cols] grid [row col] #{})
@@ -202,8 +207,7 @@
   [level]
   (let [[rows cols] (get-in levels [level :size])
         num-mines (get-in levels [level :mines])]
-    {:controls {:level level
-                :react-key "controls"}
+    {:level-selected level
      :level (get levels level)
      :grid (label-grid [rows cols]
                        (populate-grid [rows cols]
@@ -217,45 +221,54 @@
      :game-state :pending
      :high-score (get-high-score level)}))
 
+(def initial-state
+  (new-state "intermediate"))
+
+
+;; -- State Updater Functions----------------------------------------------
+
 (defn update-high-score!
   "If the time elapsed repesents a new high-score, persist it to local
   storage."
   [state]
-  (let [level (get-in @state [:controls :level])
-        time-started (get @state :time-started)
+  (let [level (:level-selected state)
+        time-started (get state :time-started)
         elapsed (calc-elapsed time-started)
         high-score (get-high-score level)]
-    (when (or (= nil high-score) (< elapsed high-score))
-      (swap! state assoc :high-score elapsed)
-      (set-high-score! level elapsed))))
+    (if (or (= nil high-score) (< elapsed high-score))
+      (do
+        (set-high-score! level elapsed)
+        (assoc state :high-score elapsed))
+      state)))
 
 (defn sweep-cell!
   "Perform the sweep, and update the app state."
   [state [row col]]
-  (let [[rows cols] (get-in @state [:level :size])
-        grid (get @state :grid)
-        mask (get @state :mask)
-        flags (get @state :flags)
-        num-mines (get-in @state [:level :mines])
+  (let [[rows cols] (get-in state [:level :size])
+        grid (get state :grid)
+        mask (get state :mask)
+        flags (get state :flags)
+        num-mines (get-in state [:level :mines])
         sweep-region (sweep-cell [rows cols] grid [row col])
         new-mask (set-in-grid mask sweep-region 1)
         new-flags (set-in-grid flags sweep-region 0)
-        game-state (calc-game-state grid new-mask num-mines [[row col]])]
-    (swap! state assoc :game-state game-state)
-    (swap! state assoc :mask new-mask)
-    (swap! state assoc :flags new-flags)
-    (when (= :victorious game-state)
-      (swap! state assoc :flags (flag-remaining new-flags grid))
-      (update-high-score! state))))
+        game-state (calc-game-state grid new-mask num-mines [[row col]])
+        state-1 (assoc state :game-state game-state)
+        state-2 (assoc state-1 :mask new-mask)
+        state-3 (assoc state-2 :flags new-flags)]
+    (if (= :victorious game-state)
+      (let [state-4 (assoc state-3 :flags (flag-remaining new-flags grid))]
+        (update-high-score! state-4))
+      state-3)))
 
 (defn sweep-spread!
   "Perform a spread-sweep and update the app state."
   [state [row col]]
-  (let [[rows cols] (get-in @state [:level :size])
-        grid (get @state :grid)
-        mask (get @state :mask)
-        flags (get @state :flags)
-        num-mines (get-in @state [:level :mines])]
+  (let [[rows cols] (get-in state [:level :size])
+        grid (get state :grid)
+        mask (get state :mask)
+        flags (get state :flags)
+        num-mines (get-in state [:level :mines])]
     (if (can-spread-sweep? [rows cols] grid mask flags [row col])
       (let [swept (reduce (fn [swept cell]
                             (if (= 0 (get-in flags cell))
@@ -266,311 +279,317 @@
             sweep-region (sweep-cells [rows cols] grid swept)
             new-mask (set-in-grid mask sweep-region 1)
             new-flags (set-in-grid flags sweep-region 0)
-            game-state (calc-game-state grid new-mask num-mines swept)]
-        (swap! state assoc :mask new-mask)
-        (swap! state assoc :flags new-flags)
-        (swap! state assoc :game-state game-state)
-        (when (= :victorious game-state)
-          (swap! state assoc :flags (flag-remaining flags grid))
-          (update-high-score! state))))))
+            game-state (calc-game-state grid new-mask num-mines swept)
+            state-1 (assoc state :mask new-mask)
+            state-2 (assoc state-1 :flags new-flags)
+            state-3 (assoc state-2 :game-state game-state)]
+        (if (= :victorious game-state)
+          (let [state-4 (assoc state-3 :flags (flag-remaining flags grid))]
+            (update-high-score! state-4))
+          state-3))
+      state)))
 
-(defn flag-cell!
+(defn flag-cell
   [state [row col]]
-  (swap! state assoc-in [:flags row col] 1))
+  (assoc-in state [:flags row col] 1))
 
-(defn unflag-cell!
+(defn unflag-cell
   [state [row col]]
-  (swap! state assoc-in [:flags row col] 0))
+  (assoc-in state [:flags row col] 0))
 
-(defn reset-game!
+(defn reset-game
   [state]
-  (let [level (get-in @state [:controls :level])]
-    (reset! state (new-state level))))
+  (let [level (:level-selected state)]
+    (merge state (new-state level))))
 
-(defn start-game!
+(defn start-game
   "Transition the game state from :pending to :alive."
   [state]
-  (swap! state assoc :game-state :alive)
-  (swap! state assoc :time-started (get-time)))
+  (let [state-1 (assoc state :game-state :alive)]
+    (assoc state-1 :time-started (get-time))))
 
-(defn tick!
+(defn tick
   "Any components that need regular refreshing can depend on :tick-count,
   which is incremented periodically."
   [state]
-  (swap! state update :tick-count inc))
-
-(defmulti read (fn [env key params] key))
-
-(defmethod read :default
-  [{:keys [state query] :as env} key params]
-  (let [st @state]
-    (if-let [[_ v] (find st key)]
-      {:value v}
-      {:value :not-found})))
-
-(defn if-alive
-  "Call the function if the game-state is :alive."
-  [state fn & args]
-  (if (= :alive (get @state :game-state))
-    (apply fn args)))
+  (update state :tick-count inc))
 
 (defn alive-or-pending?
   [state]
-  (contains? #{:pending :alive} (get @state :game-state)))
+  (contains? #{:pending :alive} (:game-state state)))
 
-(defn start-game-if-pending!
+(defn start-game-if-pending
   [state]
-  (if (= :pending (get @state :game-state))
-    (start-game! state)))
+  (if (= :pending (:game-state state))
+    (start-game state)
+    state))
 
-(defmulti mutate (fn [env key params] key))
 
-(defmethod mutate `tick
-  [{:keys [state]} key params]
-  {:action #(if-alive state tick! state)})
+;; -- Event Handlers ------------------------------------------------------
 
-(defmethod mutate `sweep
-  [{:keys [state]} key {:keys [row col]}]
-  {:action #(when (alive-or-pending? state)
-              (start-game-if-pending! state)
-              (sweep-cell! state [row col]))})
+(reg-event-db
+ :initialize
+ (fn [state _]
+   (merge state initial-state)))
 
-(defmethod mutate `reset
-  [{:keys [state]} key params]
-  {:action #(reset-game! state)})
+(reg-event-db
+ :tick
+ (fn [state _]
+   (if (= :alive (:game-state state))
+     (tick state)
+     state)))
 
-(defmethod mutate `spread-sweep
-  [{:keys [state]} key {:keys [row col]}]
-  {:action #(if-alive state sweep-spread! state [row col])})
+(reg-event-db
+ :sweep
+ (fn [state [_ row col]]
+   (if (alive-or-pending? state)
+     (let [state-1 (start-game-if-pending state)]
+       (sweep-cell! state-1 [row col]))
+     state)))
 
-(defmethod mutate `flag
-  [{:keys [state]} key {:keys [row col]}]
-  {:action #(when (alive-or-pending? state)
-              (start-game-if-pending! state)
-              (flag-cell! state [row col]))})
+(reg-event-db
+ :reset
+ (fn [state _]
+   (reset-game state)))
 
-(defmethod mutate `unflag
-  [{:keys [state]} key {:keys [row col]}]
-  {:action #(if-alive state unflag-cell! state [row col])})
+(reg-event-db
+ :spread-sweep
+ (fn [state [_ row col]]
+   (if (= :alive (:game-state state))
+     (sweep-spread! state [row col])
+     state)))
 
-(defmethod mutate `level-select
-  [{:keys [state]} key {:keys [level]}]
-  {:action #(swap! state assoc-in [:controls :level] level)})
+(reg-event-db
+ :flag
+ (fn [state [_ row col]]
+   (if (alive-or-pending? state)
+     (let [state-1 (start-game-if-pending state)]
+       (flag-cell state-1 [row col]))
+     state)))
 
-(def parser (om/parser {:read read :mutate mutate}))
+(reg-event-db
+ :unflag
+ (fn [state [_ row col]]
+   (if (= :alive (:game-state state))
+     (unflag-cell state [row col])
+     state)))
 
-(def app-state
-  (atom (new-state "intermediate")))
+(reg-event-db
+ :level-select
+ (fn [state [_ level]]
+   (assoc state :level-selected level)))
 
-(def reconciler
-  (om/reconciler
-   {:state app-state
-    :parser parser}))
 
-(defui ExposedCellView
-  static om/IQuery
-  (query [this]
-         [])
-  Object
-  (render [this]
-          (let [{:keys [row col value can-spread]} (om/get-computed this)
-                str-val (case value
-                          1 "one"
-                          2 "two"
-                          3 "three"
-                          4 "four"
-                          5 "five"
-                          6 "six"
-                          7 "seven"
-                          8 "eight"
-                          :X "mine"
-                          "")]
-            ;; (println (str "Rendering exposed cell (" row "," col "," value ")"))            
-            (dom/div #js {:className (str "ms-cell ms-revealed "
-                                          (str "ms-" str-val)
-                                          (if can-spread " ms-spread" ""))
-                          :onClick (fn [e] (om/transact! this `[(spread-sweep {:row ~row :col ~col}) :mask :game-state]))}
-                     (dom/span nil
-                               (case value
-                                 :X ""
-                                 0 ""
-                                 value))))))
+;; -- Subscription Handlers -----------------------------------------------
 
-(def exposed-cell-view (om/factory ExposedCellView))
+(reg-sub
+ :num-rows
+ (fn [state _]
+   (get-in state [:level :size 0])))
 
-(defui HiddenCellView
-  static om/IQuery
-  (query [this]
-         [])
-  Object
-  (render [this]
-          (let [{:keys [game-state]} (om/props this)
-                {:keys [row col value flag]} (om/get-computed this)
-                status-str (if (= :dead game-state)
-                             (if (= :X value) "ms-mine" "ms-safe")
-                             "")]
-            ;; (println (str "Rendering hidden cell (" row "," col "," flag ")"))
-            (if (= 1 flag)
-              (dom/div
-               #js {:className (str "ms-cell ms-hidden ms-flagged " status-str)
-                    :onContextMenu (fn [e] (do (.preventDefault e)
-                                               (om/transact! this `[(unflag {:row ~row :col ~col}) :flags])))})
-              (dom/div
-               #js {:className (str "ms-cell ms-hidden " status-str)
-                    :onClick (fn [e] (om/transact! this `[(sweep {:row ~row :col ~col}) :mask :flags :game-state]))
-                    :onContextMenu (fn [e] (do (.preventDefault e)
-                                               (om/transact! this `[(flag {:row ~row :col ~col}) :flags])))})))))
+(reg-sub
+ :num-cols
+ (fn [state _]
+   (get-in state [:level :size 1])))
 
-(def hidden-cell-view (om/factory HiddenCellView))
+(reg-sub
+ :game-state
+ (fn [state _]
+   (:game-state state)))
 
-(defui CellView
-  static om/IQuery
-  (query [this]
-         [:game-state])
-  Object
-  (render [this]
-          (let [{:keys [game-state]} (om/props this)
-                {:keys [row col flag value mask-val can-spread]} (om/get-computed this)]
-            (if (= mask-val 1)
-              (exposed-cell-view (om/computed {}
-                                              {:value value :row row :col col :can-spread can-spread}))
-              (hidden-cell-view (om/computed {:game-state game-state}
-                                             {:flag flag :value value :row row :col col}))))))
+(reg-sub
+ :grid
+ (fn [state _]
+   (:grid state)))
 
-(def cell-view (om/factory CellView))
+(reg-sub
+ :flags
+ (fn [state _]
+   (:flags state)))
 
-(defui GridView
-  static om/IQuery
-  (query [this]
-         [])
-  Object
-  (render [this]
-          ;; (println "Rendering grid view")
-          (let [{:keys [game-state game-size grid mask flags] :as props} (om/props this)
-                key #(+ (* %1 7) %2)] ;; Generate unique key from row and col
-            (apply dom/div
-                   #js {:className "ms-grid"}
-                   (map-indexed (fn [r row] (apply dom/div
-                                   #js {:className "ms-row"}
-                                   (map-indexed (fn [c val]
-                                                  (cell-view (om/computed {:react-key (key r c)
-                                                                           :game-state game-state}
-                                                                          {:flag (get-in flags [r c])
-                                                                           :value val
-                                                                           :mask-val (get-in mask [r c])
-                                                                           :row r
-                                                                           :col c
-                                                                           :can-spread (can-spread-sweep? game-size
-                                                                                                          grid
-                                                                                                          mask
-                                                                                                          flags
-                                                                                                          [r c])})))
-                                                row)))
-                                grid)))))
+(reg-sub
+ :mask
+ (fn [state _]
+   (:mask state)))
 
-(def grid-view (om/factory GridView))
+(reg-sub
+ :grid-value
+ (fn [state [_ row col]]
+   (get-in state [:grid row col])))
 
-(defui ControlsView
-  static om/IQuery
-  (query [this]
-         [:level])
-  Object
-  (render [this]
-          ;; (println "Rendering controls view")
-          (let [{:keys [level]} (om/props this)]
-            (dom/div #js {:className "ms-panel"}
-                     (dom/select #js {:className "ms-control"
-                                      :value level
-                                      :onChange (fn [e]
-                                                  (let [value (-> e .-target .-value)]
-                                                    (om/transact! this `[(level-select {:level ~value})])))}
-                                 (dom/option #js {:value "beginner"} "Beginner")
-                                 (dom/option #js {:value "intermediate"} "Intermediate")
-                                 (dom/option #js {:value "expert"} "Expert"))
-                     (dom/button
-                      #js {:className "ms-control"
-                           :onClick (fn [e] (om/transact! this `[(reset) :level]))}
-                      "Reset")))))
+(reg-sub
+ :mask-value
+ (fn [state [_ row col]]
+   (get-in state [:mask row col])))
 
-(def controls-view (om/factory ControlsView))
+(reg-sub
+ :flags-value
+ (fn [state [_ row col]]
+   (get-in state [:flags row col])))
 
-(defui TimerView
-  static om/IQuery
-  (query [this]
-         [])
-  Object
-  (render [this]
-          ;; (println "Rendering timer view")
-          (let [{:keys [elapsed]} (om/get-computed this)]
-            (dom/div #js {:className "ms-timer"}
-                     "Time "
-                     (dom/span nil (gstring/format "%03d" elapsed))))))
+(reg-sub
+ :high-score
+ (fn [state _]
+   (:high-score state)))
 
-(def timer-view (om/factory TimerView))
+(reg-sub
+ :num-remaining
+ (fn [state _]
+   (let [num-mines (get-in state [:level :mines])
+         flags (:flags state)
+         num-flagged (sum-grid flags)]
+     (- num-mines num-flagged))))
 
-(defui InfoView
-  static om/IQuery
-  (query [this]
-         [:high-score :flags])
-  Object
-  (render [this]
-          ;; (println "Rendering info view")
-          (let [{:keys [high-score]} (om/props this)
-                {:keys [time-started tick-count num-remaining]} (om/get-computed this)]
-            (dom/div #js {:className "ms-info"}
-                     (timer-view (om/computed {} {:elapsed (calc-elapsed time-started)}))
-                     (dom/div #js {:className "ms-high-score"}
-                              "Best "
-                              (dom/span nil
-                                        (if (nil? high-score) "---" (gstring/format "%03d" high-score))))
-                     (dom/div #js {:className "ms-remaining"}
-                              "Mines "
-                              (dom/span nil
-                                        (gstring/format "%03d" num-remaining)))))))
+(reg-sub
+ :time-started
+ (fn [state _]
+   (:time-started state)))
 
-(def info-view (om/factory InfoView))
+(reg-sub
+ :tick-count
+ (fn [state _]
+   (:tick-count state)))
 
-(defui MainView
-  static om/IQuery
-  (query [this]
-         [:level :grid :mask :flags :game-state :time-started :tick-count :high-score
-          {:controls (om/get-query ControlsView)}])
-  Object
-  (componentDidMount [this]
-                     ;; (println "MainView mounted")
-                     (js/setInterval #(om/transact! this `[(tick) :tick-count]) 1000))
-  (render [this]
-          ;; (println "Rendering main view")
-          (let [{:keys [controls
-                        level
-                        grid
-                        mask
-                        flags
-                        game-state
-                        time-started
-                        tick-count
-                        high-score]} (om/props this)
-                game-size (get level :size)
-                num-mines (get level :mines)
-                num-remaining (- num-mines (sum-grid flags))]
-            (dom/div #js {:className (str "ms-cljsmines "
-                                          (case game-state
-                                            :victorious "ms-st-victorious"
-                                            :dead "ms-st-dead"
-                                            ""))
-                          :onContextMenu (fn [e] (.preventDefault e))}
-                     (info-view (om/computed {:react-key "info"
-                                              :high-score high-score}
-                                             {:time-started time-started
-                                              :tick-count tick-count
-                                              :num-remaining num-remaining}))
-                     (grid-view {:game-state game-state
-                                 :game-size game-size
-                                 :grid grid
-                                 :mask mask
-                                 :flags flags})
-                     (controls-view controls)))))
+(reg-sub
+ :level-selected
+ (fn [state _]
+   (:level-selected state)))
 
-(om/add-root! reconciler
-              MainView (gdom/getElement "cljsmines"))
+(reg-sub
+ :can-spread
+ (fn [state [_ row col]]
+   (let [[rows cols] (get-in state [:level :size])
+         grid (:grid state)
+         mask (:mask state)
+         flags (:flags state)]
+     (can-spread-sweep? [rows cols] grid mask flags [row col]))))
 
+
+;; -- View Components -----------------------------------------------------
+
+(defn controls-view
+  []
+  (let [level (subscribe [:level-selected])]
+    (fn []
+      [:div.ms-panel
+       [:select.ms-control {:value @level
+                 :onChange #(dispatch [:level-select (-> % .-target .-value)])}
+        [:option {:value "beginner"} "Beginner"]
+        [:option {:value "intermediate"} "Intermediate"]
+        [:option {:value "expert"} "Expert"]]
+       [:button.ms-control {:onClick #(dispatch [:reset])} "Reset"]])))
+
+(defn timer-view
+  []
+  (let [time-started (subscribe [:time-started])
+        tick-count (subscribe [:tick-count])]
+    [:div.ms-timer "Time "
+     [:span (gstring/format "%03d" (calc-elapsed @time-started))]
+     [:span.ms-display-none @tick-count]]))
+
+(defn info-view
+  []
+  (let [high-score (subscribe [:high-score])
+        num-remaining (subscribe [:num-remaining])]
+    (fn []
+      [:div.ms-info
+       [timer-view]
+       [:div.ms-high-score "Best "
+        [:span (if (nil? @high-score)
+                 "---"
+                 (gstring/format "%03d" @high-score))]]
+       [:div.ms-remaining "Mines " [:span (gstring/format "%03d" @num-remaining)]]])))
+
+(defn hidden-cell-view
+  [row col]
+  (let [flag (subscribe [:flags-value row col])
+        value (subscribe [:grid-value row col])
+        game-state (subscribe [:game-state])]
+    (fn []
+      (let [status-str (if (= :dead @game-state)
+                         (if (= :X @value)
+                           "ms-mine"
+                           "ms-safe")
+                         "")]
+        (if (= 1 @flag)
+          [:div.ms-cell {:className (str "ms-hidden ms-flagged " status-str)
+                         :onContextMenu #(dispatch [:unflag row col])}]
+          [:div.ms-cell {:className (str "ms-hidden " status-str)
+                         :onClick #(dispatch [:sweep row col])
+                         :onContextMenu #(dispatch [:flag row col])}])))))
+
+(defn exposed-cell-view
+  [row col]
+  (let [value (subscribe [:grid-value row col])
+        str-val (case @value
+                  0 "zero"
+                  1 "one"
+                  2 "two"
+                  3 "three"
+                  4 "four"
+                  5 "five"
+                  6 "six"
+                  7 "seven"
+                  8 "eight"
+                  :X "mine"
+                  "")
+        num-rows (subscribe [:num-rows])
+        num-cols (subscribe [:num-cols])
+        grid (subscribe [:grid])
+        mask (subscribe [:mask])
+        flags (subscribe [:flags])
+        can-spread (subscribe [:can-spread row col])]
+    (fn []
+      [:div.ms-cell {:className (str "ms-revealed "
+                                     (str "ms-" str-val)
+                                     (if @can-spread " ms-spread"))
+                     :onClick #(dispatch [:spread-sweep row col])}
+       [:span (case @value
+                :X ""
+                0 ""
+                @value)]])))
+
+(defn cell-view
+  [row col]
+  (let [mask-val (subscribe [:mask-value row col])]
+    (fn []
+      (if (= @mask-val 1)
+        [exposed-cell-view row col]
+        [hidden-cell-view row col]))))
+
+(defn grid-view
+  []
+  (let [num-rows (subscribe [:num-rows])
+        num-cols (subscribe [:num-cols])]
+    (fn []
+      [:div.ms-grid
+       (doall
+        (for [r (range @num-rows)]
+          ^{:key r}
+          [:div.ms-row
+           (doall (for [c (range @num-cols)]
+                    ^{:key (str r c)}
+                    [cell-view r c]))]))])))
+
+(defn main-view
+  []
+  (let [game-state (subscribe [:game-state])]
+    (fn []
+      [:div.ms-cljsmines
+       {:className (case @game-state
+                     :victorious "ms-st-victorious"
+                     :dead "ms-st-dead"
+                     "")
+        :onContextMenu #(.preventDefault %)}
+       [info-view]
+       [grid-view]
+       [controls-view]])))
+
+(defonce timer (js/setInterval
+                #(dispatch [:tick]) 1000))
+
+(defn ^:export run
+  []
+  (dispatch-sync [:initialize])
+  (reagent/render [main-view]
+                  (gdom/getElement "cljsmines")))
