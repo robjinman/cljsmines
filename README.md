@@ -3,7 +3,7 @@ CLJS Mines
 
 To run locally
 
-        rlwrap lein run -m clojure.main script/figwheel.clj
+        rlwrap lein figwheel
 
 Then navigate to http://localhost:3449 in the browser.
 
