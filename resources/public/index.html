@@ -38,6 +38,12 @@
     <script src="js/cljsmines.js" type="text/javascript"></script>
 
     <script type="text/javascript">
+      $(function() {
+        minesweeper.core.run();
+      });
+    </script>
+
+    <script type="text/javascript">
       var srcUrl = "https://raw.githubusercontent.com/RobJinman/cljsmines/master/src/cljsmines/core.cljs";
 
       $.get(srcUrl, function(data) {
