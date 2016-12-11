@@ -221,6 +221,10 @@
      :game-state :pending
      :high-score (get-high-score level)}))
 
+(defn alive-or-pending?
+  [state]
+  (contains? #{:pending :alive} (:game-state state)))
+
 
 ;; -- State Updater Functions----------------------------------------------
 
@@ -229,7 +233,7 @@
   storage."
   [state]
   (let [level (:level-selected state)
-        time-started (get state :time-started)
+        time-started (:time-started state)
         elapsed (calc-elapsed time-started)
         high-score (get-high-score level)]
     (if (or (= nil high-score) (< elapsed high-score))
@@ -239,32 +243,30 @@
       state)))
 
 (defn sweep-cell!
-  "Perform the sweep, and update the app state."
   [state [row col]]
   (let [[rows cols] (get-in state [:level :size])
-        grid (get state :grid)
-        mask (get state :mask)
-        flags (get state :flags)
+        grid (:grid state)
+        mask (:mask state)
+        flags (:flags state)
         num-mines (get-in state [:level :mines])
         sweep-region (sweep-cell [rows cols] grid [row col])
-        new-mask (set-in-grid mask sweep-region 1)
-        new-flags (set-in-grid flags sweep-region 0)
-        game-state (calc-game-state grid new-mask num-mines [[row col]])
+        mask-1 (set-in-grid mask sweep-region 1)
+        flags-1 (set-in-grid flags sweep-region 0)
+        game-state (calc-game-state grid mask-1 num-mines [[row col]])
         state-1 (assoc state :game-state game-state)
-        state-2 (assoc state-1 :mask new-mask)
-        state-3 (assoc state-2 :flags new-flags)]
+        state-2 (assoc state-1 :mask mask-1)
+        state-3 (assoc state-2 :flags flags-1)]
     (if (= :victorious game-state)
-      (let [state-4 (assoc state-3 :flags (flag-remaining new-flags grid))]
+      (let [state-4 (assoc state-3 :flags (flag-remaining flags-1 grid))]
         (update-high-score! state-4))
       state-3)))
 
 (defn sweep-spread!
-  "Perform a spread-sweep and update the app state."
   [state [row col]]
   (let [[rows cols] (get-in state [:level :size])
-        grid (get state :grid)
-        mask (get state :mask)
-        flags (get state :flags)
+        grid (:grid state)
+        mask (:mask state)
+        flags (:flags state)
         num-mines (get-in state [:level :mines])]
     (if (can-spread-sweep? [rows cols] grid mask flags [row col])
       (let [swept (reduce (fn [swept cell]
@@ -274,14 +276,14 @@
                           []
                           (neighbour-coords [rows cols] [row col]))
             sweep-region (sweep-cells [rows cols] grid swept)
-            new-mask (set-in-grid mask sweep-region 1)
-            new-flags (set-in-grid flags sweep-region 0)
-            game-state (calc-game-state grid new-mask num-mines swept)
-            state-1 (assoc state :mask new-mask)
-            state-2 (assoc state-1 :flags new-flags)
+            mask-1 (set-in-grid mask sweep-region 1)
+            flags-1 (set-in-grid flags sweep-region 0)
+            game-state (calc-game-state grid mask-1 num-mines swept)
+            state-1 (assoc state :mask mask-1)
+            state-2 (assoc state-1 :flags flags-1)
             state-3 (assoc state-2 :game-state game-state)]
         (if (= :victorious game-state)
-          (let [state-4 (assoc state-3 :flags (flag-remaining flags grid))]
+          (let [state-4 (assoc state-3 :flags (flag-remaining flags-1 grid))]
             (update-high-score! state-4))
           state-3))
       state)))
@@ -300,7 +302,6 @@
     (merge state (new-state level))))
 
 (defn start-game
-  "Transition the game state from :pending to :alive."
   [state]
   (let [state-1 (assoc state :game-state :alive)]
     (assoc state-1 :time-started (get-time))))
@@ -310,10 +311,6 @@
   which is incremented periodically."
   [state]
   (update state :tick-count inc))
-
-(defn alive-or-pending?
-  [state]
-  (contains? #{:pending :alive} (:game-state state)))
 
 (defn start-game-if-pending
   [state]

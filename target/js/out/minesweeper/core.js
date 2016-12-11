@@ -398,13 +398,16 @@ var cols = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__13617,(1),null);
 var num_mines = cljs.core.get_in.cljs$core$IFn$_invoke$arity$2(minesweeper.core.levels,new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [level,cljs.core.cst$kw$mines], null));
 return cljs.core.PersistentHashMap.fromArrays([cljs.core.cst$kw$mask,cljs.core.cst$kw$grid,cljs.core.cst$kw$high_DASH_score,cljs.core.cst$kw$level_DASH_selected,cljs.core.cst$kw$time_DASH_started,cljs.core.cst$kw$game_DASH_state,cljs.core.cst$kw$level,cljs.core.cst$kw$tick_DASH_count,cljs.core.cst$kw$flags],[minesweeper.core.vec_zeros_2(new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [rows,cols], null)),minesweeper.core.label_grid(new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [rows,cols], null),minesweeper.core.populate_grid(new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [rows,cols], null),minesweeper.core.vec_zeros_2(new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [rows,cols], null)),num_mines)),minesweeper.core.get_high_score(level),level,minesweeper.core.get_time(),cljs.core.cst$kw$pending,cljs.core.get.cljs$core$IFn$_invoke$arity$2(minesweeper.core.levels,level),(0),minesweeper.core.vec_zeros_2(new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [rows,cols], null))]);
 });
+minesweeper.core.alive_or_pending_QMARK_ = (function minesweeper$core$alive_or_pending_QMARK_(state){
+return cljs.core.contains_QMARK_(new cljs.core.PersistentHashSet(null, new cljs.core.PersistentArrayMap(null, 2, [cljs.core.cst$kw$pending,null,cljs.core.cst$kw$alive,null], null), null),cljs.core.cst$kw$game_DASH_state.cljs$core$IFn$_invoke$arity$1(state));
+});
 /**
  * If the time elapsed repesents a new high-score, persist it to local
  *   storage.
  */
 minesweeper.core.update_high_score_BANG_ = (function minesweeper$core$update_high_score_BANG_(state){
 var level = cljs.core.cst$kw$level_DASH_selected.cljs$core$IFn$_invoke$arity$1(state);
-var time_started = cljs.core.get.cljs$core$IFn$_invoke$arity$2(state,cljs.core.cst$kw$time_DASH_started);
+var time_started = cljs.core.cst$kw$time_DASH_started.cljs$core$IFn$_invoke$arity$1(state);
 var elapsed = minesweeper.core.calc_elapsed(time_started);
 var high_score = minesweeper.core.get_high_score(level);
 if((cljs.core._EQ_.cljs$core$IFn$_invoke$arity$2(null,high_score)) || ((elapsed < high_score))){
@@ -415,9 +418,6 @@ return cljs.core.assoc.cljs$core$IFn$_invoke$arity$3(state,cljs.core.cst$kw$high
 return state;
 }
 });
-/**
- * Perform the sweep, and update the app state.
- */
 minesweeper.core.sweep_cell_BANG_ = (function minesweeper$core$sweep_cell_BANG_(state,p__13620){
 var vec__13627 = p__13620;
 var row = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__13627,(0),null);
@@ -425,27 +425,24 @@ var col = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__13627,(1),null);
 var vec__13630 = cljs.core.get_in.cljs$core$IFn$_invoke$arity$2(state,new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [cljs.core.cst$kw$level,cljs.core.cst$kw$size], null));
 var rows = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__13630,(0),null);
 var cols = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__13630,(1),null);
-var grid = cljs.core.get.cljs$core$IFn$_invoke$arity$2(state,cljs.core.cst$kw$grid);
-var mask = cljs.core.get.cljs$core$IFn$_invoke$arity$2(state,cljs.core.cst$kw$mask);
-var flags = cljs.core.get.cljs$core$IFn$_invoke$arity$2(state,cljs.core.cst$kw$flags);
+var grid = cljs.core.cst$kw$grid.cljs$core$IFn$_invoke$arity$1(state);
+var mask = cljs.core.cst$kw$mask.cljs$core$IFn$_invoke$arity$1(state);
+var flags = cljs.core.cst$kw$flags.cljs$core$IFn$_invoke$arity$1(state);
 var num_mines = cljs.core.get_in.cljs$core$IFn$_invoke$arity$2(state,new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [cljs.core.cst$kw$level,cljs.core.cst$kw$mines], null));
 var sweep_region = minesweeper.core.sweep_cell(new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [rows,cols], null),grid,new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [row,col], null));
-var new_mask = minesweeper.core.set_in_grid(mask,sweep_region,(1));
-var new_flags = minesweeper.core.set_in_grid(flags,sweep_region,(0));
-var game_state = minesweeper.core.calc_game_state(grid,new_mask,num_mines,new cljs.core.PersistentVector(null, 1, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [row,col], null)], null));
+var mask_1 = minesweeper.core.set_in_grid(mask,sweep_region,(1));
+var flags_1 = minesweeper.core.set_in_grid(flags,sweep_region,(0));
+var game_state = minesweeper.core.calc_game_state(grid,mask_1,num_mines,new cljs.core.PersistentVector(null, 1, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [row,col], null)], null));
 var state_1 = cljs.core.assoc.cljs$core$IFn$_invoke$arity$3(state,cljs.core.cst$kw$game_DASH_state,game_state);
-var state_2 = cljs.core.assoc.cljs$core$IFn$_invoke$arity$3(state_1,cljs.core.cst$kw$mask,new_mask);
-var state_3 = cljs.core.assoc.cljs$core$IFn$_invoke$arity$3(state_2,cljs.core.cst$kw$flags,new_flags);
+var state_2 = cljs.core.assoc.cljs$core$IFn$_invoke$arity$3(state_1,cljs.core.cst$kw$mask,mask_1);
+var state_3 = cljs.core.assoc.cljs$core$IFn$_invoke$arity$3(state_2,cljs.core.cst$kw$flags,flags_1);
 if(cljs.core._EQ_.cljs$core$IFn$_invoke$arity$2(cljs.core.cst$kw$victorious,game_state)){
-var state_4 = cljs.core.assoc.cljs$core$IFn$_invoke$arity$3(state_3,cljs.core.cst$kw$flags,minesweeper.core.flag_remaining(new_flags,grid));
+var state_4 = cljs.core.assoc.cljs$core$IFn$_invoke$arity$3(state_3,cljs.core.cst$kw$flags,minesweeper.core.flag_remaining(flags_1,grid));
 return minesweeper.core.update_high_score_BANG_(state_4);
 } else {
 return state_3;
 }
 });
-/**
- * Perform a spread-sweep and update the app state.
- */
 minesweeper.core.sweep_spread_BANG_ = (function minesweeper$core$sweep_spread_BANG_(state,p__13633){
 var vec__13640 = p__13633;
 var row = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__13640,(0),null);
@@ -453,9 +450,9 @@ var col = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__13640,(1),null);
 var vec__13643 = cljs.core.get_in.cljs$core$IFn$_invoke$arity$2(state,new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [cljs.core.cst$kw$level,cljs.core.cst$kw$size], null));
 var rows = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__13643,(0),null);
 var cols = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__13643,(1),null);
-var grid = cljs.core.get.cljs$core$IFn$_invoke$arity$2(state,cljs.core.cst$kw$grid);
-var mask = cljs.core.get.cljs$core$IFn$_invoke$arity$2(state,cljs.core.cst$kw$mask);
-var flags = cljs.core.get.cljs$core$IFn$_invoke$arity$2(state,cljs.core.cst$kw$flags);
+var grid = cljs.core.cst$kw$grid.cljs$core$IFn$_invoke$arity$1(state);
+var mask = cljs.core.cst$kw$mask.cljs$core$IFn$_invoke$arity$1(state);
+var flags = cljs.core.cst$kw$flags.cljs$core$IFn$_invoke$arity$1(state);
 var num_mines = cljs.core.get_in.cljs$core$IFn$_invoke$arity$2(state,new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [cljs.core.cst$kw$level,cljs.core.cst$kw$mines], null));
 if(cljs.core.truth_(minesweeper.core.can_spread_sweep_QMARK_(new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [rows,cols], null),grid,mask,flags,new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [row,col], null)))){
 var swept = cljs.core.reduce.cljs$core$IFn$_invoke$arity$3(((function (vec__13643,rows,cols,grid,mask,flags,num_mines,vec__13640,row,col){
@@ -468,14 +465,14 @@ return swept;
 });})(vec__13643,rows,cols,grid,mask,flags,num_mines,vec__13640,row,col))
 ,cljs.core.PersistentVector.EMPTY,minesweeper.core.neighbour_coords(new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [rows,cols], null),new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [row,col], null)));
 var sweep_region = minesweeper.core.sweep_cells(new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [rows,cols], null),grid,swept);
-var new_mask = minesweeper.core.set_in_grid(mask,sweep_region,(1));
-var new_flags = minesweeper.core.set_in_grid(flags,sweep_region,(0));
-var game_state = minesweeper.core.calc_game_state(grid,new_mask,num_mines,swept);
-var state_1 = cljs.core.assoc.cljs$core$IFn$_invoke$arity$3(state,cljs.core.cst$kw$mask,new_mask);
-var state_2 = cljs.core.assoc.cljs$core$IFn$_invoke$arity$3(state_1,cljs.core.cst$kw$flags,new_flags);
+var mask_1 = minesweeper.core.set_in_grid(mask,sweep_region,(1));
+var flags_1 = minesweeper.core.set_in_grid(flags,sweep_region,(0));
+var game_state = minesweeper.core.calc_game_state(grid,mask_1,num_mines,swept);
+var state_1 = cljs.core.assoc.cljs$core$IFn$_invoke$arity$3(state,cljs.core.cst$kw$mask,mask_1);
+var state_2 = cljs.core.assoc.cljs$core$IFn$_invoke$arity$3(state_1,cljs.core.cst$kw$flags,flags_1);
 var state_3 = cljs.core.assoc.cljs$core$IFn$_invoke$arity$3(state_2,cljs.core.cst$kw$game_DASH_state,game_state);
 if(cljs.core._EQ_.cljs$core$IFn$_invoke$arity$2(cljs.core.cst$kw$victorious,game_state)){
-var state_4 = cljs.core.assoc.cljs$core$IFn$_invoke$arity$3(state_3,cljs.core.cst$kw$flags,minesweeper.core.flag_remaining(flags,grid));
+var state_4 = cljs.core.assoc.cljs$core$IFn$_invoke$arity$3(state_3,cljs.core.cst$kw$flags,minesweeper.core.flag_remaining(flags_1,grid));
 return minesweeper.core.update_high_score_BANG_(state_4);
 } else {
 return state_3;
@@ -500,9 +497,6 @@ minesweeper.core.reset_game = (function minesweeper$core$reset_game(state){
 var level = cljs.core.cst$kw$level_DASH_selected.cljs$core$IFn$_invoke$arity$1(state);
 return cljs.core.merge.cljs$core$IFn$_invoke$arity$variadic(cljs.core.array_seq([state,minesweeper.core.new_state(level)], 0));
 });
-/**
- * Transition the game state from :pending to :alive.
- */
 minesweeper.core.start_game = (function minesweeper$core$start_game(state){
 var state_1 = cljs.core.assoc.cljs$core$IFn$_invoke$arity$3(state,cljs.core.cst$kw$game_DASH_state,cljs.core.cst$kw$alive);
 return cljs.core.assoc.cljs$core$IFn$_invoke$arity$3(state_1,cljs.core.cst$kw$time_DASH_started,minesweeper.core.get_time());
@@ -513,9 +507,6 @@ return cljs.core.assoc.cljs$core$IFn$_invoke$arity$3(state_1,cljs.core.cst$kw$ti
  */
 minesweeper.core.tick = (function minesweeper$core$tick(state){
 return cljs.core.update.cljs$core$IFn$_invoke$arity$3(state,cljs.core.cst$kw$tick_DASH_count,cljs.core.inc);
-});
-minesweeper.core.alive_or_pending_QMARK_ = (function minesweeper$core$alive_or_pending_QMARK_(state){
-return cljs.core.contains_QMARK_(new cljs.core.PersistentHashSet(null, new cljs.core.PersistentArrayMap(null, 2, [cljs.core.cst$kw$pending,null,cljs.core.cst$kw$alive,null], null), null),cljs.core.cst$kw$game_DASH_state.cljs$core$IFn$_invoke$arity$1(state));
 });
 minesweeper.core.start_game_if_pending = (function minesweeper$core$start_game_if_pending(state){
 if(cljs.core._EQ_.cljs$core$IFn$_invoke$arity$2(cljs.core.cst$kw$pending,cljs.core.cst$kw$game_DASH_state.cljs$core$IFn$_invoke$arity$1(state))){
