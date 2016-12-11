@@ -377,34 +377,14 @@
 ;; -- Subscription Handlers -----------------------------------------------
 
 (reg-sub
- :num-rows
+ :grid-size
  (fn [state _]
-   (get-in state [:level :size 0])))
-
-(reg-sub
- :num-cols
- (fn [state _]
-   (get-in state [:level :size 1])))
+   (get-in state [:level :size])))
 
 (reg-sub
  :game-state
  (fn [state _]
    (:game-state state)))
-
-(reg-sub
- :grid
- (fn [state _]
-   (:grid state)))
-
-(reg-sub
- :flags
- (fn [state _]
-   (:flags state)))
-
-(reg-sub
- :mask
- (fn [state _]
-   (:mask state)))
 
 (reg-sub
  :grid-value
@@ -548,15 +528,14 @@
 
 (defn grid-view
   []
-  (let [num-rows (subscribe [:num-rows])
-        num-cols (subscribe [:num-cols])]
+  (let [grid-size (subscribe [:grid-size])]
     (fn []
       [:div.ms-grid
        (doall
-        (for [r (range @num-rows)]
+        (for [r (range (get @grid-size 0))]
           ^{:key r}
           [:div.ms-row
-           (doall (for [c (range @num-cols)]
+           (doall (for [c (range (get @grid-size 1))]
                     ^{:key (str r c)}
                     [cell-view r c]))]))])))
 
