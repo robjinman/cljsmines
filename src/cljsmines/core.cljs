@@ -152,15 +152,16 @@
 
 (defn calc-game-state
   "Returns one of :alive, :dead, or :victorious."
-  [grid mask num-mines swept-cells]
-  (let [num-hidden (count-in-grid mask 0)
-        values (values-at grid swept-cells)
-        dead (contains? (set values) :X)]
-    (if dead
-      :dead
-      (if (= num-mines num-hidden)
-        :victorious
-        :alive))))
+  [grid mask num-mines swept-cells game-state]
+  (if (= :dead game-state)
+    :dead
+    (let [num-hidden (count-in-grid mask 0)
+          values (values-at grid swept-cells)]
+      (if (contains? (set values) :X)
+        :dead
+        (if (= num-mines num-hidden)
+          :victorious
+          :alive)))))
 
 (defn sweep-cell
   "Returns the region to be swept."
@@ -239,6 +240,7 @@
 (defn sweep-cell!
   [state [row col]]
   (let [[rows cols] (get-in state [:level :size])
+        game-state (:game-state state)
         grid (:grid state)
         mask (:mask state)
         flags (:flags state)
@@ -246,11 +248,11 @@
         sweep-region (sweep-cell [rows cols] grid [row col])
         mask-1 (set-in-grid mask sweep-region 1)
         flags-1 (set-in-grid flags sweep-region 0)
-        game-state (calc-game-state grid mask-1 num-mines [[row col]])
-        state-1 (assoc state :game-state game-state)
+        game-state-1 (calc-game-state grid mask-1 num-mines [[row col]] game-state)
+        state-1 (assoc state :game-state game-state-1)
         state-2 (assoc state-1 :mask mask-1)
         state-3 (assoc state-2 :flags flags-1)]
-    (if (= :victorious game-state)
+    (if (= :victorious game-state-1)
       (let [state-4 (assoc state-3 :flags (flag-remaining flags-1 grid))]
         (update-high-score! state-4))
       state-3)))
