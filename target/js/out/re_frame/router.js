@@ -5,10 +5,10 @@ goog.require('re_frame.events');
 goog.require('re_frame.interop');
 goog.require('re_frame.loggers');
 re_frame.router.later_fns = new cljs.core.PersistentArrayMap(null, 2, [cljs.core.cst$kw$flush_DASH_dom,(function (f){
-var G__13126 = (function (){
+var G__13115 = (function (){
 return (re_frame.interop.next_tick.cljs$core$IFn$_invoke$arity$1 ? re_frame.interop.next_tick.cljs$core$IFn$_invoke$arity$1(f) : re_frame.interop.next_tick.call(null,f));
 });
-return (re_frame.interop.after_render.cljs$core$IFn$_invoke$arity$1 ? re_frame.interop.after_render.cljs$core$IFn$_invoke$arity$1(G__13126) : re_frame.interop.after_render.call(null,G__13126));
+return (re_frame.interop.after_render.cljs$core$IFn$_invoke$arity$1 ? re_frame.interop.after_render.cljs$core$IFn$_invoke$arity$1(G__13115) : re_frame.interop.after_render.call(null,G__13115));
 }),cljs.core.cst$kw$yield,re_frame.interop.next_tick], null);
 
 /**

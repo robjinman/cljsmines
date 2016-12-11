@@ -15,14 +15,14 @@ return (cljs.core.atom.cljs$core$IFn$_invoke$arity$1 ? cljs.core.atom.cljs$core$
 })();
 re_frame.loggers.console = (function re_frame$loggers$console(var_args){
 var args__7486__auto__ = [];
-var len__7479__auto___12768 = arguments.length;
-var i__7480__auto___12769 = (0);
+var len__7479__auto___12770 = arguments.length;
+var i__7480__auto___12771 = (0);
 while(true){
-if((i__7480__auto___12769 < len__7479__auto___12768)){
-args__7486__auto__.push((arguments[i__7480__auto___12769]));
+if((i__7480__auto___12771 < len__7479__auto___12770)){
+args__7486__auto__.push((arguments[i__7480__auto___12771]));
 
-var G__12770 = (i__7480__auto___12769 + (1));
-i__7480__auto___12769 = G__12770;
+var G__12772 = (i__7480__auto___12771 + (1));
+i__7480__auto___12771 = G__12772;
 continue;
 } else {
 }
@@ -39,8 +39,8 @@ if(cljs.core.contains_QMARK_((cljs.core.deref.cljs$core$IFn$_invoke$arity$1 ? cl
 throw (new Error([cljs.core.str("Assert failed: "),cljs.core.str([cljs.core.str("re-frame: log called with unknown level: "),cljs.core.str(level)].join('')),cljs.core.str("\n"),cljs.core.str("(contains? (clojure.core/deref loggers) level)")].join('')));
 }
 
-return cljs.core.apply.cljs$core$IFn$_invoke$arity$2((function (){var G__12767 = (cljs.core.deref.cljs$core$IFn$_invoke$arity$1 ? cljs.core.deref.cljs$core$IFn$_invoke$arity$1(re_frame.loggers.loggers) : cljs.core.deref.call(null,re_frame.loggers.loggers));
-return (level.cljs$core$IFn$_invoke$arity$1 ? level.cljs$core$IFn$_invoke$arity$1(G__12767) : level.call(null,G__12767));
+return cljs.core.apply.cljs$core$IFn$_invoke$arity$2((function (){var G__12769 = (cljs.core.deref.cljs$core$IFn$_invoke$arity$1 ? cljs.core.deref.cljs$core$IFn$_invoke$arity$1(re_frame.loggers.loggers) : cljs.core.deref.call(null,re_frame.loggers.loggers));
+return (level.cljs$core$IFn$_invoke$arity$1 ? level.cljs$core$IFn$_invoke$arity$1(G__12769) : level.call(null,G__12769));
 })(),args);
 });
 

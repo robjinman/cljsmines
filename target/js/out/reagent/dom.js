@@ -34,8 +34,8 @@ throw (new Error("js/ReactDOM is missing"));
 });
 if(typeof reagent.dom.roots !== 'undefined'){
 } else {
-reagent.dom.roots = (function (){var G__12832 = cljs.core.PersistentArrayMap.EMPTY;
-return (cljs.core.atom.cljs$core$IFn$_invoke$arity$1 ? cljs.core.atom.cljs$core$IFn$_invoke$arity$1(G__12832) : cljs.core.atom.call(null,G__12832));
+reagent.dom.roots = (function (){var G__12833 = cljs.core.PersistentArrayMap.EMPTY;
+return (cljs.core.atom.cljs$core$IFn$_invoke$arity$1 ? cljs.core.atom.cljs$core$IFn$_invoke$arity$1(G__12833) : cljs.core.atom.call(null,G__12833));
 })();
 }
 reagent.dom.unmount_comp = (function reagent$dom$unmount_comp(container){
@@ -78,22 +78,22 @@ return reagent.dom.render_comp(comp,container,null);
  *   Returns the mounted component instance.
  */
 reagent.dom.render = (function reagent$dom$render(var_args){
-var args12843 = [];
+var args12841 = [];
 var len__7479__auto___12846 = arguments.length;
 var i__7480__auto___12847 = (0);
 while(true){
 if((i__7480__auto___12847 < len__7479__auto___12846)){
-args12843.push((arguments[i__7480__auto___12847]));
+args12841.push((arguments[i__7480__auto___12847]));
 
-var G__12850 = (i__7480__auto___12847 + (1));
-i__7480__auto___12847 = G__12850;
+var G__12848 = (i__7480__auto___12847 + (1));
+i__7480__auto___12847 = G__12848;
 continue;
 } else {
 }
 break;
 }
 
-var G__12845 = args12843.length;
+var G__12845 = args12841.length;
 switch (G__12845) {
 case 2:
 return reagent.dom.render.cljs$core$IFn$_invoke$arity$2((arguments[(0)]),(arguments[(1)]));
@@ -104,7 +104,7 @@ return reagent.dom.render.cljs$core$IFn$_invoke$arity$3((arguments[(0)]),(argume
 
 break;
 default:
-throw (new Error([cljs.core.str("Invalid arity: "),cljs.core.str(args12843.length)].join('')));
+throw (new Error([cljs.core.str("Invalid arity: "),cljs.core.str(args12841.length)].join('')));
 
 }
 });
