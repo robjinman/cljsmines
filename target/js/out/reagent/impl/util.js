@@ -18,8 +18,8 @@ throw (new Error("require('react') failed"));
 reagent.impl.util.is_client = (typeof window !== 'undefined') && (!(((window["document"]) == null)));
 reagent.impl.util._STAR_non_reactive_STAR_ = false;
 reagent.impl.util.memoize_1 = (function reagent$impl$util$memoize_1(f){
-var mem = (function (){var G__12476 = cljs.core.PersistentArrayMap.EMPTY;
-return (cljs.core.atom.cljs$core$IFn$_invoke$arity$1 ? cljs.core.atom.cljs$core$IFn$_invoke$arity$1(G__12476) : cljs.core.atom.call(null,G__12476));
+var mem = (function (){var G__12460 = cljs.core.PersistentArrayMap.EMPTY;
+return (cljs.core.atom.cljs$core$IFn$_invoke$arity$1 ? cljs.core.atom.cljs$core$IFn$_invoke$arity$1(G__12460) : cljs.core.atom.call(null,G__12460));
 })();
 return ((function (mem){
 return (function (arg){
@@ -48,12 +48,12 @@ if(typeof dashed === 'string'){
 return dashed;
 } else {
 var name_str = cljs.core.name(dashed);
-var vec__12480 = clojure.string.split.cljs$core$IFn$_invoke$arity$2(name_str,/-/);
-var seq__12481 = cljs.core.seq(vec__12480);
-var first__12482 = cljs.core.first(seq__12481);
-var seq__12481__$1 = cljs.core.next(seq__12481);
-var start = first__12482;
-var parts = seq__12481__$1;
+var vec__12472 = clojure.string.split.cljs$core$IFn$_invoke$arity$2(name_str,/-/);
+var seq__12473 = cljs.core.seq(vec__12472);
+var first__12474 = cljs.core.first(seq__12473);
+var seq__12473__$1 = cljs.core.next(seq__12473);
+var start = first__12474;
+var parts = seq__12473__$1;
 if(cljs.core.truth_((reagent.impl.util.dont_camel_case.cljs$core$IFn$_invoke$arity$1 ? reagent.impl.util.dont_camel_case.cljs$core$IFn$_invoke$arity$1(start) : reagent.impl.util.dont_camel_case.call(null,start)))){
 return name_str;
 } else {

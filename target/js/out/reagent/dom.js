@@ -34,8 +34,8 @@ throw (new Error("js/ReactDOM is missing"));
 });
 if(typeof reagent.dom.roots !== 'undefined'){
 } else {
-reagent.dom.roots = (function (){var G__12833 = cljs.core.PersistentArrayMap.EMPTY;
-return (cljs.core.atom.cljs$core$IFn$_invoke$arity$1 ? cljs.core.atom.cljs$core$IFn$_invoke$arity$1(G__12833) : cljs.core.atom.call(null,G__12833));
+reagent.dom.roots = (function (){var G__12840 = cljs.core.PersistentArrayMap.EMPTY;
+return (cljs.core.atom.cljs$core$IFn$_invoke$arity$1 ? cljs.core.atom.cljs$core$IFn$_invoke$arity$1(G__12840) : cljs.core.atom.call(null,G__12840));
 })();
 }
 reagent.dom.unmount_comp = (function reagent$dom$unmount_comp(container){
@@ -44,12 +44,12 @@ cljs.core.swap_BANG_.cljs$core$IFn$_invoke$arity$3(reagent.dom.roots,cljs.core.d
 return (reagent.dom.module()["unmountComponentAtNode"])(container);
 });
 reagent.dom.render_comp = (function reagent$dom$render_comp(comp,container,callback){
-var _STAR_always_update_STAR_12837 = reagent.impl.util._STAR_always_update_STAR_;
+var _STAR_always_update_STAR_12843 = reagent.impl.util._STAR_always_update_STAR_;
 reagent.impl.util._STAR_always_update_STAR_ = true;
 
-try{return (reagent.dom.module()["render"])((comp.cljs$core$IFn$_invoke$arity$0 ? comp.cljs$core$IFn$_invoke$arity$0() : comp.call(null)),container,((function (_STAR_always_update_STAR_12837){
+try{return (reagent.dom.module()["render"])((comp.cljs$core$IFn$_invoke$arity$0 ? comp.cljs$core$IFn$_invoke$arity$0() : comp.call(null)),container,((function (_STAR_always_update_STAR_12843){
 return (function (){
-var _STAR_always_update_STAR_12838 = reagent.impl.util._STAR_always_update_STAR_;
+var _STAR_always_update_STAR_12844 = reagent.impl.util._STAR_always_update_STAR_;
 reagent.impl.util._STAR_always_update_STAR_ = false;
 
 try{cljs.core.swap_BANG_.cljs$core$IFn$_invoke$arity$4(reagent.dom.roots,cljs.core.assoc,container,new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [comp,container], null));
@@ -61,10 +61,10 @@ return (callback.cljs$core$IFn$_invoke$arity$0 ? callback.cljs$core$IFn$_invoke$
 } else {
 return null;
 }
-}finally {reagent.impl.util._STAR_always_update_STAR_ = _STAR_always_update_STAR_12838;
-}});})(_STAR_always_update_STAR_12837))
+}finally {reagent.impl.util._STAR_always_update_STAR_ = _STAR_always_update_STAR_12844;
+}});})(_STAR_always_update_STAR_12843))
 );
-}finally {reagent.impl.util._STAR_always_update_STAR_ = _STAR_always_update_STAR_12837;
+}finally {reagent.impl.util._STAR_always_update_STAR_ = _STAR_always_update_STAR_12843;
 }});
 reagent.dom.re_render_component = (function reagent$dom$re_render_component(comp,container){
 return reagent.dom.render_comp(comp,container,null);
@@ -78,23 +78,23 @@ return reagent.dom.render_comp(comp,container,null);
  *   Returns the mounted component instance.
  */
 reagent.dom.render = (function reagent$dom$render(var_args){
-var args12841 = [];
-var len__7479__auto___12846 = arguments.length;
-var i__7480__auto___12847 = (0);
+var args12845 = [];
+var len__7479__auto___12848 = arguments.length;
+var i__7480__auto___12849 = (0);
 while(true){
-if((i__7480__auto___12847 < len__7479__auto___12846)){
-args12841.push((arguments[i__7480__auto___12847]));
+if((i__7480__auto___12849 < len__7479__auto___12848)){
+args12845.push((arguments[i__7480__auto___12849]));
 
-var G__12848 = (i__7480__auto___12847 + (1));
-i__7480__auto___12847 = G__12848;
+var G__12850 = (i__7480__auto___12849 + (1));
+i__7480__auto___12849 = G__12850;
 continue;
 } else {
 }
 break;
 }
 
-var G__12845 = args12841.length;
-switch (G__12845) {
+var G__12847 = args12845.length;
+switch (G__12847) {
 case 2:
 return reagent.dom.render.cljs$core$IFn$_invoke$arity$2((arguments[(0)]),(arguments[(1)]));
 
@@ -104,7 +104,7 @@ return reagent.dom.render.cljs$core$IFn$_invoke$arity$3((arguments[(0)]),(argume
 
 break;
 default:
-throw (new Error([cljs.core.str("Invalid arity: "),cljs.core.str(args12841.length)].join('')));
+throw (new Error([cljs.core.str("Invalid arity: "),cljs.core.str(args12845.length)].join('')));
 
 }
 });
