@@ -34,23 +34,23 @@ re_frame.cofx.register = cljs.core.partial.cljs$core$IFn$_invoke$arity$2(re_fram
  * 
  */
 re_frame.cofx.inject_cofx = (function re_frame$cofx$inject_cofx(var_args){
-var args13063 = [];
-var len__7479__auto___13077 = arguments.length;
-var i__7480__auto___13078 = (0);
+var args13078 = [];
+var len__7479__auto___13091 = arguments.length;
+var i__7480__auto___13092 = (0);
 while(true){
-if((i__7480__auto___13078 < len__7479__auto___13077)){
-args13063.push((arguments[i__7480__auto___13078]));
+if((i__7480__auto___13092 < len__7479__auto___13091)){
+args13078.push((arguments[i__7480__auto___13092]));
 
-var G__13082 = (i__7480__auto___13078 + (1));
-i__7480__auto___13078 = G__13082;
+var G__13094 = (i__7480__auto___13092 + (1));
+i__7480__auto___13092 = G__13094;
 continue;
 } else {
 }
 break;
 }
 
-var G__13067 = args13063.length;
-switch (G__13067) {
+var G__13083 = args13078.length;
+switch (G__13083) {
 case 1:
 return re_frame.cofx.inject_cofx.cljs$core$IFn$_invoke$arity$1((arguments[(0)]));
 
@@ -60,7 +60,7 @@ return re_frame.cofx.inject_cofx.cljs$core$IFn$_invoke$arity$2((arguments[(0)]),
 
 break;
 default:
-throw (new Error([cljs.core.str("Invalid arity: "),cljs.core.str(args13063.length)].join('')));
+throw (new Error([cljs.core.str("Invalid arity: "),cljs.core.str(args13078.length)].join('')));
 
 }
 });
@@ -79,11 +79,11 @@ return cljs.core.update.cljs$core$IFn$_invoke$arity$4(context,cljs.core.cst$kw$c
 
 re_frame.cofx.inject_cofx.cljs$lang$maxFixedArity = 2;
 
-var G__13091_13094 = cljs.core.cst$kw$db;
-var G__13092_13095 = ((function (G__13091_13094){
+var G__13109_13112 = cljs.core.cst$kw$db;
+var G__13110_13113 = ((function (G__13109_13112){
 return (function re_frame$cofx$db_coeffects_handler(coeffects){
 return cljs.core.assoc.cljs$core$IFn$_invoke$arity$3(coeffects,cljs.core.cst$kw$db,(cljs.core.deref.cljs$core$IFn$_invoke$arity$1 ? cljs.core.deref.cljs$core$IFn$_invoke$arity$1(re_frame.db.app_db) : cljs.core.deref.call(null,re_frame.db.app_db)));
-});})(G__13091_13094))
+});})(G__13109_13112))
 ;
-(re_frame.cofx.register.cljs$core$IFn$_invoke$arity$2 ? re_frame.cofx.register.cljs$core$IFn$_invoke$arity$2(G__13091_13094,G__13092_13095) : re_frame.cofx.register.call(null,G__13091_13094,G__13092_13095));
+(re_frame.cofx.register.cljs$core$IFn$_invoke$arity$2 ? re_frame.cofx.register.cljs$core$IFn$_invoke$arity$2(G__13109_13112,G__13110_13113) : re_frame.cofx.register.call(null,G__13109_13112,G__13110_13113));
 re_frame.cofx.inject_db = re_frame.cofx.inject_cofx.cljs$core$IFn$_invoke$arity$1(cljs.core.cst$kw$db);

@@ -137,21 +137,6 @@
   [time-started]
   (int (- (get-time) time-started)))
 
-(defn zero-region
-  "If this cell is zero, add its neighbours to the region. Repeat for each neighbour,
-  recursively."
-  [[rows cols] grid [row col] region]
-  (let [neighbours (neighbour-coords [rows cols] [row col])
-        region (conj region [row col])]
-    (if (= 0 (get-in grid [row col]))
-      (reduce (fn [region [nx ny]]
-                (if (not (contains? region [nx ny]))
-                  (clojure.set/union region (zero-region [rows cols] grid [nx ny] region))
-                  region))
-              region
-              neighbours)
-      region)))
-
 (defn set-in-grid
   "Sets the grid to value at each cell."
   [grid cells value]
@@ -179,10 +164,19 @@
 
 (defn sweep-cell
   "Returns the region to be swept."
-  [[rows cols] grid [row col]]
-  (if (= 0 (get-in grid [row col]))
-    (zero-region [rows cols] grid [row col] #{})
-    #{[row col]}))
+  ([[rows cols] grid [row col]]
+   (sweep-cell [rows cols] grid [row col] #{}))
+  ([[rows cols] grid [row col] region]
+   (let [neighbours (neighbour-coords [rows cols] [row col])
+         region (conj region [row col])]
+     (if (= 0 (get-in grid [row col]))
+       (reduce (fn [region [nx ny]]
+                 (if (not (contains? region [nx ny]))
+                   (clojure.set/union region (sweep-cell [rows cols] grid [nx ny] region))
+                   region))
+               region
+               neighbours)
+       region))))
 
 (defn sweep-cells
   "Returns the region to be swept."
@@ -269,23 +263,12 @@
         flags (:flags state)
         num-mines (get-in state [:level :mines])]
     (if (can-spread-sweep? [rows cols] grid mask flags [row col])
-      (let [swept (reduce (fn [swept cell]
-                            (if (= 0 (get-in flags cell))
-                              (conj swept cell)
-                              swept))
-                          []
-                          (neighbour-coords [rows cols] [row col]))
-            sweep-region (sweep-cells [rows cols] grid swept)
-            mask-1 (set-in-grid mask sweep-region 1)
-            flags-1 (set-in-grid flags sweep-region 0)
-            game-state (calc-game-state grid mask-1 num-mines swept)
-            state-1 (assoc state :mask mask-1)
-            state-2 (assoc state-1 :flags flags-1)
-            state-3 (assoc state-2 :game-state game-state)]
-        (if (= :victorious game-state)
-          (let [state-4 (assoc state-3 :flags (flag-remaining flags-1 grid))]
-            (update-high-score! state-4))
-          state-3))
+      (reduce (fn [st cell]
+                  (if (= 0 (get-in flags cell))
+                    (sweep-cell! st cell)
+                    st))
+                state
+                (neighbour-coords [rows cols] [row col]))
       state)))
 
 (defn flag-cell
@@ -377,34 +360,14 @@
 ;; -- Subscription Handlers -----------------------------------------------
 
 (reg-sub
- :num-rows
+ :grid-size
  (fn [state _]
-   (get-in state [:level :size 0])))
-
-(reg-sub
- :num-cols
- (fn [state _]
-   (get-in state [:level :size 1])))
+   (get-in state [:level :size])))
 
 (reg-sub
  :game-state
  (fn [state _]
    (:game-state state)))
-
-(reg-sub
- :grid
- (fn [state _]
-   (:grid state)))
-
-(reg-sub
- :flags
- (fn [state _]
-   (:flags state)))
-
-(reg-sub
- :mask
- (fn [state _]
-   (:mask state)))
 
 (reg-sub
  :grid-value
@@ -527,11 +490,6 @@
                   8 "eight"
                   :X "mine"
                   "")
-        num-rows (subscribe [:num-rows])
-        num-cols (subscribe [:num-cols])
-        grid (subscribe [:grid])
-        mask (subscribe [:mask])
-        flags (subscribe [:flags])
         can-spread (subscribe [:can-spread row col])]
     (fn []
       [:div.ms-cell {:className (str "ms-revealed "
@@ -553,15 +511,14 @@
 
 (defn grid-view
   []
-  (let [num-rows (subscribe [:num-rows])
-        num-cols (subscribe [:num-cols])]
+  (let [grid-size (subscribe [:grid-size])]
     (fn []
       [:div.ms-grid
        (doall
-        (for [r (range @num-rows)]
+        (for [r (range (get @grid-size 0))]
           ^{:key r}
           [:div.ms-row
-           (doall (for [c (range @num-cols)]
+           (doall (for [c (range (get @grid-size 1))]
                     ^{:key (str r c)}
                     [cell-view r c]))]))])))
 

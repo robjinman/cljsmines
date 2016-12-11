@@ -36,11 +36,11 @@ throw (new Error("js/ReactDOMServer is missing"));
 reagent.dom.server.render_to_string = (function reagent$dom$server$render_to_string(component){
 reagent.ratom.flush_BANG_();
 
-var _STAR_non_reactive_STAR_12837 = reagent.impl.util._STAR_non_reactive_STAR_;
+var _STAR_non_reactive_STAR_12840 = reagent.impl.util._STAR_non_reactive_STAR_;
 reagent.impl.util._STAR_non_reactive_STAR_ = true;
 
 try{return (reagent.dom.server.module()["renderToString"])(reagent.impl.template.as_element(component));
-}finally {reagent.impl.util._STAR_non_reactive_STAR_ = _STAR_non_reactive_STAR_12837;
+}finally {reagent.impl.util._STAR_non_reactive_STAR_ = _STAR_non_reactive_STAR_12840;
 }});
 /**
  * Turns a component into an HTML string, without data-react-id attributes, etc.
