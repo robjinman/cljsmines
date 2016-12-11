@@ -246,16 +246,16 @@
         flags (:flags state)
         num-mines (get-in state [:level :mines])
         sweep-region (sweep-cell [rows cols] grid [row col])
-        mask-1 (set-in-grid mask sweep-region 1)
-        flags-1 (set-in-grid flags sweep-region 0)
-        game-state-1 (calc-game-state grid mask-1 num-mines [[row col]] game-state)
-        state-1 (assoc state :game-state game-state-1)
-        state-2 (assoc state-1 :mask mask-1)
-        state-3 (assoc state-2 :flags flags-1)]
-    (if (= :victorious game-state-1)
-      (let [state-4 (assoc state-3 :flags (flag-remaining flags-1 grid))]
-        (update-high-score! state-4))
-      state-3)))
+        new-mask (set-in-grid mask sweep-region 1)
+        new-flags (set-in-grid flags sweep-region 0)
+        new-game-state (calc-game-state grid new-mask num-mines [[row col]] game-state)
+        new-state (-> (assoc state :game-state new-game-state)
+                      (assoc :mask new-mask)
+                      (assoc :flags new-flags))]
+    (if (= :victorious new-game-state)
+      (-> (assoc new-state :flags (flag-remaining new-flags grid))
+          (update-high-score!))
+      new-state)))
 
 (defn sweep-spread!
   [state [row col]]
@@ -288,8 +288,8 @@
 
 (defn start-game
   [state]
-  (let [state-1 (assoc state :game-state :alive)]
-    (assoc state-1 :time-started (get-time))))
+  (-> (assoc state :game-state :alive)
+      (assoc :time-started (get-time))))
 
 (defn tick
   "Any components that need regular refreshing can depend on :tick-count,
@@ -322,8 +322,8 @@
  :sweep
  (fn [state [_ row col]]
    (if (alive-or-pending? state)
-     (let [state-1 (start-game-if-pending state)]
-       (sweep-cell! state-1 [row col]))
+     (-> (start-game-if-pending state)
+         (sweep-cell! [row col]))
      state)))
 
 (reg-event-db
@@ -342,8 +342,8 @@
  :flag
  (fn [state [_ row col]]
    (if (alive-or-pending? state)
-     (let [state-1 (start-game-if-pending state)]
-       (flag-cell state-1 [row col]))
+     (-> (start-game-if-pending state)
+         (flag-cell [row col]))
      state)))
 
 (reg-event-db
