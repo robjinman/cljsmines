@@ -527,11 +527,6 @@
                   8 "eight"
                   :X "mine"
                   "")
-        num-rows (subscribe [:num-rows])
-        num-cols (subscribe [:num-cols])
-        grid (subscribe [:grid])
-        mask (subscribe [:mask])
-        flags (subscribe [:flags])
         can-spread (subscribe [:can-spread row col])]
     (fn []
       [:div.ms-cell {:className (str "ms-revealed "
