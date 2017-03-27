@@ -4,6 +4,10 @@
             [goog.string.format]
             [reagent.core :as reagent]
             [re-frame.core :refer [reg-event-db
+                                   reg-event-fx
+                                   reg-fx
+                                   reg-cofx
+                                   inject-cofx
                                    path
                                    reg-sub
                                    dispatch
@@ -11,11 +15,21 @@
                                    subscribe]]
             [clojure.set]))
 
-(enable-console-print!)
 
-(def levels {"beginner" {:size [8 8] :mines 10}
-             "intermediate" {:size [16 16] :mines 40}
-             "expert" {:size [16 30] :mines 99}})
+;; -- Definitions ----------------------------------------------------------
+
+(def levels {:beginner {:key :beginner
+                        :size [8 8]
+                        :mines 10}
+             :intermediate {:key :intermediate
+                            :size [16 16]
+                            :mines 40}
+             :expert {:key :expert
+                      :size [16 30]
+                      :mines 99}})
+
+
+;; -- Pure Helper Functions -----------------------------------------------
 
 (defn vec-zeros [n]
   (vec (repeat n 0)))
@@ -34,21 +48,6 @@
                   coords)))
             []
             indices)))
-
-(defn set-high-score!
-  [level score]
-  (.setItem js/localStorage level score))
-
-(defn get-high-score
-  [level]
-  (let [score (.getItem js/localStorage level)]
-    (if score
-      (js/parseInt score)
-      nil)))
-
-(defn dbg-clear-high-score!
-  [level]
-  (.removeItem js/localStorage level))
 
 (defn count-surrounding
   "Returns the number of cells with value value around cell [row col]."
@@ -127,16 +126,6 @@
           grid
           (flatten-grid grid)))
 
-(defn get-time
-  "Seconds since the epoch."
-  []
-  (let [millis (.getTime (js/Date.))]
-    (/ millis 1000)))
-
-(defn calc-elapsed
-  [time-started]
-  (int (- (get-time) time-started)))
-
 (defn set-in-grid
   "Sets the grid to value at each cell."
   [grid cells value]
@@ -199,7 +188,7 @@
 
 (defn new-state
   "Construct a fresh game state for the given difficulty level."
-  [level]
+  [level best-times posix-time]
   (let [[rows cols] (get-in levels [level :size])
         num-mines (get-in levels [level :mines])]
     {:level-selected level
@@ -210,35 +199,43 @@
                                       num-mines))
      :mask (vec-zeros-2 [rows cols])
      :flags (vec-zeros-2 [rows cols])
-     :time-started (get-time)
+     :time-started posix-time
      :tick-count 0
      ;; Valid values are :pending, :alive, :dead, and :victorious
      :game-state :pending
-     :high-score (get-high-score level)}))
+     :best-times (or best-times
+                     {:beginner nil
+                      :intermediate nil
+                      :expert nil})}))
 
 (defn alive-or-pending?
   [state]
   (contains? #{:pending :alive} (:game-state state)))
 
 
-;; -- State Updater Functions----------------------------------------------
+;; -- Impure Helper Functions ---------------------------------------------
 
-(defn update-high-score!
-  "If the time elapsed repesents a new high-score, persist it to local
-  storage."
-  [state]
+(defn posix-time!
+  []
+  (let [millis (.getTime (js/Date.))]
+    (/ millis 1000)))
+
+
+;; -- State Updater Functions ---------------------------------------------
+
+(defn update-best-times
+  "If the time elapsed repesents a new best time, update the app state."
+  [state posix-time]
   (let [level (:level-selected state)
         time-started (:time-started state)
-        elapsed (calc-elapsed time-started)
-        high-score (get-high-score level)]
-    (if (or (= nil high-score) (< elapsed high-score))
-      (do
-        (set-high-score! level elapsed)
-        (assoc state :high-score elapsed))
+        elapsed (int (- posix-time time-started))
+        current-best (get-in state [:best-times level])]
+    (if (or (= nil current-best) (< elapsed current-best))
+      (assoc-in state [:best-times level] elapsed)
       state)))
 
-(defn sweep-cell!
-  [state [row col]]
+(defn do-sweep-cell
+  [state posix-time [row col]]
   (let [[rows cols] (get-in state [:level :size])
         game-state (:game-state state)
         grid (:grid state)
@@ -254,11 +251,11 @@
                       (assoc :flags new-flags))]
     (if (= :victorious new-game-state)
       (-> (assoc new-state :flags (flag-remaining new-flags grid))
-          (update-high-score!))
+          (update-best-times posix-time))
       new-state)))
 
-(defn sweep-spread!
-  [state [row col]]
+(defn do-sweep-spread
+  [state posix-time [row col]]
   (let [[rows cols] (get-in state [:level :size])
         grid (:grid state)
         mask (:mask state)
@@ -267,7 +264,7 @@
     (if (can-spread-sweep? [rows cols] grid mask flags [row col])
       (reduce (fn [st cell]
                   (if (= 0 (get-in flags cell))
-                    (sweep-cell! st cell)
+                    (do-sweep-cell st posix-time cell)
                     st))
                 state
                 (neighbour-coords [rows cols] [row col]))
@@ -281,15 +278,10 @@
   [state [row col]]
   (assoc-in state [:flags row col] 0))
 
-(defn reset-game
-  [state]
-  (let [level (:level-selected state)]
-    (merge state (new-state level))))
-
 (defn start-game
-  [state]
+  [state posix-time]
   (-> (assoc state :game-state :alive)
-      (assoc :time-started (get-time))))
+      (assoc :time-started posix-time)))
 
 (defn tick
   "Any components that need regular refreshing can depend on :tick-count,
@@ -298,18 +290,49 @@
   (update state :tick-count inc))
 
 (defn start-game-if-pending
-  [state]
+  [state posix-time]
   (if (= :pending (:game-state state))
-    (start-game state)
+    (start-game state posix-time)
     state))
+
+
+;; -- Coeffect Handlers ---------------------------------------------------
+
+(reg-cofx
+ :get-local-storage-key
+ (fn [cofx name]
+   (let [app-data (-> (.getItem js/localStorage "cljsmines")
+                      js/JSON.parse
+                      (js->clj :keywordize-keys true))]
+     (assoc cofx name (get app-data name)))))
+
+(reg-cofx
+ :posix-time
+ (fn [cofx]
+   (assoc cofx :posix-time (posix-time!))))
+
+
+;; -- Effect Handlers -----------------------------------------------------
+
+(reg-fx
+ :set-local-storage-key
+ (fn [{:keys [name value]}]
+   (let [app-data (-> (.getItem js/localStorage "cljsmines")
+                      js/JSON.parse
+                      js->clj)]
+     (.setItem js/localStorage "cljsmines" (-> (assoc app-data name value)
+                                               clj->js
+                                               js/JSON.stringify)))))
 
 
 ;; -- Event Handlers ------------------------------------------------------
 
-(reg-event-db
+(reg-event-fx
  :initialise
- (fn [state _]
-   (new-state "intermediate")))
+ [(inject-cofx :get-local-storage-key :best-times)
+  (inject-cofx :posix-time)]
+ (fn [cofx _]
+   {:db (new-state :intermediate (:best-times cofx) (:posix-time cofx))}))
 
 (reg-event-db
  :tick
@@ -318,33 +341,47 @@
      (tick state)
      state)))
 
-(reg-event-db
+(reg-event-fx
  :sweep
- (fn [state [_ row col]]
-   (if (alive-or-pending? state)
-     (-> (start-game-if-pending state)
-         (sweep-cell! [row col]))
-     state)))
+ [(inject-cofx :posix-time)]
+ (fn [cofx [_ row col]]
+   (let [state (:db cofx)
+         new-state (if (alive-or-pending? state)
+                     (-> (start-game-if-pending state (:posix-time cofx))
+                         (do-sweep-cell (:posix-time cofx) [row col]))
+                     state)]
+     {:db new-state
+      :set-local-storage-key {:name "best-times"
+                              :value (:best-times new-state)}})))
 
-(reg-event-db
+(reg-event-fx
  :reset
- (fn [state _]
-   (reset-game state)))
+ [(inject-cofx :posix-time)]
+ (fn [cofx _]
+   (let [state (:db cofx)]
+     {:db (new-state (:level-selected state) (:best-times state) (:posix-time cofx))})))
 
-(reg-event-db
+(reg-event-fx
  :spread-sweep
- (fn [state [_ row col]]
-   (if (= :alive (:game-state state))
-     (sweep-spread! state [row col])
-     state)))
+ [(inject-cofx :posix-time)]
+ (fn [cofx [_ row col]]
+   (let [state (:db cofx)
+         new-state (if (= :alive (:game-state state))
+                     (do-sweep-spread state (:posix-time cofx) [row col])
+                     state)]
+     {:db new-state
+      :set-local-storage-key {:name "best-times"
+                              :value (:best-times new-state)}})))
 
-(reg-event-db
+(reg-event-fx
  :flag
- (fn [state [_ row col]]
-   (if (alive-or-pending? state)
-     (-> (start-game-if-pending state)
-         (flag-cell [row col]))
-     state)))
+ [(inject-cofx :posix-time)]
+ (fn [cofx [_ row col]]
+   (let [state (:db cofx)]
+     {:db (if (alive-or-pending? state)
+            (-> (start-game-if-pending state (:posix-time cofx))
+                (flag-cell [row col]))
+            state)})))
 
 (reg-event-db
  :unflag
@@ -387,9 +424,10 @@
    (get-in state [:flags row col])))
 
 (reg-sub
- :high-score
+ :best-time
  (fn [state _]
-   (:high-score state)))
+   (let [level (get-in state [:level :key])]
+     (get-in state [:best-times level]))))
 
 (reg-sub
  :num-remaining
@@ -432,7 +470,7 @@
     (fn []
       [:div.ms-panel
        [:select.ms-control {:value @level
-                 :onChange #(dispatch [:level-select (-> % .-target .-value)])}
+                 :onChange #(dispatch [:level-select (-> % .-target .-value keyword)])}
         [:option {:value "beginner"} "Beginner"]
         [:option {:value "intermediate"} "Intermediate"]
         [:option {:value "expert"} "Expert"]]
@@ -443,20 +481,20 @@
   (let [time-started (subscribe [:time-started])
         tick-count (subscribe [:tick-count])]
     [:div.ms-timer "Time "
-     [:span (gstring/format "%03d" (calc-elapsed @time-started))]
+     [:span (gstring/format "%03d" (int (- (posix-time!) @time-started)))]
      [:span.ms-display-none @tick-count]]))
 
 (defn info-view
   []
-  (let [high-score (subscribe [:high-score])
+  (let [best-time (subscribe [:best-time])
         num-remaining (subscribe [:num-remaining])]
     (fn []
       [:div.ms-info
        [timer-view]
        [:div.ms-high-score "Best "
-        [:span (if (nil? @high-score)
+        [:span (if (nil? @best-time)
                  "---"
-                 (gstring/format "%03d" @high-score))]]
+                 (gstring/format "%03d" @best-time))]]
        [:div.ms-remaining "Mines " [:span (gstring/format "%03d" @num-remaining)]]])))
 
 (defn hidden-cell-view
