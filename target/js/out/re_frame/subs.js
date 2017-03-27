@@ -17,8 +17,8 @@ throw (new Error("Assert failed: (re-frame.registrar/kinds kind)"));
 re_frame.subs.register_raw = (function re_frame$subs$register_raw(query_id,handler_fn){
 return re_frame.registrar.register_handler(re_frame.subs.kind,query_id,handler_fn);
 });
-re_frame.subs.query__GT_reaction = (function (){var G__13061 = cljs.core.PersistentArrayMap.EMPTY;
-return (cljs.core.atom.cljs$core$IFn$_invoke$arity$1 ? cljs.core.atom.cljs$core$IFn$_invoke$arity$1(G__13061) : cljs.core.atom.call(null,G__13061));
+re_frame.subs.query__GT_reaction = (function (){var G__13059 = cljs.core.PersistentArrayMap.EMPTY;
+return (cljs.core.atom.cljs$core$IFn$_invoke$arity$1 ? cljs.core.atom.cljs$core$IFn$_invoke$arity$1(G__13059) : cljs.core.atom.call(null,G__13059));
 })();
 /**
  * Unregisters all existing subscription handlers
@@ -26,9 +26,9 @@ return (cljs.core.atom.cljs$core$IFn$_invoke$arity$1 ? cljs.core.atom.cljs$core$
 re_frame.subs.clear_all_handlers_BANG_ = (function re_frame$subs$clear_all_handlers_BANG_(){
 re_frame.registrar.clear_handlers.cljs$core$IFn$_invoke$arity$1(re_frame.subs.kind);
 
-var G__13064 = re_frame.subs.query__GT_reaction;
-var G__13065 = cljs.core.PersistentArrayMap.EMPTY;
-return (cljs.core.reset_BANG_.cljs$core$IFn$_invoke$arity$2 ? cljs.core.reset_BANG_.cljs$core$IFn$_invoke$arity$2(G__13064,G__13065) : cljs.core.reset_BANG_.call(null,G__13064,G__13065));
+var G__13062 = re_frame.subs.query__GT_reaction;
+var G__13063 = cljs.core.PersistentArrayMap.EMPTY;
+return (cljs.core.reset_BANG_.cljs$core$IFn$_invoke$arity$2 ? cljs.core.reset_BANG_.cljs$core$IFn$_invoke$arity$2(G__13062,G__13063) : cljs.core.reset_BANG_.call(null,G__13062,G__13063));
 });
 /**
  * cache the reaction r
@@ -46,23 +46,23 @@ cljs.core.swap_BANG_.cljs$core$IFn$_invoke$arity$4(re_frame.subs.query__GT_react
 return r;
 });
 re_frame.subs.cache_lookup = (function re_frame$subs$cache_lookup(var_args){
-var args13071 = [];
-var len__7479__auto___13074 = arguments.length;
-var i__7480__auto___13075 = (0);
+var args13066 = [];
+var len__7479__auto___13072 = arguments.length;
+var i__7480__auto___13073 = (0);
 while(true){
-if((i__7480__auto___13075 < len__7479__auto___13074)){
-args13071.push((arguments[i__7480__auto___13075]));
+if((i__7480__auto___13073 < len__7479__auto___13072)){
+args13066.push((arguments[i__7480__auto___13073]));
 
-var G__13076 = (i__7480__auto___13075 + (1));
-i__7480__auto___13075 = G__13076;
+var G__13075 = (i__7480__auto___13073 + (1));
+i__7480__auto___13073 = G__13075;
 continue;
 } else {
 }
 break;
 }
 
-var G__13073 = args13071.length;
-switch (G__13073) {
+var G__13069 = args13066.length;
+switch (G__13069) {
 case 1:
 return re_frame.subs.cache_lookup.cljs$core$IFn$_invoke$arity$1((arguments[(0)]));
 
@@ -72,7 +72,7 @@ return re_frame.subs.cache_lookup.cljs$core$IFn$_invoke$arity$2((arguments[(0)])
 
 break;
 default:
-throw (new Error([cljs.core.str("Invalid arity: "),cljs.core.str(args13071.length)].join('')));
+throw (new Error([cljs.core.str("Invalid arity: "),cljs.core.str(args13066.length)].join('')));
 
 }
 });
@@ -92,22 +92,22 @@ re_frame.subs.cache_lookup.cljs$lang$maxFixedArity = 2;
  */
 re_frame.subs.subscribe = (function re_frame$subs$subscribe(var_args){
 var args13083 = [];
-var len__7479__auto___13101 = arguments.length;
-var i__7480__auto___13103 = (0);
+var len__7479__auto___13104 = arguments.length;
+var i__7480__auto___13106 = (0);
 while(true){
-if((i__7480__auto___13103 < len__7479__auto___13101)){
-args13083.push((arguments[i__7480__auto___13103]));
+if((i__7480__auto___13106 < len__7479__auto___13104)){
+args13083.push((arguments[i__7480__auto___13106]));
 
-var G__13107 = (i__7480__auto___13103 + (1));
-i__7480__auto___13103 = G__13107;
+var G__13107 = (i__7480__auto___13106 + (1));
+i__7480__auto___13106 = G__13107;
 continue;
 } else {
 }
 break;
 }
 
-var G__13087 = args13083.length;
-switch (G__13087) {
+var G__13094 = args13083.length;
+switch (G__13094) {
 case 1:
 return re_frame.subs.subscribe.cljs$core$IFn$_invoke$arity$1((arguments[(0)]));
 
@@ -148,10 +148,10 @@ return cached;
 var query_id = re_frame.utils.first_in_vector(v);
 var handler_fn = re_frame.registrar.get_handler.cljs$core$IFn$_invoke$arity$2(re_frame.subs.kind,query_id);
 if(re_frame.interop.debug_enabled_QMARK_){
-var temp__4657__auto___13117 = cljs.core.not_empty(cljs.core.remove.cljs$core$IFn$_invoke$arity$2(re_frame.interop.ratom_QMARK_,dynv));
-if(cljs.core.truth_(temp__4657__auto___13117)){
-var not_reactive_13118 = temp__4657__auto___13117;
-re_frame.loggers.console.cljs$core$IFn$_invoke$arity$variadic(cljs.core.cst$kw$warn,cljs.core.array_seq(["re-frame: your subscription's dynamic parameters that don't implement IReactiveAtom: ",not_reactive_13118], 0));
+var temp__4657__auto___13114 = cljs.core.not_empty(cljs.core.remove.cljs$core$IFn$_invoke$arity$2(re_frame.interop.ratom_QMARK_,dynv));
+if(cljs.core.truth_(temp__4657__auto___13114)){
+var not_reactive_13115 = temp__4657__auto___13114;
+re_frame.loggers.console.cljs$core$IFn$_invoke$arity$variadic(cljs.core.cst$kw$warn,cljs.core.array_seq(["re-frame: your subscription's dynamic parameters that don't implement IReactiveAtom: ",not_reactive_13115], 0));
 } else {
 }
 } else {
@@ -167,16 +167,16 @@ return cljs.core.mapv.cljs$core$IFn$_invoke$arity$2(cljs.core.deref,dynv);
 );
 var sub = re_frame.interop.make_reaction(((function (dyn_vals,query_id,handler_fn,temp__4655__auto__){
 return (function (){
-var G__13092 = re_frame.db.app_db;
-var G__13093 = v;
-var G__13094 = (cljs.core.deref.cljs$core$IFn$_invoke$arity$1 ? cljs.core.deref.cljs$core$IFn$_invoke$arity$1(dyn_vals) : cljs.core.deref.call(null,dyn_vals));
-return (handler_fn.cljs$core$IFn$_invoke$arity$3 ? handler_fn.cljs$core$IFn$_invoke$arity$3(G__13092,G__13093,G__13094) : handler_fn.call(null,G__13092,G__13093,G__13094));
+var G__13100 = re_frame.db.app_db;
+var G__13101 = v;
+var G__13102 = (cljs.core.deref.cljs$core$IFn$_invoke$arity$1 ? cljs.core.deref.cljs$core$IFn$_invoke$arity$1(dyn_vals) : cljs.core.deref.call(null,dyn_vals));
+return (handler_fn.cljs$core$IFn$_invoke$arity$3 ? handler_fn.cljs$core$IFn$_invoke$arity$3(G__13100,G__13101,G__13102) : handler_fn.call(null,G__13100,G__13101,G__13102));
 });})(dyn_vals,query_id,handler_fn,temp__4655__auto__))
 );
 return re_frame.subs.cache_and_return(v,dynv,re_frame.interop.make_reaction(((function (dyn_vals,sub,query_id,handler_fn,temp__4655__auto__){
 return (function (){
-var G__13096 = (cljs.core.deref.cljs$core$IFn$_invoke$arity$1 ? cljs.core.deref.cljs$core$IFn$_invoke$arity$1(sub) : cljs.core.deref.call(null,sub));
-return (cljs.core.deref.cljs$core$IFn$_invoke$arity$1 ? cljs.core.deref.cljs$core$IFn$_invoke$arity$1(G__13096) : cljs.core.deref.call(null,G__13096));
+var G__13103 = (cljs.core.deref.cljs$core$IFn$_invoke$arity$1 ? cljs.core.deref.cljs$core$IFn$_invoke$arity$1(sub) : cljs.core.deref.call(null,sub));
+return (cljs.core.deref.cljs$core$IFn$_invoke$arity$1 ? cljs.core.deref.cljs$core$IFn$_invoke$arity$1(G__13103) : cljs.core.deref.call(null,G__13103));
 });})(dyn_vals,sub,query_id,handler_fn,temp__4655__auto__))
 ));
 }
@@ -190,27 +190,27 @@ re_frame.subs.subscribe.cljs$lang$maxFixedArity = 2;
  *   (map-vals inc {:a 4, :b 2}) => {:a 5, :b 3}
  */
 re_frame.subs.map_vals = (function re_frame$subs$map_vals(f,m){
-return cljs.core.into.cljs$core$IFn$_invoke$arity$2(cljs.core.PersistentArrayMap.EMPTY,(function (){var iter__7184__auto__ = (function re_frame$subs$map_vals_$_iter__13145(s__13146){
+return cljs.core.into.cljs$core$IFn$_invoke$arity$2(cljs.core.PersistentArrayMap.EMPTY,(function (){var iter__7184__auto__ = (function re_frame$subs$map_vals_$_iter__13144(s__13145){
 return (new cljs.core.LazySeq(null,(function (){
-var s__13146__$1 = s__13146;
+var s__13145__$1 = s__13145;
 while(true){
-var temp__4657__auto__ = cljs.core.seq(s__13146__$1);
+var temp__4657__auto__ = cljs.core.seq(s__13145__$1);
 if(temp__4657__auto__){
-var s__13146__$2 = temp__4657__auto__;
-if(cljs.core.chunked_seq_QMARK_(s__13146__$2)){
-var c__7182__auto__ = cljs.core.chunk_first(s__13146__$2);
+var s__13145__$2 = temp__4657__auto__;
+if(cljs.core.chunked_seq_QMARK_(s__13145__$2)){
+var c__7182__auto__ = cljs.core.chunk_first(s__13145__$2);
 var size__7183__auto__ = cljs.core.count(c__7182__auto__);
-var b__13148 = cljs.core.chunk_buffer(size__7183__auto__);
-if((function (){var i__13147 = (0);
+var b__13147 = cljs.core.chunk_buffer(size__7183__auto__);
+if((function (){var i__13146 = (0);
 while(true){
-if((i__13147 < size__7183__auto__)){
-var vec__13157 = cljs.core._nth.cljs$core$IFn$_invoke$arity$2(c__7182__auto__,i__13147);
-var k = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__13157,(0),null);
-var val = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__13157,(1),null);
-cljs.core.chunk_append(b__13148,new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [k,(f.cljs$core$IFn$_invoke$arity$1 ? f.cljs$core$IFn$_invoke$arity$1(val) : f.call(null,val))], null));
+if((i__13146 < size__7183__auto__)){
+var vec__13162 = cljs.core._nth.cljs$core$IFn$_invoke$arity$2(c__7182__auto__,i__13146);
+var k = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__13162,(0),null);
+var val = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__13162,(1),null);
+cljs.core.chunk_append(b__13147,new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [k,(f.cljs$core$IFn$_invoke$arity$1 ? f.cljs$core$IFn$_invoke$arity$1(val) : f.call(null,val))], null));
 
-var G__13171 = (i__13147 + (1));
-i__13147 = G__13171;
+var G__13170 = (i__13146 + (1));
+i__13146 = G__13170;
 continue;
 } else {
 return true;
@@ -218,15 +218,15 @@ return true;
 break;
 }
 })()){
-return cljs.core.chunk_cons(cljs.core.chunk(b__13148),re_frame$subs$map_vals_$_iter__13145(cljs.core.chunk_rest(s__13146__$2)));
+return cljs.core.chunk_cons(cljs.core.chunk(b__13147),re_frame$subs$map_vals_$_iter__13144(cljs.core.chunk_rest(s__13145__$2)));
 } else {
-return cljs.core.chunk_cons(cljs.core.chunk(b__13148),null);
+return cljs.core.chunk_cons(cljs.core.chunk(b__13147),null);
 }
 } else {
-var vec__13160 = cljs.core.first(s__13146__$2);
-var k = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__13160,(0),null);
-var val = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__13160,(1),null);
-return cljs.core.cons(new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [k,(f.cljs$core$IFn$_invoke$arity$1 ? f.cljs$core$IFn$_invoke$arity$1(val) : f.call(null,val))], null),re_frame$subs$map_vals_$_iter__13145(cljs.core.rest(s__13146__$2)));
+var vec__13165 = cljs.core.first(s__13145__$2);
+var k = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__13165,(0),null);
+var val = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__13165,(1),null);
+return cljs.core.cons(new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [k,(f.cljs$core$IFn$_invoke$arity$1 ? f.cljs$core$IFn$_invoke$arity$1(val) : f.call(null,val))], null),re_frame$subs$map_vals_$_iter__13144(cljs.core.rest(s__13145__$2)));
 }
 } else {
 return null;
@@ -454,9 +454,9 @@ return re_frame$subs$subs_handler_fn;
 
 re_frame.subs.reg_sub.cljs$lang$maxFixedArity = (1);
 
-re_frame.subs.reg_sub.cljs$lang$applyTo = (function (seq13174){
-var G__13175 = cljs.core.first(seq13174);
-var seq13174__$1 = cljs.core.next(seq13174);
-return re_frame.subs.reg_sub.cljs$core$IFn$_invoke$arity$variadic(G__13175,seq13174__$1);
+re_frame.subs.reg_sub.cljs$lang$applyTo = (function (seq13175){
+var G__13176 = cljs.core.first(seq13175);
+var seq13175__$1 = cljs.core.next(seq13175);
+return re_frame.subs.reg_sub.cljs$core$IFn$_invoke$arity$variadic(G__13176,seq13175__$1);
 });
 

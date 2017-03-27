@@ -7,8 +7,7 @@ goog.require('goog.string.format');
 goog.require('reagent.core');
 goog.require('re_frame.core');
 goog.require('clojure.set');
-cljs.core.enable_console_print_BANG_();
-minesweeper.core.levels = new cljs.core.PersistentArrayMap(null, 3, ["beginner",new cljs.core.PersistentArrayMap(null, 2, [cljs.core.cst$kw$size,new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [(8),(8)], null),cljs.core.cst$kw$mines,(10)], null),"intermediate",new cljs.core.PersistentArrayMap(null, 2, [cljs.core.cst$kw$size,new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [(16),(16)], null),cljs.core.cst$kw$mines,(40)], null),"expert",new cljs.core.PersistentArrayMap(null, 2, [cljs.core.cst$kw$size,new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [(16),(30)], null),cljs.core.cst$kw$mines,(99)], null)], null);
+minesweeper.core.levels = new cljs.core.PersistentArrayMap(null, 3, [cljs.core.cst$kw$beginner,new cljs.core.PersistentArrayMap(null, 3, [cljs.core.cst$kw$key,cljs.core.cst$kw$beginner,cljs.core.cst$kw$size,new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [(8),(8)], null),cljs.core.cst$kw$mines,(10)], null),cljs.core.cst$kw$intermediate,new cljs.core.PersistentArrayMap(null, 3, [cljs.core.cst$kw$key,cljs.core.cst$kw$intermediate,cljs.core.cst$kw$size,new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [(16),(16)], null),cljs.core.cst$kw$mines,(40)], null),cljs.core.cst$kw$expert,new cljs.core.PersistentArrayMap(null, 3, [cljs.core.cst$kw$key,cljs.core.cst$kw$expert,cljs.core.cst$kw$size,new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [(16),(30)], null),cljs.core.cst$kw$mines,(99)], null)], null);
 minesweeper.core.vec_zeros = (function minesweeper$core$vec_zeros(n){
 return cljs.core.vec(cljs.core.repeat.cljs$core$IFn$_invoke$arity$2(n,(0)));
 });
@@ -40,20 +39,6 @@ return coords;
 }
 });})(indices,vec__13367,rows,cols,vec__13370,row,col))
 ,cljs.core.PersistentVector.EMPTY,indices);
-});
-minesweeper.core.set_high_score_BANG_ = (function minesweeper$core$set_high_score_BANG_(level,score){
-return localStorage.setItem(level,score);
-});
-minesweeper.core.get_high_score = (function minesweeper$core$get_high_score(level){
-var score = localStorage.getItem(level);
-if(cljs.core.truth_(score)){
-return parseInt(score);
-} else {
-return null;
-}
-});
-minesweeper.core.dbg_clear_high_score_BANG_ = (function minesweeper$core$dbg_clear_high_score_BANG_(level){
-return localStorage.removeItem(level);
 });
 /**
  * Returns the number of cells with value value around cell [row col].
@@ -268,16 +253,6 @@ return labelled;
 ,grid,minesweeper.core.flatten_grid(grid));
 });
 /**
- * Seconds since the epoch.
- */
-minesweeper.core.get_time = (function minesweeper$core$get_time(){
-var millis = (new Date()).getTime();
-return (millis / (1000));
-});
-minesweeper.core.calc_elapsed = (function minesweeper$core$calc_elapsed(time_started){
-return ((minesweeper.core.get_time() - time_started) | (0));
-});
-/**
  * Sets the grid to value at each cell.
  */
 minesweeper.core.set_in_grid = (function minesweeper$core$set_in_grid(grid,cells,value){
@@ -422,34 +397,41 @@ return flags__$1;
 /**
  * Construct a fresh game state for the given difficulty level.
  */
-minesweeper.core.new_state = (function minesweeper$core$new_state(level){
+minesweeper.core.new_state = (function minesweeper$core$new_state(level,best_times,posix_time){
 var vec__13604 = cljs.core.get_in.cljs$core$IFn$_invoke$arity$2(minesweeper.core.levels,new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [level,cljs.core.cst$kw$size], null));
 var rows = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__13604,(0),null);
 var cols = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__13604,(1),null);
 var num_mines = cljs.core.get_in.cljs$core$IFn$_invoke$arity$2(minesweeper.core.levels,new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [level,cljs.core.cst$kw$mines], null));
-return cljs.core.PersistentHashMap.fromArrays([cljs.core.cst$kw$mask,cljs.core.cst$kw$grid,cljs.core.cst$kw$high_DASH_score,cljs.core.cst$kw$level_DASH_selected,cljs.core.cst$kw$time_DASH_started,cljs.core.cst$kw$game_DASH_state,cljs.core.cst$kw$level,cljs.core.cst$kw$tick_DASH_count,cljs.core.cst$kw$flags],[minesweeper.core.vec_zeros_2(new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [rows,cols], null)),minesweeper.core.label_grid(new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [rows,cols], null),minesweeper.core.populate_grid(new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [rows,cols], null),minesweeper.core.vec_zeros_2(new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [rows,cols], null)),num_mines)),minesweeper.core.get_high_score(level),level,minesweeper.core.get_time(),cljs.core.cst$kw$pending,cljs.core.get.cljs$core$IFn$_invoke$arity$2(minesweeper.core.levels,level),(0),minesweeper.core.vec_zeros_2(new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [rows,cols], null))]);
+return cljs.core.PersistentHashMap.fromArrays([cljs.core.cst$kw$mask,cljs.core.cst$kw$best_DASH_times,cljs.core.cst$kw$grid,cljs.core.cst$kw$level_DASH_selected,cljs.core.cst$kw$time_DASH_started,cljs.core.cst$kw$game_DASH_state,cljs.core.cst$kw$level,cljs.core.cst$kw$tick_DASH_count,cljs.core.cst$kw$flags],[minesweeper.core.vec_zeros_2(new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [rows,cols], null)),(function (){var or__6404__auto__ = best_times;
+if(cljs.core.truth_(or__6404__auto__)){
+return or__6404__auto__;
+} else {
+return new cljs.core.PersistentArrayMap(null, 3, [cljs.core.cst$kw$beginner,null,cljs.core.cst$kw$intermediate,null,cljs.core.cst$kw$expert,null], null);
+}
+})(),minesweeper.core.label_grid(new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [rows,cols], null),minesweeper.core.populate_grid(new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [rows,cols], null),minesweeper.core.vec_zeros_2(new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [rows,cols], null)),num_mines)),level,posix_time,cljs.core.cst$kw$pending,cljs.core.get.cljs$core$IFn$_invoke$arity$2(minesweeper.core.levels,level),(0),minesweeper.core.vec_zeros_2(new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [rows,cols], null))]);
 });
 minesweeper.core.alive_or_pending_QMARK_ = (function minesweeper$core$alive_or_pending_QMARK_(state){
 return cljs.core.contains_QMARK_(new cljs.core.PersistentHashSet(null, new cljs.core.PersistentArrayMap(null, 2, [cljs.core.cst$kw$pending,null,cljs.core.cst$kw$alive,null], null), null),cljs.core.cst$kw$game_DASH_state.cljs$core$IFn$_invoke$arity$1(state));
 });
+minesweeper.core.posix_time_BANG_ = (function minesweeper$core$posix_time_BANG_(){
+var millis = (new Date()).getTime();
+return (millis / (1000));
+});
 /**
- * If the time elapsed repesents a new high-score, persist it to local
- *   storage.
+ * If the time elapsed repesents a new best time, update the app state.
  */
-minesweeper.core.update_high_score_BANG_ = (function minesweeper$core$update_high_score_BANG_(state){
+minesweeper.core.update_best_times = (function minesweeper$core$update_best_times(state,posix_time){
 var level = cljs.core.cst$kw$level_DASH_selected.cljs$core$IFn$_invoke$arity$1(state);
 var time_started = cljs.core.cst$kw$time_DASH_started.cljs$core$IFn$_invoke$arity$1(state);
-var elapsed = minesweeper.core.calc_elapsed(time_started);
-var high_score = minesweeper.core.get_high_score(level);
-if((cljs.core._EQ_.cljs$core$IFn$_invoke$arity$2(null,high_score)) || ((elapsed < high_score))){
-minesweeper.core.set_high_score_BANG_(level,elapsed);
-
-return cljs.core.assoc.cljs$core$IFn$_invoke$arity$3(state,cljs.core.cst$kw$high_DASH_score,elapsed);
+var elapsed = ((posix_time - time_started) | (0));
+var current_best = cljs.core.get_in.cljs$core$IFn$_invoke$arity$2(state,new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [cljs.core.cst$kw$best_DASH_times,level], null));
+if((cljs.core._EQ_.cljs$core$IFn$_invoke$arity$2(null,current_best)) || ((elapsed < current_best))){
+return cljs.core.assoc_in(state,new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [cljs.core.cst$kw$best_DASH_times,level], null),elapsed);
 } else {
 return state;
 }
 });
-minesweeper.core.sweep_cell_BANG_ = (function minesweeper$core$sweep_cell_BANG_(state,p__13607){
+minesweeper.core.do_sweep_cell = (function minesweeper$core$do_sweep_cell(state,posix_time,p__13607){
 var vec__13614 = p__13607;
 var row = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__13614,(0),null);
 var col = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__13614,(1),null);
@@ -467,12 +449,12 @@ var new_flags = minesweeper.core.set_in_grid(flags,sweep_region,(0));
 var new_game_state = minesweeper.core.calc_game_state(grid,new_mask,num_mines,new cljs.core.PersistentVector(null, 1, 5, cljs.core.PersistentVector.EMPTY_NODE, [new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [row,col], null)], null),game_state);
 var new_state = cljs.core.assoc.cljs$core$IFn$_invoke$arity$3(cljs.core.assoc.cljs$core$IFn$_invoke$arity$3(cljs.core.assoc.cljs$core$IFn$_invoke$arity$3(state,cljs.core.cst$kw$game_DASH_state,new_game_state),cljs.core.cst$kw$mask,new_mask),cljs.core.cst$kw$flags,new_flags);
 if(cljs.core._EQ_.cljs$core$IFn$_invoke$arity$2(cljs.core.cst$kw$victorious,new_game_state)){
-return minesweeper.core.update_high_score_BANG_(cljs.core.assoc.cljs$core$IFn$_invoke$arity$3(new_state,cljs.core.cst$kw$flags,minesweeper.core.flag_remaining(new_flags,grid)));
+return minesweeper.core.update_best_times(cljs.core.assoc.cljs$core$IFn$_invoke$arity$3(new_state,cljs.core.cst$kw$flags,minesweeper.core.flag_remaining(new_flags,grid)),posix_time);
 } else {
 return new_state;
 }
 });
-minesweeper.core.sweep_spread_BANG_ = (function minesweeper$core$sweep_spread_BANG_(state,p__13620){
+minesweeper.core.do_sweep_spread = (function minesweeper$core$do_sweep_spread(state,posix_time,p__13620){
 var vec__13627 = p__13620;
 var row = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__13627,(0),null);
 var col = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__13627,(1),null);
@@ -487,7 +469,7 @@ if(cljs.core.truth_(minesweeper.core.can_spread_sweep_QMARK_(new cljs.core.Persi
 return cljs.core.reduce.cljs$core$IFn$_invoke$arity$3(((function (vec__13630,rows,cols,grid,mask,flags,num_mines,vec__13627,row,col){
 return (function (st,cell){
 if(cljs.core._EQ_.cljs$core$IFn$_invoke$arity$2((0),cljs.core.get_in.cljs$core$IFn$_invoke$arity$2(flags,cell))){
-return minesweeper.core.sweep_cell_BANG_(st,cell);
+return minesweeper.core.do_sweep_cell(st,posix_time,cell);
 } else {
 return st;
 }
@@ -509,12 +491,8 @@ var row = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__13644,(0),null);
 var col = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__13644,(1),null);
 return cljs.core.assoc_in(state,new cljs.core.PersistentVector(null, 3, 5, cljs.core.PersistentVector.EMPTY_NODE, [cljs.core.cst$kw$flags,row,col], null),(0));
 });
-minesweeper.core.reset_game = (function minesweeper$core$reset_game(state){
-var level = cljs.core.cst$kw$level_DASH_selected.cljs$core$IFn$_invoke$arity$1(state);
-return cljs.core.merge.cljs$core$IFn$_invoke$arity$variadic(cljs.core.array_seq([state,minesweeper.core.new_state(level)], 0));
-});
-minesweeper.core.start_game = (function minesweeper$core$start_game(state){
-return cljs.core.assoc.cljs$core$IFn$_invoke$arity$3(cljs.core.assoc.cljs$core$IFn$_invoke$arity$3(state,cljs.core.cst$kw$game_DASH_state,cljs.core.cst$kw$alive),cljs.core.cst$kw$time_DASH_started,minesweeper.core.get_time());
+minesweeper.core.start_game = (function minesweeper$core$start_game(state,posix_time){
+return cljs.core.assoc.cljs$core$IFn$_invoke$arity$3(cljs.core.assoc.cljs$core$IFn$_invoke$arity$3(state,cljs.core.cst$kw$game_DASH_state,cljs.core.cst$kw$alive),cljs.core.cst$kw$time_DASH_started,posix_time);
 });
 /**
  * Any components that need regular refreshing can depend on :tick-count,
@@ -523,15 +501,53 @@ return cljs.core.assoc.cljs$core$IFn$_invoke$arity$3(cljs.core.assoc.cljs$core$I
 minesweeper.core.tick = (function minesweeper$core$tick(state){
 return cljs.core.update.cljs$core$IFn$_invoke$arity$3(state,cljs.core.cst$kw$tick_DASH_count,cljs.core.inc);
 });
-minesweeper.core.start_game_if_pending = (function minesweeper$core$start_game_if_pending(state){
+minesweeper.core.start_game_if_pending = (function minesweeper$core$start_game_if_pending(state,posix_time){
 if(cljs.core._EQ_.cljs$core$IFn$_invoke$arity$2(cljs.core.cst$kw$pending,cljs.core.cst$kw$game_DASH_state.cljs$core$IFn$_invoke$arity$1(state))){
-return minesweeper.core.start_game(state);
+return minesweeper.core.start_game(state,posix_time);
 } else {
 return state;
 }
 });
-re_frame.core.reg_event_db.cljs$core$IFn$_invoke$arity$2(cljs.core.cst$kw$initialise,(function (state,_){
-return minesweeper.core.new_state("intermediate");
+var G__13647_13650 = cljs.core.cst$kw$get_DASH_local_DASH_storage_DASH_key;
+var G__13648_13651 = ((function (G__13647_13650){
+return (function (cofx,name){
+var app_data = cljs.core.js__GT_clj.cljs$core$IFn$_invoke$arity$variadic((function (){var G__13649 = localStorage.getItem("cljsmines");
+return JSON.parse(G__13649);
+})(),cljs.core.array_seq([cljs.core.cst$kw$keywordize_DASH_keys,true], 0));
+return cljs.core.assoc.cljs$core$IFn$_invoke$arity$3(cofx,name,cljs.core.get.cljs$core$IFn$_invoke$arity$2(app_data,name));
+});})(G__13647_13650))
+;
+(re_frame.core.reg_cofx.cljs$core$IFn$_invoke$arity$2 ? re_frame.core.reg_cofx.cljs$core$IFn$_invoke$arity$2(G__13647_13650,G__13648_13651) : re_frame.core.reg_cofx.call(null,G__13647_13650,G__13648_13651));
+var G__13652_13654 = cljs.core.cst$kw$posix_DASH_time;
+var G__13653_13655 = ((function (G__13652_13654){
+return (function (cofx){
+return cljs.core.assoc.cljs$core$IFn$_invoke$arity$3(cofx,cljs.core.cst$kw$posix_DASH_time,minesweeper.core.posix_time_BANG_());
+});})(G__13652_13654))
+;
+(re_frame.core.reg_cofx.cljs$core$IFn$_invoke$arity$2 ? re_frame.core.reg_cofx.cljs$core$IFn$_invoke$arity$2(G__13652_13654,G__13653_13655) : re_frame.core.reg_cofx.call(null,G__13652_13654,G__13653_13655));
+var G__13656_13663 = cljs.core.cst$kw$set_DASH_local_DASH_storage_DASH_key;
+var G__13657_13664 = ((function (G__13656_13663){
+return (function (p__13658){
+var map__13659 = p__13658;
+var map__13659__$1 = ((((!((map__13659 == null)))?((((map__13659.cljs$lang$protocol_mask$partition0$ & (64))) || (map__13659.cljs$core$ISeq$))?true:false):false))?cljs.core.apply.cljs$core$IFn$_invoke$arity$2(cljs.core.hash_map,map__13659):map__13659);
+var name = cljs.core.get.cljs$core$IFn$_invoke$arity$2(map__13659__$1,cljs.core.cst$kw$name);
+var value = cljs.core.get.cljs$core$IFn$_invoke$arity$2(map__13659__$1,cljs.core.cst$kw$value);
+var app_data = cljs.core.js__GT_clj.cljs$core$IFn$_invoke$arity$1((function (){var G__13661 = localStorage.getItem("cljsmines");
+return JSON.parse(G__13661);
+})());
+return localStorage.setItem("cljsmines",(function (){var G__13662 = cljs.core.clj__GT_js(cljs.core.assoc.cljs$core$IFn$_invoke$arity$3(app_data,name,value));
+return JSON.stringify(G__13662);
+})());
+});})(G__13656_13663))
+;
+(re_frame.core.reg_fx.cljs$core$IFn$_invoke$arity$2 ? re_frame.core.reg_fx.cljs$core$IFn$_invoke$arity$2(G__13656_13663,G__13657_13664) : re_frame.core.reg_fx.call(null,G__13656_13663,G__13657_13664));
+re_frame.core.reg_event_fx.cljs$core$IFn$_invoke$arity$3(cljs.core.cst$kw$initialise,new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [(function (){var G__13665 = cljs.core.cst$kw$get_DASH_local_DASH_storage_DASH_key;
+var G__13666 = cljs.core.cst$kw$best_DASH_times;
+return (re_frame.core.inject_cofx.cljs$core$IFn$_invoke$arity$2 ? re_frame.core.inject_cofx.cljs$core$IFn$_invoke$arity$2(G__13665,G__13666) : re_frame.core.inject_cofx.call(null,G__13665,G__13666));
+})(),(function (){var G__13667 = cljs.core.cst$kw$posix_DASH_time;
+return (re_frame.core.inject_cofx.cljs$core$IFn$_invoke$arity$1 ? re_frame.core.inject_cofx.cljs$core$IFn$_invoke$arity$1(G__13667) : re_frame.core.inject_cofx.call(null,G__13667));
+})()], null),(function (cofx,_){
+return new cljs.core.PersistentArrayMap(null, 1, [cljs.core.cst$kw$db,minesweeper.core.new_state(cljs.core.cst$kw$intermediate,cljs.core.cst$kw$best_DASH_times.cljs$core$IFn$_invoke$arity$1(cofx),cljs.core.cst$kw$posix_DASH_time.cljs$core$IFn$_invoke$arity$1(cofx))], null);
 }));
 re_frame.core.reg_event_db.cljs$core$IFn$_invoke$arity$2(cljs.core.cst$kw$tick,(function (state,_){
 if(cljs.core._EQ_.cljs$core$IFn$_invoke$arity$2(cljs.core.cst$kw$alive,cljs.core.cst$kw$game_DASH_state.cljs$core$IFn$_invoke$arity$1(state))){
@@ -540,221 +556,224 @@ return minesweeper.core.tick(state);
 return state;
 }
 }));
-re_frame.core.reg_event_db.cljs$core$IFn$_invoke$arity$2(cljs.core.cst$kw$sweep,(function (state,p__13647){
-var vec__13648 = p__13647;
-var _ = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__13648,(0),null);
-var row = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__13648,(1),null);
-var col = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__13648,(2),null);
-if(cljs.core.truth_(minesweeper.core.alive_or_pending_QMARK_(state))){
-return minesweeper.core.sweep_cell_BANG_(minesweeper.core.start_game_if_pending(state),new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [row,col], null));
-} else {
-return state;
-}
+re_frame.core.reg_event_fx.cljs$core$IFn$_invoke$arity$3(cljs.core.cst$kw$sweep,new cljs.core.PersistentVector(null, 1, 5, cljs.core.PersistentVector.EMPTY_NODE, [(function (){var G__13668 = cljs.core.cst$kw$posix_DASH_time;
+return (re_frame.core.inject_cofx.cljs$core$IFn$_invoke$arity$1 ? re_frame.core.inject_cofx.cljs$core$IFn$_invoke$arity$1(G__13668) : re_frame.core.inject_cofx.call(null,G__13668));
+})()], null),(function (cofx,p__13669){
+var vec__13670 = p__13669;
+var _ = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__13670,(0),null);
+var row = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__13670,(1),null);
+var col = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__13670,(2),null);
+var state = cljs.core.cst$kw$db.cljs$core$IFn$_invoke$arity$1(cofx);
+var new_state = (cljs.core.truth_(minesweeper.core.alive_or_pending_QMARK_(state))?minesweeper.core.do_sweep_cell(minesweeper.core.start_game_if_pending(state,cljs.core.cst$kw$posix_DASH_time.cljs$core$IFn$_invoke$arity$1(cofx)),cljs.core.cst$kw$posix_DASH_time.cljs$core$IFn$_invoke$arity$1(cofx),new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [row,col], null)):state);
+return new cljs.core.PersistentArrayMap(null, 2, [cljs.core.cst$kw$db,new_state,cljs.core.cst$kw$set_DASH_local_DASH_storage_DASH_key,new cljs.core.PersistentArrayMap(null, 2, [cljs.core.cst$kw$name,"best-times",cljs.core.cst$kw$value,cljs.core.cst$kw$best_DASH_times.cljs$core$IFn$_invoke$arity$1(new_state)], null)], null);
 }));
-re_frame.core.reg_event_db.cljs$core$IFn$_invoke$arity$2(cljs.core.cst$kw$reset,(function (state,_){
-return minesweeper.core.reset_game(state);
+re_frame.core.reg_event_fx.cljs$core$IFn$_invoke$arity$3(cljs.core.cst$kw$reset,new cljs.core.PersistentVector(null, 1, 5, cljs.core.PersistentVector.EMPTY_NODE, [(function (){var G__13673 = cljs.core.cst$kw$posix_DASH_time;
+return (re_frame.core.inject_cofx.cljs$core$IFn$_invoke$arity$1 ? re_frame.core.inject_cofx.cljs$core$IFn$_invoke$arity$1(G__13673) : re_frame.core.inject_cofx.call(null,G__13673));
+})()], null),(function (cofx,_){
+var state = cljs.core.cst$kw$db.cljs$core$IFn$_invoke$arity$1(cofx);
+return new cljs.core.PersistentArrayMap(null, 1, [cljs.core.cst$kw$db,minesweeper.core.new_state(cljs.core.cst$kw$level_DASH_selected.cljs$core$IFn$_invoke$arity$1(state),cljs.core.cst$kw$best_DASH_times.cljs$core$IFn$_invoke$arity$1(state),cljs.core.cst$kw$posix_DASH_time.cljs$core$IFn$_invoke$arity$1(cofx))], null);
 }));
-re_frame.core.reg_event_db.cljs$core$IFn$_invoke$arity$2(cljs.core.cst$kw$spread_DASH_sweep,(function (state,p__13651){
-var vec__13652 = p__13651;
-var _ = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__13652,(0),null);
-var row = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__13652,(1),null);
-var col = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__13652,(2),null);
-if(cljs.core._EQ_.cljs$core$IFn$_invoke$arity$2(cljs.core.cst$kw$alive,cljs.core.cst$kw$game_DASH_state.cljs$core$IFn$_invoke$arity$1(state))){
-return minesweeper.core.sweep_spread_BANG_(state,new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [row,col], null));
-} else {
-return state;
-}
+re_frame.core.reg_event_fx.cljs$core$IFn$_invoke$arity$3(cljs.core.cst$kw$spread_DASH_sweep,new cljs.core.PersistentVector(null, 1, 5, cljs.core.PersistentVector.EMPTY_NODE, [(function (){var G__13674 = cljs.core.cst$kw$posix_DASH_time;
+return (re_frame.core.inject_cofx.cljs$core$IFn$_invoke$arity$1 ? re_frame.core.inject_cofx.cljs$core$IFn$_invoke$arity$1(G__13674) : re_frame.core.inject_cofx.call(null,G__13674));
+})()], null),(function (cofx,p__13675){
+var vec__13676 = p__13675;
+var _ = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__13676,(0),null);
+var row = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__13676,(1),null);
+var col = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__13676,(2),null);
+var state = cljs.core.cst$kw$db.cljs$core$IFn$_invoke$arity$1(cofx);
+var new_state = ((cljs.core._EQ_.cljs$core$IFn$_invoke$arity$2(cljs.core.cst$kw$alive,cljs.core.cst$kw$game_DASH_state.cljs$core$IFn$_invoke$arity$1(state)))?minesweeper.core.do_sweep_spread(state,cljs.core.cst$kw$posix_DASH_time.cljs$core$IFn$_invoke$arity$1(cofx),new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [row,col], null)):state);
+return new cljs.core.PersistentArrayMap(null, 2, [cljs.core.cst$kw$db,new_state,cljs.core.cst$kw$set_DASH_local_DASH_storage_DASH_key,new cljs.core.PersistentArrayMap(null, 2, [cljs.core.cst$kw$name,"best-times",cljs.core.cst$kw$value,cljs.core.cst$kw$best_DASH_times.cljs$core$IFn$_invoke$arity$1(new_state)], null)], null);
 }));
-re_frame.core.reg_event_db.cljs$core$IFn$_invoke$arity$2(cljs.core.cst$kw$flag,(function (state,p__13655){
-var vec__13656 = p__13655;
-var _ = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__13656,(0),null);
-var row = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__13656,(1),null);
-var col = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__13656,(2),null);
-if(cljs.core.truth_(minesweeper.core.alive_or_pending_QMARK_(state))){
-return minesweeper.core.flag_cell(minesweeper.core.start_game_if_pending(state),new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [row,col], null));
-} else {
-return state;
-}
+re_frame.core.reg_event_fx.cljs$core$IFn$_invoke$arity$3(cljs.core.cst$kw$flag,new cljs.core.PersistentVector(null, 1, 5, cljs.core.PersistentVector.EMPTY_NODE, [(function (){var G__13679 = cljs.core.cst$kw$posix_DASH_time;
+return (re_frame.core.inject_cofx.cljs$core$IFn$_invoke$arity$1 ? re_frame.core.inject_cofx.cljs$core$IFn$_invoke$arity$1(G__13679) : re_frame.core.inject_cofx.call(null,G__13679));
+})()], null),(function (cofx,p__13680){
+var vec__13681 = p__13680;
+var _ = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__13681,(0),null);
+var row = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__13681,(1),null);
+var col = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__13681,(2),null);
+var state = cljs.core.cst$kw$db.cljs$core$IFn$_invoke$arity$1(cofx);
+return new cljs.core.PersistentArrayMap(null, 1, [cljs.core.cst$kw$db,(cljs.core.truth_(minesweeper.core.alive_or_pending_QMARK_(state))?minesweeper.core.flag_cell(minesweeper.core.start_game_if_pending(state,cljs.core.cst$kw$posix_DASH_time.cljs$core$IFn$_invoke$arity$1(cofx)),new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [row,col], null)):state)], null);
 }));
-re_frame.core.reg_event_db.cljs$core$IFn$_invoke$arity$2(cljs.core.cst$kw$unflag,(function (state,p__13659){
-var vec__13660 = p__13659;
-var _ = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__13660,(0),null);
-var row = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__13660,(1),null);
-var col = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__13660,(2),null);
+re_frame.core.reg_event_db.cljs$core$IFn$_invoke$arity$2(cljs.core.cst$kw$unflag,(function (state,p__13684){
+var vec__13685 = p__13684;
+var _ = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__13685,(0),null);
+var row = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__13685,(1),null);
+var col = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__13685,(2),null);
 if(cljs.core._EQ_.cljs$core$IFn$_invoke$arity$2(cljs.core.cst$kw$alive,cljs.core.cst$kw$game_DASH_state.cljs$core$IFn$_invoke$arity$1(state))){
 return minesweeper.core.unflag_cell(state,new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [row,col], null));
 } else {
 return state;
 }
 }));
-re_frame.core.reg_event_db.cljs$core$IFn$_invoke$arity$2(cljs.core.cst$kw$level_DASH_select,(function (state,p__13663){
-var vec__13664 = p__13663;
-var _ = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__13664,(0),null);
-var level = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__13664,(1),null);
+re_frame.core.reg_event_db.cljs$core$IFn$_invoke$arity$2(cljs.core.cst$kw$level_DASH_select,(function (state,p__13688){
+var vec__13689 = p__13688;
+var _ = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__13689,(0),null);
+var level = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__13689,(1),null);
 return cljs.core.assoc.cljs$core$IFn$_invoke$arity$3(state,cljs.core.cst$kw$level_DASH_selected,level);
 }));
-var G__13667_13669 = cljs.core.cst$kw$grid_DASH_size;
-var G__13668_13670 = ((function (G__13667_13669){
+var G__13692_13694 = cljs.core.cst$kw$grid_DASH_size;
+var G__13693_13695 = ((function (G__13692_13694){
 return (function (state,_){
 return cljs.core.get_in.cljs$core$IFn$_invoke$arity$2(state,new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [cljs.core.cst$kw$level,cljs.core.cst$kw$size], null));
-});})(G__13667_13669))
+});})(G__13692_13694))
 ;
-(re_frame.core.reg_sub.cljs$core$IFn$_invoke$arity$2 ? re_frame.core.reg_sub.cljs$core$IFn$_invoke$arity$2(G__13667_13669,G__13668_13670) : re_frame.core.reg_sub.call(null,G__13667_13669,G__13668_13670));
-var G__13671_13673 = cljs.core.cst$kw$game_DASH_state;
-var G__13672_13674 = ((function (G__13671_13673){
+(re_frame.core.reg_sub.cljs$core$IFn$_invoke$arity$2 ? re_frame.core.reg_sub.cljs$core$IFn$_invoke$arity$2(G__13692_13694,G__13693_13695) : re_frame.core.reg_sub.call(null,G__13692_13694,G__13693_13695));
+var G__13696_13698 = cljs.core.cst$kw$game_DASH_state;
+var G__13697_13699 = ((function (G__13696_13698){
 return (function (state,_){
 return cljs.core.cst$kw$game_DASH_state.cljs$core$IFn$_invoke$arity$1(state);
-});})(G__13671_13673))
+});})(G__13696_13698))
 ;
-(re_frame.core.reg_sub.cljs$core$IFn$_invoke$arity$2 ? re_frame.core.reg_sub.cljs$core$IFn$_invoke$arity$2(G__13671_13673,G__13672_13674) : re_frame.core.reg_sub.call(null,G__13671_13673,G__13672_13674));
-var G__13675_13681 = cljs.core.cst$kw$grid_DASH_value;
-var G__13676_13682 = ((function (G__13675_13681){
-return (function (state,p__13677){
-var vec__13678 = p__13677;
-var _ = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__13678,(0),null);
-var row = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__13678,(1),null);
-var col = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__13678,(2),null);
+(re_frame.core.reg_sub.cljs$core$IFn$_invoke$arity$2 ? re_frame.core.reg_sub.cljs$core$IFn$_invoke$arity$2(G__13696_13698,G__13697_13699) : re_frame.core.reg_sub.call(null,G__13696_13698,G__13697_13699));
+var G__13700_13706 = cljs.core.cst$kw$grid_DASH_value;
+var G__13701_13707 = ((function (G__13700_13706){
+return (function (state,p__13702){
+var vec__13703 = p__13702;
+var _ = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__13703,(0),null);
+var row = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__13703,(1),null);
+var col = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__13703,(2),null);
 return cljs.core.get_in.cljs$core$IFn$_invoke$arity$2(state,new cljs.core.PersistentVector(null, 3, 5, cljs.core.PersistentVector.EMPTY_NODE, [cljs.core.cst$kw$grid,row,col], null));
-});})(G__13675_13681))
+});})(G__13700_13706))
 ;
-(re_frame.core.reg_sub.cljs$core$IFn$_invoke$arity$2 ? re_frame.core.reg_sub.cljs$core$IFn$_invoke$arity$2(G__13675_13681,G__13676_13682) : re_frame.core.reg_sub.call(null,G__13675_13681,G__13676_13682));
-var G__13683_13689 = cljs.core.cst$kw$mask_DASH_value;
-var G__13684_13690 = ((function (G__13683_13689){
-return (function (state,p__13685){
-var vec__13686 = p__13685;
-var _ = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__13686,(0),null);
-var row = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__13686,(1),null);
-var col = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__13686,(2),null);
+(re_frame.core.reg_sub.cljs$core$IFn$_invoke$arity$2 ? re_frame.core.reg_sub.cljs$core$IFn$_invoke$arity$2(G__13700_13706,G__13701_13707) : re_frame.core.reg_sub.call(null,G__13700_13706,G__13701_13707));
+var G__13708_13714 = cljs.core.cst$kw$mask_DASH_value;
+var G__13709_13715 = ((function (G__13708_13714){
+return (function (state,p__13710){
+var vec__13711 = p__13710;
+var _ = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__13711,(0),null);
+var row = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__13711,(1),null);
+var col = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__13711,(2),null);
 return cljs.core.get_in.cljs$core$IFn$_invoke$arity$2(state,new cljs.core.PersistentVector(null, 3, 5, cljs.core.PersistentVector.EMPTY_NODE, [cljs.core.cst$kw$mask,row,col], null));
-});})(G__13683_13689))
+});})(G__13708_13714))
 ;
-(re_frame.core.reg_sub.cljs$core$IFn$_invoke$arity$2 ? re_frame.core.reg_sub.cljs$core$IFn$_invoke$arity$2(G__13683_13689,G__13684_13690) : re_frame.core.reg_sub.call(null,G__13683_13689,G__13684_13690));
-var G__13691_13697 = cljs.core.cst$kw$flags_DASH_value;
-var G__13692_13698 = ((function (G__13691_13697){
-return (function (state,p__13693){
-var vec__13694 = p__13693;
-var _ = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__13694,(0),null);
-var row = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__13694,(1),null);
-var col = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__13694,(2),null);
+(re_frame.core.reg_sub.cljs$core$IFn$_invoke$arity$2 ? re_frame.core.reg_sub.cljs$core$IFn$_invoke$arity$2(G__13708_13714,G__13709_13715) : re_frame.core.reg_sub.call(null,G__13708_13714,G__13709_13715));
+var G__13716_13722 = cljs.core.cst$kw$flags_DASH_value;
+var G__13717_13723 = ((function (G__13716_13722){
+return (function (state,p__13718){
+var vec__13719 = p__13718;
+var _ = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__13719,(0),null);
+var row = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__13719,(1),null);
+var col = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__13719,(2),null);
 return cljs.core.get_in.cljs$core$IFn$_invoke$arity$2(state,new cljs.core.PersistentVector(null, 3, 5, cljs.core.PersistentVector.EMPTY_NODE, [cljs.core.cst$kw$flags,row,col], null));
-});})(G__13691_13697))
+});})(G__13716_13722))
 ;
-(re_frame.core.reg_sub.cljs$core$IFn$_invoke$arity$2 ? re_frame.core.reg_sub.cljs$core$IFn$_invoke$arity$2(G__13691_13697,G__13692_13698) : re_frame.core.reg_sub.call(null,G__13691_13697,G__13692_13698));
-var G__13699_13701 = cljs.core.cst$kw$high_DASH_score;
-var G__13700_13702 = ((function (G__13699_13701){
+(re_frame.core.reg_sub.cljs$core$IFn$_invoke$arity$2 ? re_frame.core.reg_sub.cljs$core$IFn$_invoke$arity$2(G__13716_13722,G__13717_13723) : re_frame.core.reg_sub.call(null,G__13716_13722,G__13717_13723));
+var G__13724_13726 = cljs.core.cst$kw$best_DASH_time;
+var G__13725_13727 = ((function (G__13724_13726){
 return (function (state,_){
-return cljs.core.cst$kw$high_DASH_score.cljs$core$IFn$_invoke$arity$1(state);
-});})(G__13699_13701))
+var level = cljs.core.get_in.cljs$core$IFn$_invoke$arity$2(state,new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [cljs.core.cst$kw$level,cljs.core.cst$kw$key], null));
+return cljs.core.get_in.cljs$core$IFn$_invoke$arity$2(state,new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [cljs.core.cst$kw$best_DASH_times,level], null));
+});})(G__13724_13726))
 ;
-(re_frame.core.reg_sub.cljs$core$IFn$_invoke$arity$2 ? re_frame.core.reg_sub.cljs$core$IFn$_invoke$arity$2(G__13699_13701,G__13700_13702) : re_frame.core.reg_sub.call(null,G__13699_13701,G__13700_13702));
-var G__13703_13705 = cljs.core.cst$kw$num_DASH_remaining;
-var G__13704_13706 = ((function (G__13703_13705){
+(re_frame.core.reg_sub.cljs$core$IFn$_invoke$arity$2 ? re_frame.core.reg_sub.cljs$core$IFn$_invoke$arity$2(G__13724_13726,G__13725_13727) : re_frame.core.reg_sub.call(null,G__13724_13726,G__13725_13727));
+var G__13728_13730 = cljs.core.cst$kw$num_DASH_remaining;
+var G__13729_13731 = ((function (G__13728_13730){
 return (function (state,_){
 var num_mines = cljs.core.get_in.cljs$core$IFn$_invoke$arity$2(state,new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [cljs.core.cst$kw$level,cljs.core.cst$kw$mines], null));
 var flags = cljs.core.cst$kw$flags.cljs$core$IFn$_invoke$arity$1(state);
 var num_flagged = minesweeper.core.sum_grid(flags);
 return (num_mines - num_flagged);
-});})(G__13703_13705))
+});})(G__13728_13730))
 ;
-(re_frame.core.reg_sub.cljs$core$IFn$_invoke$arity$2 ? re_frame.core.reg_sub.cljs$core$IFn$_invoke$arity$2(G__13703_13705,G__13704_13706) : re_frame.core.reg_sub.call(null,G__13703_13705,G__13704_13706));
-var G__13707_13709 = cljs.core.cst$kw$time_DASH_started;
-var G__13708_13710 = ((function (G__13707_13709){
+(re_frame.core.reg_sub.cljs$core$IFn$_invoke$arity$2 ? re_frame.core.reg_sub.cljs$core$IFn$_invoke$arity$2(G__13728_13730,G__13729_13731) : re_frame.core.reg_sub.call(null,G__13728_13730,G__13729_13731));
+var G__13732_13734 = cljs.core.cst$kw$time_DASH_started;
+var G__13733_13735 = ((function (G__13732_13734){
 return (function (state,_){
 return cljs.core.cst$kw$time_DASH_started.cljs$core$IFn$_invoke$arity$1(state);
-});})(G__13707_13709))
+});})(G__13732_13734))
 ;
-(re_frame.core.reg_sub.cljs$core$IFn$_invoke$arity$2 ? re_frame.core.reg_sub.cljs$core$IFn$_invoke$arity$2(G__13707_13709,G__13708_13710) : re_frame.core.reg_sub.call(null,G__13707_13709,G__13708_13710));
-var G__13711_13713 = cljs.core.cst$kw$tick_DASH_count;
-var G__13712_13714 = ((function (G__13711_13713){
+(re_frame.core.reg_sub.cljs$core$IFn$_invoke$arity$2 ? re_frame.core.reg_sub.cljs$core$IFn$_invoke$arity$2(G__13732_13734,G__13733_13735) : re_frame.core.reg_sub.call(null,G__13732_13734,G__13733_13735));
+var G__13736_13738 = cljs.core.cst$kw$tick_DASH_count;
+var G__13737_13739 = ((function (G__13736_13738){
 return (function (state,_){
 return cljs.core.cst$kw$tick_DASH_count.cljs$core$IFn$_invoke$arity$1(state);
-});})(G__13711_13713))
+});})(G__13736_13738))
 ;
-(re_frame.core.reg_sub.cljs$core$IFn$_invoke$arity$2 ? re_frame.core.reg_sub.cljs$core$IFn$_invoke$arity$2(G__13711_13713,G__13712_13714) : re_frame.core.reg_sub.call(null,G__13711_13713,G__13712_13714));
-var G__13715_13717 = cljs.core.cst$kw$level_DASH_selected;
-var G__13716_13718 = ((function (G__13715_13717){
+(re_frame.core.reg_sub.cljs$core$IFn$_invoke$arity$2 ? re_frame.core.reg_sub.cljs$core$IFn$_invoke$arity$2(G__13736_13738,G__13737_13739) : re_frame.core.reg_sub.call(null,G__13736_13738,G__13737_13739));
+var G__13740_13742 = cljs.core.cst$kw$level_DASH_selected;
+var G__13741_13743 = ((function (G__13740_13742){
 return (function (state,_){
 return cljs.core.cst$kw$level_DASH_selected.cljs$core$IFn$_invoke$arity$1(state);
-});})(G__13715_13717))
+});})(G__13740_13742))
 ;
-(re_frame.core.reg_sub.cljs$core$IFn$_invoke$arity$2 ? re_frame.core.reg_sub.cljs$core$IFn$_invoke$arity$2(G__13715_13717,G__13716_13718) : re_frame.core.reg_sub.call(null,G__13715_13717,G__13716_13718));
-var G__13719_13728 = cljs.core.cst$kw$can_DASH_spread;
-var G__13720_13729 = ((function (G__13719_13728){
-return (function (state,p__13721){
-var vec__13722 = p__13721;
-var _ = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__13722,(0),null);
-var row = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__13722,(1),null);
-var col = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__13722,(2),null);
-var vec__13725 = cljs.core.get_in.cljs$core$IFn$_invoke$arity$2(state,new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [cljs.core.cst$kw$level,cljs.core.cst$kw$size], null));
-var rows = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__13725,(0),null);
-var cols = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__13725,(1),null);
+(re_frame.core.reg_sub.cljs$core$IFn$_invoke$arity$2 ? re_frame.core.reg_sub.cljs$core$IFn$_invoke$arity$2(G__13740_13742,G__13741_13743) : re_frame.core.reg_sub.call(null,G__13740_13742,G__13741_13743));
+var G__13744_13753 = cljs.core.cst$kw$can_DASH_spread;
+var G__13745_13754 = ((function (G__13744_13753){
+return (function (state,p__13746){
+var vec__13747 = p__13746;
+var _ = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__13747,(0),null);
+var row = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__13747,(1),null);
+var col = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__13747,(2),null);
+var vec__13750 = cljs.core.get_in.cljs$core$IFn$_invoke$arity$2(state,new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [cljs.core.cst$kw$level,cljs.core.cst$kw$size], null));
+var rows = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__13750,(0),null);
+var cols = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__13750,(1),null);
 var grid = cljs.core.cst$kw$grid.cljs$core$IFn$_invoke$arity$1(state);
 var mask = cljs.core.cst$kw$mask.cljs$core$IFn$_invoke$arity$1(state);
 var flags = cljs.core.cst$kw$flags.cljs$core$IFn$_invoke$arity$1(state);
 return minesweeper.core.can_spread_sweep_QMARK_(new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [rows,cols], null),grid,mask,flags,new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [row,col], null));
-});})(G__13719_13728))
+});})(G__13744_13753))
 ;
-(re_frame.core.reg_sub.cljs$core$IFn$_invoke$arity$2 ? re_frame.core.reg_sub.cljs$core$IFn$_invoke$arity$2(G__13719_13728,G__13720_13729) : re_frame.core.reg_sub.call(null,G__13719_13728,G__13720_13729));
+(re_frame.core.reg_sub.cljs$core$IFn$_invoke$arity$2 ? re_frame.core.reg_sub.cljs$core$IFn$_invoke$arity$2(G__13744_13753,G__13745_13754) : re_frame.core.reg_sub.call(null,G__13744_13753,G__13745_13754));
 minesweeper.core.controls_view = (function minesweeper$core$controls_view(){
-var level = (function (){var G__13734 = new cljs.core.PersistentVector(null, 1, 5, cljs.core.PersistentVector.EMPTY_NODE, [cljs.core.cst$kw$level_DASH_selected], null);
-return (re_frame.core.subscribe.cljs$core$IFn$_invoke$arity$1 ? re_frame.core.subscribe.cljs$core$IFn$_invoke$arity$1(G__13734) : re_frame.core.subscribe.call(null,G__13734));
+var level = (function (){var G__13759 = new cljs.core.PersistentVector(null, 1, 5, cljs.core.PersistentVector.EMPTY_NODE, [cljs.core.cst$kw$level_DASH_selected], null);
+return (re_frame.core.subscribe.cljs$core$IFn$_invoke$arity$1 ? re_frame.core.subscribe.cljs$core$IFn$_invoke$arity$1(G__13759) : re_frame.core.subscribe.call(null,G__13759));
 })();
 return ((function (level){
 return (function (){
 return new cljs.core.PersistentVector(null, 3, 5, cljs.core.PersistentVector.EMPTY_NODE, [cljs.core.cst$kw$div$ms_DASH_panel,new cljs.core.PersistentVector(null, 5, 5, cljs.core.PersistentVector.EMPTY_NODE, [cljs.core.cst$kw$select$ms_DASH_control,new cljs.core.PersistentArrayMap(null, 2, [cljs.core.cst$kw$value,(cljs.core.deref.cljs$core$IFn$_invoke$arity$1 ? cljs.core.deref.cljs$core$IFn$_invoke$arity$1(level) : cljs.core.deref.call(null,level)),cljs.core.cst$kw$onChange,((function (level){
-return (function (p1__13730_SHARP_){
-var G__13735 = new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [cljs.core.cst$kw$level_DASH_select,p1__13730_SHARP_.target.value], null);
-return (re_frame.core.dispatch.cljs$core$IFn$_invoke$arity$1 ? re_frame.core.dispatch.cljs$core$IFn$_invoke$arity$1(G__13735) : re_frame.core.dispatch.call(null,G__13735));
+return (function (p1__13755_SHARP_){
+var G__13760 = new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [cljs.core.cst$kw$level_DASH_select,cljs.core.keyword.cljs$core$IFn$_invoke$arity$1(p1__13755_SHARP_.target.value)], null);
+return (re_frame.core.dispatch.cljs$core$IFn$_invoke$arity$1 ? re_frame.core.dispatch.cljs$core$IFn$_invoke$arity$1(G__13760) : re_frame.core.dispatch.call(null,G__13760));
 });})(level))
 ], null),new cljs.core.PersistentVector(null, 3, 5, cljs.core.PersistentVector.EMPTY_NODE, [cljs.core.cst$kw$option,new cljs.core.PersistentArrayMap(null, 1, [cljs.core.cst$kw$value,"beginner"], null),"Beginner"], null),new cljs.core.PersistentVector(null, 3, 5, cljs.core.PersistentVector.EMPTY_NODE, [cljs.core.cst$kw$option,new cljs.core.PersistentArrayMap(null, 1, [cljs.core.cst$kw$value,"intermediate"], null),"Intermediate"], null),new cljs.core.PersistentVector(null, 3, 5, cljs.core.PersistentVector.EMPTY_NODE, [cljs.core.cst$kw$option,new cljs.core.PersistentArrayMap(null, 1, [cljs.core.cst$kw$value,"expert"], null),"Expert"], null)], null),new cljs.core.PersistentVector(null, 3, 5, cljs.core.PersistentVector.EMPTY_NODE, [cljs.core.cst$kw$button$ms_DASH_control,new cljs.core.PersistentArrayMap(null, 1, [cljs.core.cst$kw$onClick,((function (level){
 return (function (){
-var G__13736 = new cljs.core.PersistentVector(null, 1, 5, cljs.core.PersistentVector.EMPTY_NODE, [cljs.core.cst$kw$reset], null);
-return (re_frame.core.dispatch.cljs$core$IFn$_invoke$arity$1 ? re_frame.core.dispatch.cljs$core$IFn$_invoke$arity$1(G__13736) : re_frame.core.dispatch.call(null,G__13736));
+var G__13761 = new cljs.core.PersistentVector(null, 1, 5, cljs.core.PersistentVector.EMPTY_NODE, [cljs.core.cst$kw$reset], null);
+return (re_frame.core.dispatch.cljs$core$IFn$_invoke$arity$1 ? re_frame.core.dispatch.cljs$core$IFn$_invoke$arity$1(G__13761) : re_frame.core.dispatch.call(null,G__13761));
 });})(level))
 ], null),"Reset"], null)], null);
 });
 ;})(level))
 });
 minesweeper.core.timer_view = (function minesweeper$core$timer_view(){
-var time_started = (function (){var G__13741 = new cljs.core.PersistentVector(null, 1, 5, cljs.core.PersistentVector.EMPTY_NODE, [cljs.core.cst$kw$time_DASH_started], null);
-return (re_frame.core.subscribe.cljs$core$IFn$_invoke$arity$1 ? re_frame.core.subscribe.cljs$core$IFn$_invoke$arity$1(G__13741) : re_frame.core.subscribe.call(null,G__13741));
+var time_started = (function (){var G__13766 = new cljs.core.PersistentVector(null, 1, 5, cljs.core.PersistentVector.EMPTY_NODE, [cljs.core.cst$kw$time_DASH_started], null);
+return (re_frame.core.subscribe.cljs$core$IFn$_invoke$arity$1 ? re_frame.core.subscribe.cljs$core$IFn$_invoke$arity$1(G__13766) : re_frame.core.subscribe.call(null,G__13766));
 })();
-var tick_count = (function (){var G__13742 = new cljs.core.PersistentVector(null, 1, 5, cljs.core.PersistentVector.EMPTY_NODE, [cljs.core.cst$kw$tick_DASH_count], null);
-return (re_frame.core.subscribe.cljs$core$IFn$_invoke$arity$1 ? re_frame.core.subscribe.cljs$core$IFn$_invoke$arity$1(G__13742) : re_frame.core.subscribe.call(null,G__13742));
+var tick_count = (function (){var G__13767 = new cljs.core.PersistentVector(null, 1, 5, cljs.core.PersistentVector.EMPTY_NODE, [cljs.core.cst$kw$tick_DASH_count], null);
+return (re_frame.core.subscribe.cljs$core$IFn$_invoke$arity$1 ? re_frame.core.subscribe.cljs$core$IFn$_invoke$arity$1(G__13767) : re_frame.core.subscribe.call(null,G__13767));
 })();
-return new cljs.core.PersistentVector(null, 4, 5, cljs.core.PersistentVector.EMPTY_NODE, [cljs.core.cst$kw$div$ms_DASH_timer,"Time ",new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [cljs.core.cst$kw$span,(function (){var G__13743 = "%03d";
-var G__13744 = minesweeper.core.calc_elapsed((cljs.core.deref.cljs$core$IFn$_invoke$arity$1 ? cljs.core.deref.cljs$core$IFn$_invoke$arity$1(time_started) : cljs.core.deref.call(null,time_started)));
-return goog.string.format(G__13743,G__13744);
+return new cljs.core.PersistentVector(null, 4, 5, cljs.core.PersistentVector.EMPTY_NODE, [cljs.core.cst$kw$div$ms_DASH_timer,"Time ",new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [cljs.core.cst$kw$span,(function (){var G__13768 = "%03d";
+var G__13769 = ((minesweeper.core.posix_time_BANG_() - (cljs.core.deref.cljs$core$IFn$_invoke$arity$1 ? cljs.core.deref.cljs$core$IFn$_invoke$arity$1(time_started) : cljs.core.deref.call(null,time_started))) | (0));
+return goog.string.format(G__13768,G__13769);
 })()], null),new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [cljs.core.cst$kw$span$ms_DASH_display_DASH_none,(cljs.core.deref.cljs$core$IFn$_invoke$arity$1 ? cljs.core.deref.cljs$core$IFn$_invoke$arity$1(tick_count) : cljs.core.deref.call(null,tick_count))], null)], null);
 });
 minesweeper.core.info_view = (function minesweeper$core$info_view(){
-var high_score = (function (){var G__13751 = new cljs.core.PersistentVector(null, 1, 5, cljs.core.PersistentVector.EMPTY_NODE, [cljs.core.cst$kw$high_DASH_score], null);
-return (re_frame.core.subscribe.cljs$core$IFn$_invoke$arity$1 ? re_frame.core.subscribe.cljs$core$IFn$_invoke$arity$1(G__13751) : re_frame.core.subscribe.call(null,G__13751));
+var best_time = (function (){var G__13776 = new cljs.core.PersistentVector(null, 1, 5, cljs.core.PersistentVector.EMPTY_NODE, [cljs.core.cst$kw$best_DASH_time], null);
+return (re_frame.core.subscribe.cljs$core$IFn$_invoke$arity$1 ? re_frame.core.subscribe.cljs$core$IFn$_invoke$arity$1(G__13776) : re_frame.core.subscribe.call(null,G__13776));
 })();
-var num_remaining = (function (){var G__13752 = new cljs.core.PersistentVector(null, 1, 5, cljs.core.PersistentVector.EMPTY_NODE, [cljs.core.cst$kw$num_DASH_remaining], null);
-return (re_frame.core.subscribe.cljs$core$IFn$_invoke$arity$1 ? re_frame.core.subscribe.cljs$core$IFn$_invoke$arity$1(G__13752) : re_frame.core.subscribe.call(null,G__13752));
+var num_remaining = (function (){var G__13777 = new cljs.core.PersistentVector(null, 1, 5, cljs.core.PersistentVector.EMPTY_NODE, [cljs.core.cst$kw$num_DASH_remaining], null);
+return (re_frame.core.subscribe.cljs$core$IFn$_invoke$arity$1 ? re_frame.core.subscribe.cljs$core$IFn$_invoke$arity$1(G__13777) : re_frame.core.subscribe.call(null,G__13777));
 })();
-return ((function (high_score,num_remaining){
+return ((function (best_time,num_remaining){
 return (function (){
-return new cljs.core.PersistentVector(null, 4, 5, cljs.core.PersistentVector.EMPTY_NODE, [cljs.core.cst$kw$div$ms_DASH_info,new cljs.core.PersistentVector(null, 1, 5, cljs.core.PersistentVector.EMPTY_NODE, [minesweeper.core.timer_view], null),new cljs.core.PersistentVector(null, 3, 5, cljs.core.PersistentVector.EMPTY_NODE, [cljs.core.cst$kw$div$ms_DASH_high_DASH_score,"Best ",new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [cljs.core.cst$kw$span,((((cljs.core.deref.cljs$core$IFn$_invoke$arity$1 ? cljs.core.deref.cljs$core$IFn$_invoke$arity$1(high_score) : cljs.core.deref.call(null,high_score)) == null))?"---":(function (){var G__13753 = "%03d";
-var G__13754 = (cljs.core.deref.cljs$core$IFn$_invoke$arity$1 ? cljs.core.deref.cljs$core$IFn$_invoke$arity$1(high_score) : cljs.core.deref.call(null,high_score));
-return goog.string.format(G__13753,G__13754);
-})())], null)], null),new cljs.core.PersistentVector(null, 3, 5, cljs.core.PersistentVector.EMPTY_NODE, [cljs.core.cst$kw$div$ms_DASH_remaining,"Mines ",new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [cljs.core.cst$kw$span,(function (){var G__13755 = "%03d";
-var G__13756 = (cljs.core.deref.cljs$core$IFn$_invoke$arity$1 ? cljs.core.deref.cljs$core$IFn$_invoke$arity$1(num_remaining) : cljs.core.deref.call(null,num_remaining));
-return goog.string.format(G__13755,G__13756);
+return new cljs.core.PersistentVector(null, 4, 5, cljs.core.PersistentVector.EMPTY_NODE, [cljs.core.cst$kw$div$ms_DASH_info,new cljs.core.PersistentVector(null, 1, 5, cljs.core.PersistentVector.EMPTY_NODE, [minesweeper.core.timer_view], null),new cljs.core.PersistentVector(null, 3, 5, cljs.core.PersistentVector.EMPTY_NODE, [cljs.core.cst$kw$div$ms_DASH_high_DASH_score,"Best ",new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [cljs.core.cst$kw$span,((((cljs.core.deref.cljs$core$IFn$_invoke$arity$1 ? cljs.core.deref.cljs$core$IFn$_invoke$arity$1(best_time) : cljs.core.deref.call(null,best_time)) == null))?"---":(function (){var G__13778 = "%03d";
+var G__13779 = (cljs.core.deref.cljs$core$IFn$_invoke$arity$1 ? cljs.core.deref.cljs$core$IFn$_invoke$arity$1(best_time) : cljs.core.deref.call(null,best_time));
+return goog.string.format(G__13778,G__13779);
+})())], null)], null),new cljs.core.PersistentVector(null, 3, 5, cljs.core.PersistentVector.EMPTY_NODE, [cljs.core.cst$kw$div$ms_DASH_remaining,"Mines ",new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [cljs.core.cst$kw$span,(function (){var G__13780 = "%03d";
+var G__13781 = (cljs.core.deref.cljs$core$IFn$_invoke$arity$1 ? cljs.core.deref.cljs$core$IFn$_invoke$arity$1(num_remaining) : cljs.core.deref.call(null,num_remaining));
+return goog.string.format(G__13780,G__13781);
 })()], null)], null)], null);
 });
-;})(high_score,num_remaining))
+;})(best_time,num_remaining))
 });
 minesweeper.core.hidden_cell_view = (function minesweeper$core$hidden_cell_view(row,col){
-var flag = (function (){var G__13763 = new cljs.core.PersistentVector(null, 3, 5, cljs.core.PersistentVector.EMPTY_NODE, [cljs.core.cst$kw$flags_DASH_value,row,col], null);
-return (re_frame.core.subscribe.cljs$core$IFn$_invoke$arity$1 ? re_frame.core.subscribe.cljs$core$IFn$_invoke$arity$1(G__13763) : re_frame.core.subscribe.call(null,G__13763));
+var flag = (function (){var G__13788 = new cljs.core.PersistentVector(null, 3, 5, cljs.core.PersistentVector.EMPTY_NODE, [cljs.core.cst$kw$flags_DASH_value,row,col], null);
+return (re_frame.core.subscribe.cljs$core$IFn$_invoke$arity$1 ? re_frame.core.subscribe.cljs$core$IFn$_invoke$arity$1(G__13788) : re_frame.core.subscribe.call(null,G__13788));
 })();
-var value = (function (){var G__13764 = new cljs.core.PersistentVector(null, 3, 5, cljs.core.PersistentVector.EMPTY_NODE, [cljs.core.cst$kw$grid_DASH_value,row,col], null);
-return (re_frame.core.subscribe.cljs$core$IFn$_invoke$arity$1 ? re_frame.core.subscribe.cljs$core$IFn$_invoke$arity$1(G__13764) : re_frame.core.subscribe.call(null,G__13764));
+var value = (function (){var G__13789 = new cljs.core.PersistentVector(null, 3, 5, cljs.core.PersistentVector.EMPTY_NODE, [cljs.core.cst$kw$grid_DASH_value,row,col], null);
+return (re_frame.core.subscribe.cljs$core$IFn$_invoke$arity$1 ? re_frame.core.subscribe.cljs$core$IFn$_invoke$arity$1(G__13789) : re_frame.core.subscribe.call(null,G__13789));
 })();
-var game_state = (function (){var G__13765 = new cljs.core.PersistentVector(null, 1, 5, cljs.core.PersistentVector.EMPTY_NODE, [cljs.core.cst$kw$game_DASH_state], null);
-return (re_frame.core.subscribe.cljs$core$IFn$_invoke$arity$1 ? re_frame.core.subscribe.cljs$core$IFn$_invoke$arity$1(G__13765) : re_frame.core.subscribe.call(null,G__13765));
+var game_state = (function (){var G__13790 = new cljs.core.PersistentVector(null, 1, 5, cljs.core.PersistentVector.EMPTY_NODE, [cljs.core.cst$kw$game_DASH_state], null);
+return (re_frame.core.subscribe.cljs$core$IFn$_invoke$arity$1 ? re_frame.core.subscribe.cljs$core$IFn$_invoke$arity$1(G__13790) : re_frame.core.subscribe.call(null,G__13790));
 })();
 return ((function (flag,value,game_state){
 return (function (){
@@ -762,20 +781,20 @@ var status_str = ((cljs.core._EQ_.cljs$core$IFn$_invoke$arity$2(cljs.core.cst$kw
 if(cljs.core._EQ_.cljs$core$IFn$_invoke$arity$2((1),(cljs.core.deref.cljs$core$IFn$_invoke$arity$1 ? cljs.core.deref.cljs$core$IFn$_invoke$arity$1(flag) : cljs.core.deref.call(null,flag)))){
 return new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [cljs.core.cst$kw$div$ms_DASH_cell,new cljs.core.PersistentArrayMap(null, 2, [cljs.core.cst$kw$className,[cljs.core.str("ms-hidden ms-flagged "),cljs.core.str(status_str)].join(''),cljs.core.cst$kw$onContextMenu,((function (status_str,flag,value,game_state){
 return (function (){
-var G__13766 = new cljs.core.PersistentVector(null, 3, 5, cljs.core.PersistentVector.EMPTY_NODE, [cljs.core.cst$kw$unflag,row,col], null);
-return (re_frame.core.dispatch.cljs$core$IFn$_invoke$arity$1 ? re_frame.core.dispatch.cljs$core$IFn$_invoke$arity$1(G__13766) : re_frame.core.dispatch.call(null,G__13766));
+var G__13791 = new cljs.core.PersistentVector(null, 3, 5, cljs.core.PersistentVector.EMPTY_NODE, [cljs.core.cst$kw$unflag,row,col], null);
+return (re_frame.core.dispatch.cljs$core$IFn$_invoke$arity$1 ? re_frame.core.dispatch.cljs$core$IFn$_invoke$arity$1(G__13791) : re_frame.core.dispatch.call(null,G__13791));
 });})(status_str,flag,value,game_state))
 ], null)], null);
 } else {
 return new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [cljs.core.cst$kw$div$ms_DASH_cell,new cljs.core.PersistentArrayMap(null, 3, [cljs.core.cst$kw$className,[cljs.core.str("ms-hidden "),cljs.core.str(status_str)].join(''),cljs.core.cst$kw$onClick,((function (status_str,flag,value,game_state){
 return (function (){
-var G__13767 = new cljs.core.PersistentVector(null, 3, 5, cljs.core.PersistentVector.EMPTY_NODE, [cljs.core.cst$kw$sweep,row,col], null);
-return (re_frame.core.dispatch.cljs$core$IFn$_invoke$arity$1 ? re_frame.core.dispatch.cljs$core$IFn$_invoke$arity$1(G__13767) : re_frame.core.dispatch.call(null,G__13767));
+var G__13792 = new cljs.core.PersistentVector(null, 3, 5, cljs.core.PersistentVector.EMPTY_NODE, [cljs.core.cst$kw$sweep,row,col], null);
+return (re_frame.core.dispatch.cljs$core$IFn$_invoke$arity$1 ? re_frame.core.dispatch.cljs$core$IFn$_invoke$arity$1(G__13792) : re_frame.core.dispatch.call(null,G__13792));
 });})(status_str,flag,value,game_state))
 ,cljs.core.cst$kw$onContextMenu,((function (status_str,flag,value,game_state){
 return (function (){
-var G__13768 = new cljs.core.PersistentVector(null, 3, 5, cljs.core.PersistentVector.EMPTY_NODE, [cljs.core.cst$kw$flag,row,col], null);
-return (re_frame.core.dispatch.cljs$core$IFn$_invoke$arity$1 ? re_frame.core.dispatch.cljs$core$IFn$_invoke$arity$1(G__13768) : re_frame.core.dispatch.call(null,G__13768));
+var G__13793 = new cljs.core.PersistentVector(null, 3, 5, cljs.core.PersistentVector.EMPTY_NODE, [cljs.core.cst$kw$flag,row,col], null);
+return (re_frame.core.dispatch.cljs$core$IFn$_invoke$arity$1 ? re_frame.core.dispatch.cljs$core$IFn$_invoke$arity$1(G__13793) : re_frame.core.dispatch.call(null,G__13793));
 });})(status_str,flag,value,game_state))
 ], null)], null);
 }
@@ -783,38 +802,38 @@ return (re_frame.core.dispatch.cljs$core$IFn$_invoke$arity$1 ? re_frame.core.dis
 ;})(flag,value,game_state))
 });
 minesweeper.core.exposed_cell_view = (function minesweeper$core$exposed_cell_view(row,col){
-var value = (function (){var G__13774 = new cljs.core.PersistentVector(null, 3, 5, cljs.core.PersistentVector.EMPTY_NODE, [cljs.core.cst$kw$grid_DASH_value,row,col], null);
-return (re_frame.core.subscribe.cljs$core$IFn$_invoke$arity$1 ? re_frame.core.subscribe.cljs$core$IFn$_invoke$arity$1(G__13774) : re_frame.core.subscribe.call(null,G__13774));
+var value = (function (){var G__13799 = new cljs.core.PersistentVector(null, 3, 5, cljs.core.PersistentVector.EMPTY_NODE, [cljs.core.cst$kw$grid_DASH_value,row,col], null);
+return (re_frame.core.subscribe.cljs$core$IFn$_invoke$arity$1 ? re_frame.core.subscribe.cljs$core$IFn$_invoke$arity$1(G__13799) : re_frame.core.subscribe.call(null,G__13799));
 })();
-var str_val = (function (){var G__13775 = (cljs.core.deref.cljs$core$IFn$_invoke$arity$1 ? cljs.core.deref.cljs$core$IFn$_invoke$arity$1(value) : cljs.core.deref.call(null,value));
-if(cljs.core._EQ_.cljs$core$IFn$_invoke$arity$2((0),G__13775)){
+var str_val = (function (){var G__13800 = (cljs.core.deref.cljs$core$IFn$_invoke$arity$1 ? cljs.core.deref.cljs$core$IFn$_invoke$arity$1(value) : cljs.core.deref.call(null,value));
+if(cljs.core._EQ_.cljs$core$IFn$_invoke$arity$2((0),G__13800)){
 return "zero";
 } else {
-if(cljs.core._EQ_.cljs$core$IFn$_invoke$arity$2((7),G__13775)){
+if(cljs.core._EQ_.cljs$core$IFn$_invoke$arity$2((7),G__13800)){
 return "seven";
 } else {
-if(cljs.core._EQ_.cljs$core$IFn$_invoke$arity$2((1),G__13775)){
+if(cljs.core._EQ_.cljs$core$IFn$_invoke$arity$2((1),G__13800)){
 return "one";
 } else {
-if(cljs.core._EQ_.cljs$core$IFn$_invoke$arity$2((4),G__13775)){
+if(cljs.core._EQ_.cljs$core$IFn$_invoke$arity$2((4),G__13800)){
 return "four";
 } else {
-if(cljs.core._EQ_.cljs$core$IFn$_invoke$arity$2((6),G__13775)){
+if(cljs.core._EQ_.cljs$core$IFn$_invoke$arity$2((6),G__13800)){
 return "six";
 } else {
-if(cljs.core._EQ_.cljs$core$IFn$_invoke$arity$2((3),G__13775)){
+if(cljs.core._EQ_.cljs$core$IFn$_invoke$arity$2((3),G__13800)){
 return "three";
 } else {
-if(cljs.core._EQ_.cljs$core$IFn$_invoke$arity$2((2),G__13775)){
+if(cljs.core._EQ_.cljs$core$IFn$_invoke$arity$2((2),G__13800)){
 return "two";
 } else {
-if(cljs.core._EQ_.cljs$core$IFn$_invoke$arity$2((5),G__13775)){
+if(cljs.core._EQ_.cljs$core$IFn$_invoke$arity$2((5),G__13800)){
 return "five";
 } else {
-if(cljs.core._EQ_.cljs$core$IFn$_invoke$arity$2(cljs.core.cst$kw$X,G__13775)){
+if(cljs.core._EQ_.cljs$core$IFn$_invoke$arity$2(cljs.core.cst$kw$X,G__13800)){
 return "mine";
 } else {
-if(cljs.core._EQ_.cljs$core$IFn$_invoke$arity$2((8),G__13775)){
+if(cljs.core._EQ_.cljs$core$IFn$_invoke$arity$2((8),G__13800)){
 return "eight";
 } else {
 return "";
@@ -830,21 +849,21 @@ return "";
 }
 }
 })();
-var can_spread = (function (){var G__13776 = new cljs.core.PersistentVector(null, 3, 5, cljs.core.PersistentVector.EMPTY_NODE, [cljs.core.cst$kw$can_DASH_spread,row,col], null);
-return (re_frame.core.subscribe.cljs$core$IFn$_invoke$arity$1 ? re_frame.core.subscribe.cljs$core$IFn$_invoke$arity$1(G__13776) : re_frame.core.subscribe.call(null,G__13776));
+var can_spread = (function (){var G__13801 = new cljs.core.PersistentVector(null, 3, 5, cljs.core.PersistentVector.EMPTY_NODE, [cljs.core.cst$kw$can_DASH_spread,row,col], null);
+return (re_frame.core.subscribe.cljs$core$IFn$_invoke$arity$1 ? re_frame.core.subscribe.cljs$core$IFn$_invoke$arity$1(G__13801) : re_frame.core.subscribe.call(null,G__13801));
 })();
 return ((function (value,str_val,can_spread){
 return (function (){
 return new cljs.core.PersistentVector(null, 3, 5, cljs.core.PersistentVector.EMPTY_NODE, [cljs.core.cst$kw$div$ms_DASH_cell,new cljs.core.PersistentArrayMap(null, 2, [cljs.core.cst$kw$className,[cljs.core.str("ms-revealed "),cljs.core.str([cljs.core.str("ms-"),cljs.core.str(str_val)].join('')),cljs.core.str((cljs.core.truth_((cljs.core.deref.cljs$core$IFn$_invoke$arity$1 ? cljs.core.deref.cljs$core$IFn$_invoke$arity$1(can_spread) : cljs.core.deref.call(null,can_spread)))?" ms-spread":null))].join(''),cljs.core.cst$kw$onClick,((function (value,str_val,can_spread){
 return (function (){
-var G__13777 = new cljs.core.PersistentVector(null, 3, 5, cljs.core.PersistentVector.EMPTY_NODE, [cljs.core.cst$kw$spread_DASH_sweep,row,col], null);
-return (re_frame.core.dispatch.cljs$core$IFn$_invoke$arity$1 ? re_frame.core.dispatch.cljs$core$IFn$_invoke$arity$1(G__13777) : re_frame.core.dispatch.call(null,G__13777));
+var G__13802 = new cljs.core.PersistentVector(null, 3, 5, cljs.core.PersistentVector.EMPTY_NODE, [cljs.core.cst$kw$spread_DASH_sweep,row,col], null);
+return (re_frame.core.dispatch.cljs$core$IFn$_invoke$arity$1 ? re_frame.core.dispatch.cljs$core$IFn$_invoke$arity$1(G__13802) : re_frame.core.dispatch.call(null,G__13802));
 });})(value,str_val,can_spread))
-], null),new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [cljs.core.cst$kw$span,(function (){var G__13778 = (cljs.core.deref.cljs$core$IFn$_invoke$arity$1 ? cljs.core.deref.cljs$core$IFn$_invoke$arity$1(value) : cljs.core.deref.call(null,value));
-if(cljs.core._EQ_.cljs$core$IFn$_invoke$arity$2(cljs.core.cst$kw$X,G__13778)){
+], null),new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [cljs.core.cst$kw$span,(function (){var G__13803 = (cljs.core.deref.cljs$core$IFn$_invoke$arity$1 ? cljs.core.deref.cljs$core$IFn$_invoke$arity$1(value) : cljs.core.deref.call(null,value));
+if(cljs.core._EQ_.cljs$core$IFn$_invoke$arity$2(cljs.core.cst$kw$X,G__13803)){
 return "";
 } else {
-if(cljs.core._EQ_.cljs$core$IFn$_invoke$arity$2((0),G__13778)){
+if(cljs.core._EQ_.cljs$core$IFn$_invoke$arity$2((0),G__13803)){
 return "";
 } else {
 return (cljs.core.deref.cljs$core$IFn$_invoke$arity$1 ? cljs.core.deref.cljs$core$IFn$_invoke$arity$1(value) : cljs.core.deref.call(null,value));
@@ -856,8 +875,8 @@ return (cljs.core.deref.cljs$core$IFn$_invoke$arity$1 ? cljs.core.deref.cljs$cor
 ;})(value,str_val,can_spread))
 });
 minesweeper.core.cell_view = (function minesweeper$core$cell_view(row,col){
-var mask_val = (function (){var G__13780 = new cljs.core.PersistentVector(null, 3, 5, cljs.core.PersistentVector.EMPTY_NODE, [cljs.core.cst$kw$mask_DASH_value,row,col], null);
-return (re_frame.core.subscribe.cljs$core$IFn$_invoke$arity$1 ? re_frame.core.subscribe.cljs$core$IFn$_invoke$arity$1(G__13780) : re_frame.core.subscribe.call(null,G__13780));
+var mask_val = (function (){var G__13805 = new cljs.core.PersistentVector(null, 3, 5, cljs.core.PersistentVector.EMPTY_NODE, [cljs.core.cst$kw$mask_DASH_value,row,col], null);
+return (re_frame.core.subscribe.cljs$core$IFn$_invoke$arity$1 ? re_frame.core.subscribe.cljs$core$IFn$_invoke$arity$1(G__13805) : re_frame.core.subscribe.call(null,G__13805));
 })();
 return ((function (mask_val){
 return (function (){
@@ -870,49 +889,49 @@ return new cljs.core.PersistentVector(null, 3, 5, cljs.core.PersistentVector.EMP
 ;})(mask_val))
 });
 minesweeper.core.grid_view = (function minesweeper$core$grid_view(){
-var grid_size = (function (){var G__13812 = new cljs.core.PersistentVector(null, 1, 5, cljs.core.PersistentVector.EMPTY_NODE, [cljs.core.cst$kw$grid_DASH_size], null);
-return (re_frame.core.subscribe.cljs$core$IFn$_invoke$arity$1 ? re_frame.core.subscribe.cljs$core$IFn$_invoke$arity$1(G__13812) : re_frame.core.subscribe.call(null,G__13812));
+var grid_size = (function (){var G__13837 = new cljs.core.PersistentVector(null, 1, 5, cljs.core.PersistentVector.EMPTY_NODE, [cljs.core.cst$kw$grid_DASH_size], null);
+return (re_frame.core.subscribe.cljs$core$IFn$_invoke$arity$1 ? re_frame.core.subscribe.cljs$core$IFn$_invoke$arity$1(G__13837) : re_frame.core.subscribe.call(null,G__13837));
 })();
 return ((function (grid_size){
 return (function (){
 return new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [cljs.core.cst$kw$div$ms_DASH_grid,cljs.core.doall.cljs$core$IFn$_invoke$arity$1((function (){var iter__7184__auto__ = ((function (grid_size){
-return (function minesweeper$core$grid_view_$_iter__13813(s__13814){
+return (function minesweeper$core$grid_view_$_iter__13838(s__13839){
 return (new cljs.core.LazySeq(null,((function (grid_size){
 return (function (){
-var s__13814__$1 = s__13814;
+var s__13839__$1 = s__13839;
 while(true){
-var temp__4657__auto__ = cljs.core.seq(s__13814__$1);
+var temp__4657__auto__ = cljs.core.seq(s__13839__$1);
 if(temp__4657__auto__){
-var s__13814__$2 = temp__4657__auto__;
-if(cljs.core.chunked_seq_QMARK_(s__13814__$2)){
-var c__7182__auto__ = cljs.core.chunk_first(s__13814__$2);
+var s__13839__$2 = temp__4657__auto__;
+if(cljs.core.chunked_seq_QMARK_(s__13839__$2)){
+var c__7182__auto__ = cljs.core.chunk_first(s__13839__$2);
 var size__7183__auto__ = cljs.core.count(c__7182__auto__);
-var b__13816 = cljs.core.chunk_buffer(size__7183__auto__);
-if((function (){var i__13815 = (0);
+var b__13841 = cljs.core.chunk_buffer(size__7183__auto__);
+if((function (){var i__13840 = (0);
 while(true){
-if((i__13815 < size__7183__auto__)){
-var r = cljs.core._nth.cljs$core$IFn$_invoke$arity$2(c__7182__auto__,i__13815);
-cljs.core.chunk_append(b__13816,cljs.core.with_meta(new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [cljs.core.cst$kw$div$ms_DASH_row,cljs.core.doall.cljs$core$IFn$_invoke$arity$1((function (){var iter__7184__auto__ = ((function (i__13815,r,c__7182__auto__,size__7183__auto__,b__13816,s__13814__$2,temp__4657__auto__,grid_size){
-return (function minesweeper$core$grid_view_$_iter__13813_$_iter__13831(s__13832){
-return (new cljs.core.LazySeq(null,((function (i__13815,r,c__7182__auto__,size__7183__auto__,b__13816,s__13814__$2,temp__4657__auto__,grid_size){
+if((i__13840 < size__7183__auto__)){
+var r = cljs.core._nth.cljs$core$IFn$_invoke$arity$2(c__7182__auto__,i__13840);
+cljs.core.chunk_append(b__13841,cljs.core.with_meta(new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [cljs.core.cst$kw$div$ms_DASH_row,cljs.core.doall.cljs$core$IFn$_invoke$arity$1((function (){var iter__7184__auto__ = ((function (i__13840,r,c__7182__auto__,size__7183__auto__,b__13841,s__13839__$2,temp__4657__auto__,grid_size){
+return (function minesweeper$core$grid_view_$_iter__13838_$_iter__13856(s__13857){
+return (new cljs.core.LazySeq(null,((function (i__13840,r,c__7182__auto__,size__7183__auto__,b__13841,s__13839__$2,temp__4657__auto__,grid_size){
 return (function (){
-var s__13832__$1 = s__13832;
+var s__13857__$1 = s__13857;
 while(true){
-var temp__4657__auto____$1 = cljs.core.seq(s__13832__$1);
+var temp__4657__auto____$1 = cljs.core.seq(s__13857__$1);
 if(temp__4657__auto____$1){
-var s__13832__$2 = temp__4657__auto____$1;
-if(cljs.core.chunked_seq_QMARK_(s__13832__$2)){
-var c__7182__auto____$1 = cljs.core.chunk_first(s__13832__$2);
+var s__13857__$2 = temp__4657__auto____$1;
+if(cljs.core.chunked_seq_QMARK_(s__13857__$2)){
+var c__7182__auto____$1 = cljs.core.chunk_first(s__13857__$2);
 var size__7183__auto____$1 = cljs.core.count(c__7182__auto____$1);
-var b__13834 = cljs.core.chunk_buffer(size__7183__auto____$1);
-if((function (){var i__13833 = (0);
+var b__13859 = cljs.core.chunk_buffer(size__7183__auto____$1);
+if((function (){var i__13858 = (0);
 while(true){
-if((i__13833 < size__7183__auto____$1)){
-var c = cljs.core._nth.cljs$core$IFn$_invoke$arity$2(c__7182__auto____$1,i__13833);
-cljs.core.chunk_append(b__13834,cljs.core.with_meta(new cljs.core.PersistentVector(null, 3, 5, cljs.core.PersistentVector.EMPTY_NODE, [minesweeper.core.cell_view,r,c], null),new cljs.core.PersistentArrayMap(null, 1, [cljs.core.cst$kw$key,[cljs.core.str(r),cljs.core.str(c)].join('')], null)));
+if((i__13858 < size__7183__auto____$1)){
+var c = cljs.core._nth.cljs$core$IFn$_invoke$arity$2(c__7182__auto____$1,i__13858);
+cljs.core.chunk_append(b__13859,cljs.core.with_meta(new cljs.core.PersistentVector(null, 3, 5, cljs.core.PersistentVector.EMPTY_NODE, [minesweeper.core.cell_view,r,c], null),new cljs.core.PersistentArrayMap(null, 1, [cljs.core.cst$kw$key,[cljs.core.str(r),cljs.core.str(c)].join('')], null)));
 
-var G__13843 = (i__13833 + (1));
-i__13833 = G__13843;
+var G__13868 = (i__13858 + (1));
+i__13858 = G__13868;
 continue;
 } else {
 return true;
@@ -920,28 +939,28 @@ return true;
 break;
 }
 })()){
-return cljs.core.chunk_cons(cljs.core.chunk(b__13834),minesweeper$core$grid_view_$_iter__13813_$_iter__13831(cljs.core.chunk_rest(s__13832__$2)));
+return cljs.core.chunk_cons(cljs.core.chunk(b__13859),minesweeper$core$grid_view_$_iter__13838_$_iter__13856(cljs.core.chunk_rest(s__13857__$2)));
 } else {
-return cljs.core.chunk_cons(cljs.core.chunk(b__13834),null);
+return cljs.core.chunk_cons(cljs.core.chunk(b__13859),null);
 }
 } else {
-var c = cljs.core.first(s__13832__$2);
-return cljs.core.cons(cljs.core.with_meta(new cljs.core.PersistentVector(null, 3, 5, cljs.core.PersistentVector.EMPTY_NODE, [minesweeper.core.cell_view,r,c], null),new cljs.core.PersistentArrayMap(null, 1, [cljs.core.cst$kw$key,[cljs.core.str(r),cljs.core.str(c)].join('')], null)),minesweeper$core$grid_view_$_iter__13813_$_iter__13831(cljs.core.rest(s__13832__$2)));
+var c = cljs.core.first(s__13857__$2);
+return cljs.core.cons(cljs.core.with_meta(new cljs.core.PersistentVector(null, 3, 5, cljs.core.PersistentVector.EMPTY_NODE, [minesweeper.core.cell_view,r,c], null),new cljs.core.PersistentArrayMap(null, 1, [cljs.core.cst$kw$key,[cljs.core.str(r),cljs.core.str(c)].join('')], null)),minesweeper$core$grid_view_$_iter__13838_$_iter__13856(cljs.core.rest(s__13857__$2)));
 }
 } else {
 return null;
 }
 break;
 }
-});})(i__13815,r,c__7182__auto__,size__7183__auto__,b__13816,s__13814__$2,temp__4657__auto__,grid_size))
+});})(i__13840,r,c__7182__auto__,size__7183__auto__,b__13841,s__13839__$2,temp__4657__auto__,grid_size))
 ,null,null));
-});})(i__13815,r,c__7182__auto__,size__7183__auto__,b__13816,s__13814__$2,temp__4657__auto__,grid_size))
+});})(i__13840,r,c__7182__auto__,size__7183__auto__,b__13841,s__13839__$2,temp__4657__auto__,grid_size))
 ;
 return iter__7184__auto__(cljs.core.range.cljs$core$IFn$_invoke$arity$1(cljs.core.get.cljs$core$IFn$_invoke$arity$2((cljs.core.deref.cljs$core$IFn$_invoke$arity$1 ? cljs.core.deref.cljs$core$IFn$_invoke$arity$1(grid_size) : cljs.core.deref.call(null,grid_size)),(1))));
 })())], null),new cljs.core.PersistentArrayMap(null, 1, [cljs.core.cst$kw$key,r], null)));
 
-var G__13844 = (i__13815 + (1));
-i__13815 = G__13844;
+var G__13869 = (i__13840 + (1));
+i__13840 = G__13869;
 continue;
 } else {
 return true;
@@ -949,33 +968,33 @@ return true;
 break;
 }
 })()){
-return cljs.core.chunk_cons(cljs.core.chunk(b__13816),minesweeper$core$grid_view_$_iter__13813(cljs.core.chunk_rest(s__13814__$2)));
+return cljs.core.chunk_cons(cljs.core.chunk(b__13841),minesweeper$core$grid_view_$_iter__13838(cljs.core.chunk_rest(s__13839__$2)));
 } else {
-return cljs.core.chunk_cons(cljs.core.chunk(b__13816),null);
+return cljs.core.chunk_cons(cljs.core.chunk(b__13841),null);
 }
 } else {
-var r = cljs.core.first(s__13814__$2);
-return cljs.core.cons(cljs.core.with_meta(new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [cljs.core.cst$kw$div$ms_DASH_row,cljs.core.doall.cljs$core$IFn$_invoke$arity$1((function (){var iter__7184__auto__ = ((function (r,s__13814__$2,temp__4657__auto__,grid_size){
-return (function minesweeper$core$grid_view_$_iter__13813_$_iter__13837(s__13838){
-return (new cljs.core.LazySeq(null,((function (r,s__13814__$2,temp__4657__auto__,grid_size){
+var r = cljs.core.first(s__13839__$2);
+return cljs.core.cons(cljs.core.with_meta(new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [cljs.core.cst$kw$div$ms_DASH_row,cljs.core.doall.cljs$core$IFn$_invoke$arity$1((function (){var iter__7184__auto__ = ((function (r,s__13839__$2,temp__4657__auto__,grid_size){
+return (function minesweeper$core$grid_view_$_iter__13838_$_iter__13862(s__13863){
+return (new cljs.core.LazySeq(null,((function (r,s__13839__$2,temp__4657__auto__,grid_size){
 return (function (){
-var s__13838__$1 = s__13838;
+var s__13863__$1 = s__13863;
 while(true){
-var temp__4657__auto____$1 = cljs.core.seq(s__13838__$1);
+var temp__4657__auto____$1 = cljs.core.seq(s__13863__$1);
 if(temp__4657__auto____$1){
-var s__13838__$2 = temp__4657__auto____$1;
-if(cljs.core.chunked_seq_QMARK_(s__13838__$2)){
-var c__7182__auto__ = cljs.core.chunk_first(s__13838__$2);
+var s__13863__$2 = temp__4657__auto____$1;
+if(cljs.core.chunked_seq_QMARK_(s__13863__$2)){
+var c__7182__auto__ = cljs.core.chunk_first(s__13863__$2);
 var size__7183__auto__ = cljs.core.count(c__7182__auto__);
-var b__13840 = cljs.core.chunk_buffer(size__7183__auto__);
-if((function (){var i__13839 = (0);
+var b__13865 = cljs.core.chunk_buffer(size__7183__auto__);
+if((function (){var i__13864 = (0);
 while(true){
-if((i__13839 < size__7183__auto__)){
-var c = cljs.core._nth.cljs$core$IFn$_invoke$arity$2(c__7182__auto__,i__13839);
-cljs.core.chunk_append(b__13840,cljs.core.with_meta(new cljs.core.PersistentVector(null, 3, 5, cljs.core.PersistentVector.EMPTY_NODE, [minesweeper.core.cell_view,r,c], null),new cljs.core.PersistentArrayMap(null, 1, [cljs.core.cst$kw$key,[cljs.core.str(r),cljs.core.str(c)].join('')], null)));
+if((i__13864 < size__7183__auto__)){
+var c = cljs.core._nth.cljs$core$IFn$_invoke$arity$2(c__7182__auto__,i__13864);
+cljs.core.chunk_append(b__13865,cljs.core.with_meta(new cljs.core.PersistentVector(null, 3, 5, cljs.core.PersistentVector.EMPTY_NODE, [minesweeper.core.cell_view,r,c], null),new cljs.core.PersistentArrayMap(null, 1, [cljs.core.cst$kw$key,[cljs.core.str(r),cljs.core.str(c)].join('')], null)));
 
-var G__13845 = (i__13839 + (1));
-i__13839 = G__13845;
+var G__13870 = (i__13864 + (1));
+i__13864 = G__13870;
 continue;
 } else {
 return true;
@@ -983,25 +1002,25 @@ return true;
 break;
 }
 })()){
-return cljs.core.chunk_cons(cljs.core.chunk(b__13840),minesweeper$core$grid_view_$_iter__13813_$_iter__13837(cljs.core.chunk_rest(s__13838__$2)));
+return cljs.core.chunk_cons(cljs.core.chunk(b__13865),minesweeper$core$grid_view_$_iter__13838_$_iter__13862(cljs.core.chunk_rest(s__13863__$2)));
 } else {
-return cljs.core.chunk_cons(cljs.core.chunk(b__13840),null);
+return cljs.core.chunk_cons(cljs.core.chunk(b__13865),null);
 }
 } else {
-var c = cljs.core.first(s__13838__$2);
-return cljs.core.cons(cljs.core.with_meta(new cljs.core.PersistentVector(null, 3, 5, cljs.core.PersistentVector.EMPTY_NODE, [minesweeper.core.cell_view,r,c], null),new cljs.core.PersistentArrayMap(null, 1, [cljs.core.cst$kw$key,[cljs.core.str(r),cljs.core.str(c)].join('')], null)),minesweeper$core$grid_view_$_iter__13813_$_iter__13837(cljs.core.rest(s__13838__$2)));
+var c = cljs.core.first(s__13863__$2);
+return cljs.core.cons(cljs.core.with_meta(new cljs.core.PersistentVector(null, 3, 5, cljs.core.PersistentVector.EMPTY_NODE, [minesweeper.core.cell_view,r,c], null),new cljs.core.PersistentArrayMap(null, 1, [cljs.core.cst$kw$key,[cljs.core.str(r),cljs.core.str(c)].join('')], null)),minesweeper$core$grid_view_$_iter__13838_$_iter__13862(cljs.core.rest(s__13863__$2)));
 }
 } else {
 return null;
 }
 break;
 }
-});})(r,s__13814__$2,temp__4657__auto__,grid_size))
+});})(r,s__13839__$2,temp__4657__auto__,grid_size))
 ,null,null));
-});})(r,s__13814__$2,temp__4657__auto__,grid_size))
+});})(r,s__13839__$2,temp__4657__auto__,grid_size))
 ;
 return iter__7184__auto__(cljs.core.range.cljs$core$IFn$_invoke$arity$1(cljs.core.get.cljs$core$IFn$_invoke$arity$2((cljs.core.deref.cljs$core$IFn$_invoke$arity$1 ? cljs.core.deref.cljs$core$IFn$_invoke$arity$1(grid_size) : cljs.core.deref.call(null,grid_size)),(1))));
-})())], null),new cljs.core.PersistentArrayMap(null, 1, [cljs.core.cst$kw$key,r], null)),minesweeper$core$grid_view_$_iter__13813(cljs.core.rest(s__13814__$2)));
+})())], null),new cljs.core.PersistentArrayMap(null, 1, [cljs.core.cst$kw$key,r], null)),minesweeper$core$grid_view_$_iter__13838(cljs.core.rest(s__13839__$2)));
 }
 } else {
 return null;
@@ -1018,13 +1037,13 @@ return iter__7184__auto__(cljs.core.range.cljs$core$IFn$_invoke$arity$1(cljs.cor
 ;})(grid_size))
 });
 minesweeper.core.main_view = (function minesweeper$core$main_view(){
-var game_state = (function (){var G__13849 = new cljs.core.PersistentVector(null, 1, 5, cljs.core.PersistentVector.EMPTY_NODE, [cljs.core.cst$kw$game_DASH_state], null);
-return (re_frame.core.subscribe.cljs$core$IFn$_invoke$arity$1 ? re_frame.core.subscribe.cljs$core$IFn$_invoke$arity$1(G__13849) : re_frame.core.subscribe.call(null,G__13849));
+var game_state = (function (){var G__13874 = new cljs.core.PersistentVector(null, 1, 5, cljs.core.PersistentVector.EMPTY_NODE, [cljs.core.cst$kw$game_DASH_state], null);
+return (re_frame.core.subscribe.cljs$core$IFn$_invoke$arity$1 ? re_frame.core.subscribe.cljs$core$IFn$_invoke$arity$1(G__13874) : re_frame.core.subscribe.call(null,G__13874));
 })();
 return ((function (game_state){
 return (function (){
-return new cljs.core.PersistentVector(null, 5, 5, cljs.core.PersistentVector.EMPTY_NODE, [cljs.core.cst$kw$div$ms_DASH_cljsmines,new cljs.core.PersistentArrayMap(null, 2, [cljs.core.cst$kw$className,(function (){var G__13850 = ((((cljs.core.deref.cljs$core$IFn$_invoke$arity$1 ? cljs.core.deref.cljs$core$IFn$_invoke$arity$1(game_state) : cljs.core.deref.call(null,game_state)) instanceof cljs.core.Keyword))?(cljs.core.deref.cljs$core$IFn$_invoke$arity$1 ? cljs.core.deref.cljs$core$IFn$_invoke$arity$1(game_state) : cljs.core.deref.call(null,game_state)).fqn:null);
-switch (G__13850) {
+return new cljs.core.PersistentVector(null, 5, 5, cljs.core.PersistentVector.EMPTY_NODE, [cljs.core.cst$kw$div$ms_DASH_cljsmines,new cljs.core.PersistentArrayMap(null, 2, [cljs.core.cst$kw$className,(function (){var G__13875 = ((((cljs.core.deref.cljs$core$IFn$_invoke$arity$1 ? cljs.core.deref.cljs$core$IFn$_invoke$arity$1(game_state) : cljs.core.deref.call(null,game_state)) instanceof cljs.core.Keyword))?(cljs.core.deref.cljs$core$IFn$_invoke$arity$1 ? cljs.core.deref.cljs$core$IFn$_invoke$arity$1(game_state) : cljs.core.deref.call(null,game_state)).fqn:null);
+switch (G__13875) {
 case "victorious":
 return "ms-st-victorious";
 
@@ -1038,8 +1057,8 @@ return "";
 
 }
 })(),cljs.core.cst$kw$onContextMenu,((function (game_state){
-return (function (p1__13846_SHARP_){
-return p1__13846_SHARP_.preventDefault();
+return (function (p1__13871_SHARP_){
+return p1__13871_SHARP_.preventDefault();
 });})(game_state))
 ], null),new cljs.core.PersistentVector(null, 1, 5, cljs.core.PersistentVector.EMPTY_NODE, [minesweeper.core.info_view], null),new cljs.core.PersistentVector(null, 1, 5, cljs.core.PersistentVector.EMPTY_NODE, [minesweeper.core.grid_view], null),new cljs.core.PersistentVector(null, 1, 5, cljs.core.PersistentVector.EMPTY_NODE, [minesweeper.core.controls_view], null)], null);
 });
@@ -1047,17 +1066,17 @@ return p1__13846_SHARP_.preventDefault();
 });
 if(typeof minesweeper.core.timer !== 'undefined'){
 } else {
-minesweeper.core.timer = (function (){var G__13852 = (function (){
-var G__13854 = new cljs.core.PersistentVector(null, 1, 5, cljs.core.PersistentVector.EMPTY_NODE, [cljs.core.cst$kw$tick], null);
-return (re_frame.core.dispatch.cljs$core$IFn$_invoke$arity$1 ? re_frame.core.dispatch.cljs$core$IFn$_invoke$arity$1(G__13854) : re_frame.core.dispatch.call(null,G__13854));
+minesweeper.core.timer = (function (){var G__13877 = (function (){
+var G__13879 = new cljs.core.PersistentVector(null, 1, 5, cljs.core.PersistentVector.EMPTY_NODE, [cljs.core.cst$kw$tick], null);
+return (re_frame.core.dispatch.cljs$core$IFn$_invoke$arity$1 ? re_frame.core.dispatch.cljs$core$IFn$_invoke$arity$1(G__13879) : re_frame.core.dispatch.call(null,G__13879));
 });
-var G__13853 = (1000);
-return setInterval(G__13852,G__13853);
+var G__13878 = (1000);
+return setInterval(G__13877,G__13878);
 })();
 }
 minesweeper.core.run = (function minesweeper$core$run(){
-var G__13856_13857 = new cljs.core.PersistentVector(null, 1, 5, cljs.core.PersistentVector.EMPTY_NODE, [cljs.core.cst$kw$initialise], null);
-(re_frame.core.dispatch_sync.cljs$core$IFn$_invoke$arity$1 ? re_frame.core.dispatch_sync.cljs$core$IFn$_invoke$arity$1(G__13856_13857) : re_frame.core.dispatch_sync.call(null,G__13856_13857));
+var G__13881_13882 = new cljs.core.PersistentVector(null, 1, 5, cljs.core.PersistentVector.EMPTY_NODE, [cljs.core.cst$kw$initialise], null);
+(re_frame.core.dispatch_sync.cljs$core$IFn$_invoke$arity$1 ? re_frame.core.dispatch_sync.cljs$core$IFn$_invoke$arity$1(G__13881_13882) : re_frame.core.dispatch_sync.call(null,G__13881_13882));
 
 return reagent.core.render.cljs$core$IFn$_invoke$arity$2(new cljs.core.PersistentVector(null, 1, 5, cljs.core.PersistentVector.EMPTY_NODE, [minesweeper.core.main_view], null),goog.dom.getElement("cljsmines"));
 });
