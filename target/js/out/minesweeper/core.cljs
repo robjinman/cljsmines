@@ -13,7 +13,8 @@
                                    dispatch
                                    dispatch-sync
                                    subscribe]]
-            [clojure.set]))
+            [clojure.set]
+            [clojure.test.check.random :as random]))
 
 
 ;; -- Definitions ----------------------------------------------------------
@@ -62,16 +63,25 @@
 (def count-surrounding-zeros (partial count-surrounding 0))
 (def count-surrounding-ones (partial count-surrounding 1))
 
+(defn random-int
+  [seed max]
+  (-> (random/make-random seed)
+      random/rand-double
+      (* max)
+      int))
+
 (defn populate-grid
   "Takes an empty grid and populates it randomly with mines."
-  [[rows cols] grid num-mines]
-  (loop [i 0
+  [[rows cols] grid num-mines seed]
+  (loop [seed seed
+         mines 0
          grid grid]
-    (let [row (rand rows)
-          col (rand cols)
+    (let [row (random-int seed rows)
+          col (random-int (+ 10000 seed) cols)
           is-mine (= :X (get-in grid [row col]))]
-      (if (< i num-mines)
-        (recur (if is-mine i (inc i))
+      (if (< mines num-mines)
+        (recur (inc seed)
+               (if is-mine mines (inc mines))
                (if is-mine grid (assoc-in grid [row col] :X)))
         grid))))
 
@@ -186,6 +196,10 @@
           flags
           (flatten-grid grid)))
 
+(defn seed-from-time
+  [t]
+  (int (* t 1000)))
+
 (defn new-state
   "Construct a fresh game state for the given difficulty level."
   [level best-times posix-time]
@@ -196,7 +210,8 @@
      :grid (label-grid [rows cols]
                        (populate-grid [rows cols]
                                       (vec-zeros-2 [rows cols])
-                                      num-mines))
+                                      num-mines
+                                      (seed-from-time posix-time)))
      :mask (vec-zeros-2 [rows cols])
      :flags (vec-zeros-2 [rows cols])
      :time-started posix-time
@@ -217,8 +232,7 @@
 
 (defn posix-time!
   []
-  (let [millis (.getTime (js/Date.))]
-    (/ millis 1000)))
+  (/ (.getTime (js/Date.)) 1000))
 
 
 ;; -- State Updater Functions ---------------------------------------------
@@ -577,7 +591,7 @@
        [controls-view]])))
 
 (defonce timer (js/setInterval
-                #(dispatch [:tick]) 1000))
+                #(dispatch [:tick]) 500))
 
 (defn ^:export run
   []

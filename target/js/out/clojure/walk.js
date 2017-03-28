@@ -9,22 +9,22 @@ goog.require('cljs.core');
  */
 clojure.walk.walk = (function clojure$walk$walk(inner,outer,form){
 if(cljs.core.list_QMARK_(form)){
-var G__12453 = cljs.core.apply.cljs$core$IFn$_invoke$arity$2(cljs.core.list,cljs.core.map.cljs$core$IFn$_invoke$arity$2(inner,form));
-return (outer.cljs$core$IFn$_invoke$arity$1 ? outer.cljs$core$IFn$_invoke$arity$1(G__12453) : outer.call(null,G__12453));
+var G__12501 = cljs.core.apply.cljs$core$IFn$_invoke$arity$2(cljs.core.list,cljs.core.map.cljs$core$IFn$_invoke$arity$2(inner,form));
+return (outer.cljs$core$IFn$_invoke$arity$1 ? outer.cljs$core$IFn$_invoke$arity$1(G__12501) : outer.call(null,G__12501));
 } else {
 if(cljs.core.seq_QMARK_(form)){
-var G__12454 = cljs.core.doall.cljs$core$IFn$_invoke$arity$1(cljs.core.map.cljs$core$IFn$_invoke$arity$2(inner,form));
-return (outer.cljs$core$IFn$_invoke$arity$1 ? outer.cljs$core$IFn$_invoke$arity$1(G__12454) : outer.call(null,G__12454));
+var G__12502 = cljs.core.doall.cljs$core$IFn$_invoke$arity$1(cljs.core.map.cljs$core$IFn$_invoke$arity$2(inner,form));
+return (outer.cljs$core$IFn$_invoke$arity$1 ? outer.cljs$core$IFn$_invoke$arity$1(G__12502) : outer.call(null,G__12502));
 } else {
 if(cljs.core.record_QMARK_(form)){
-var G__12455 = cljs.core.reduce.cljs$core$IFn$_invoke$arity$3((function (r,x){
+var G__12503 = cljs.core.reduce.cljs$core$IFn$_invoke$arity$3((function (r,x){
 return cljs.core.conj.cljs$core$IFn$_invoke$arity$2(r,(inner.cljs$core$IFn$_invoke$arity$1 ? inner.cljs$core$IFn$_invoke$arity$1(x) : inner.call(null,x)));
 }),form,form);
-return (outer.cljs$core$IFn$_invoke$arity$1 ? outer.cljs$core$IFn$_invoke$arity$1(G__12455) : outer.call(null,G__12455));
+return (outer.cljs$core$IFn$_invoke$arity$1 ? outer.cljs$core$IFn$_invoke$arity$1(G__12503) : outer.call(null,G__12503));
 } else {
 if(cljs.core.coll_QMARK_(form)){
-var G__12456 = cljs.core.into.cljs$core$IFn$_invoke$arity$2(cljs.core.empty(form),cljs.core.map.cljs$core$IFn$_invoke$arity$2(inner,form));
-return (outer.cljs$core$IFn$_invoke$arity$1 ? outer.cljs$core$IFn$_invoke$arity$1(G__12456) : outer.call(null,G__12456));
+var G__12504 = cljs.core.into.cljs$core$IFn$_invoke$arity$2(cljs.core.empty(form),cljs.core.map.cljs$core$IFn$_invoke$arity$2(inner,form));
+return (outer.cljs$core$IFn$_invoke$arity$1 ? outer.cljs$core$IFn$_invoke$arity$1(G__12504) : outer.call(null,G__12504));
 } else {
 return (outer.cljs$core$IFn$_invoke$arity$1 ? outer.cljs$core$IFn$_invoke$arity$1(form) : outer.call(null,form));
 
@@ -51,10 +51,10 @@ return clojure.walk.walk(cljs.core.partial.cljs$core$IFn$_invoke$arity$2(clojure
  * Recursively transforms all map keys from strings to keywords.
  */
 clojure.walk.keywordize_keys = (function clojure$walk$keywordize_keys(m){
-var f = (function (p__12461){
-var vec__12462 = p__12461;
-var k = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__12462,(0),null);
-var v = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__12462,(1),null);
+var f = (function (p__12537){
+var vec__12538 = p__12537;
+var k = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__12538,(0),null);
+var v = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__12538,(1),null);
 if(typeof k === 'string'){
 return new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [cljs.core.keyword.cljs$core$IFn$_invoke$arity$1(k),v], null);
 } else {
@@ -75,10 +75,10 @@ return x;
  * Recursively transforms all map keys from keywords to strings.
  */
 clojure.walk.stringify_keys = (function clojure$walk$stringify_keys(m){
-var f = (function (p__12469){
-var vec__12470 = p__12469;
-var k = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__12470,(0),null);
-var v = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__12470,(1),null);
+var f = (function (p__12546){
+var vec__12547 = p__12546;
+var k = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__12547,(0),null);
+var v = cljs.core.nth.cljs$core$IFn$_invoke$arity$3(vec__12547,(1),null);
 if((k instanceof cljs.core.Keyword)){
 return new cljs.core.PersistentVector(null, 2, 5, cljs.core.PersistentVector.EMPTY_NODE, [cljs.core.name(k),v], null);
 } else {
