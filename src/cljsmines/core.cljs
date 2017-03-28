@@ -13,7 +13,8 @@
                                    dispatch
                                    dispatch-sync
                                    subscribe]]
-            [clojure.set]))
+            [clojure.set]
+            [clojure.test.check.random :as random]))
 
 
 ;; -- Definitions ----------------------------------------------------------
@@ -62,16 +63,25 @@
 (def count-surrounding-zeros (partial count-surrounding 0))
 (def count-surrounding-ones (partial count-surrounding 1))
 
+(defn random-int
+  [seed max]
+  (-> (random/make-random seed)
+      random/rand-double
+      (* max)
+      int))
+
 (defn populate-grid
   "Takes an empty grid and populates it randomly with mines."
-  [[rows cols] grid num-mines]
-  (loop [i 0
+  [[rows cols] grid num-mines seed]
+  (loop [seed seed
+         mines 0
          grid grid]
-    (let [row (rand rows)
-          col (rand cols)
+    (let [row (random-int seed rows)
+          col (random-int (+ 10000 seed) cols)
           is-mine (= :X (get-in grid [row col]))]
-      (if (< i num-mines)
-        (recur (if is-mine i (inc i))
+      (if (< mines num-mines)
+        (recur (inc seed)
+               (if is-mine mines (inc mines))
                (if is-mine grid (assoc-in grid [row col] :X)))
         grid))))
 
@@ -188,7 +198,7 @@
 
 (defn new-state
   "Construct a fresh game state for the given difficulty level."
-  [level best-times posix-time]
+  [level best-times posix-time-ms]
   (let [[rows cols] (get-in levels [level :size])
         num-mines (get-in levels [level :mines])]
     {:level-selected level
@@ -196,10 +206,11 @@
      :grid (label-grid [rows cols]
                        (populate-grid [rows cols]
                                       (vec-zeros-2 [rows cols])
-                                      num-mines))
+                                      num-mines
+                                      posix-time-ms))
      :mask (vec-zeros-2 [rows cols])
      :flags (vec-zeros-2 [rows cols])
-     :time-started posix-time
+     :time-started (/ posix-time-ms 1000)
      :tick-count 0
      ;; Valid values are :pending, :alive, :dead, and :victorious
      :game-state :pending
@@ -215,10 +226,9 @@
 
 ;; -- Impure Helper Functions ---------------------------------------------
 
-(defn posix-time!
+(defn posix-time-ms!
   []
-  (let [millis (.getTime (js/Date.))]
-    (/ millis 1000)))
+  (.getTime (js/Date.)))
 
 
 ;; -- State Updater Functions ---------------------------------------------
@@ -309,7 +319,12 @@
 (reg-cofx
  :posix-time
  (fn [cofx]
-   (assoc cofx :posix-time (posix-time!))))
+   (assoc cofx :posix-time (/ (posix-time-ms!) 1000))))
+
+(reg-cofx
+ :posix-time-ms
+ (fn [cofx]
+   (assoc cofx :posix-time-ms (posix-time-ms!))))
 
 
 ;; -- Effect Handlers -----------------------------------------------------
@@ -330,9 +345,9 @@
 (reg-event-fx
  :initialise
  [(inject-cofx :get-local-storage-key :best-times)
-  (inject-cofx :posix-time)]
+  (inject-cofx :posix-time-ms)]
  (fn [cofx _]
-   {:db (new-state :intermediate (:best-times cofx) (:posix-time cofx))}))
+   {:db (new-state :intermediate (:best-times cofx) (:posix-time-ms cofx))}))
 
 (reg-event-db
  :tick
@@ -356,10 +371,10 @@
 
 (reg-event-fx
  :reset
- [(inject-cofx :posix-time)]
+ [(inject-cofx :posix-time-ms)]
  (fn [cofx _]
    (let [state (:db cofx)]
-     {:db (new-state (:level-selected state) (:best-times state) (:posix-time cofx))})))
+     {:db (new-state (:level-selected state) (:best-times state) (:posix-time-ms cofx))})))
 
 (reg-event-fx
  :spread-sweep
@@ -481,7 +496,7 @@
   (let [time-started (subscribe [:time-started])
         tick-count (subscribe [:tick-count])]
     [:div.ms-timer "Time "
-     [:span (gstring/format "%03d" (int (- (posix-time!) @time-started)))]
+     [:span (gstring/format "%03d" (- (/ (posix-time-ms!) 1000) @time-started))]
      [:span.ms-display-none @tick-count]]))
 
 (defn info-view
@@ -577,7 +592,7 @@
        [controls-view]])))
 
 (defonce timer (js/setInterval
-                #(dispatch [:tick]) 1000))
+                #(dispatch [:tick]) 500))
 
 (defn ^:export run
   []
