@@ -196,9 +196,13 @@
           flags
           (flatten-grid grid)))
 
+(defn seed-from-time
+  [t]
+  (int (* t 1000)))
+
 (defn new-state
   "Construct a fresh game state for the given difficulty level."
-  [level best-times posix-time-ms]
+  [level best-times posix-time]
   (let [[rows cols] (get-in levels [level :size])
         num-mines (get-in levels [level :mines])]
     {:level-selected level
@@ -207,10 +211,10 @@
                        (populate-grid [rows cols]
                                       (vec-zeros-2 [rows cols])
                                       num-mines
-                                      posix-time-ms))
+                                      (seed-from-time posix-time)))
      :mask (vec-zeros-2 [rows cols])
      :flags (vec-zeros-2 [rows cols])
-     :time-started (/ posix-time-ms 1000)
+     :time-started posix-time
      :tick-count 0
      ;; Valid values are :pending, :alive, :dead, and :victorious
      :game-state :pending
@@ -226,9 +230,9 @@
 
 ;; -- Impure Helper Functions ---------------------------------------------
 
-(defn posix-time-ms!
+(defn posix-time!
   []
-  (.getTime (js/Date.)))
+  (/ (.getTime (js/Date.)) 1000))
 
 
 ;; -- State Updater Functions ---------------------------------------------
@@ -319,12 +323,7 @@
 (reg-cofx
  :posix-time
  (fn [cofx]
-   (assoc cofx :posix-time (/ (posix-time-ms!) 1000))))
-
-(reg-cofx
- :posix-time-ms
- (fn [cofx]
-   (assoc cofx :posix-time-ms (posix-time-ms!))))
+   (assoc cofx :posix-time (posix-time!))))
 
 
 ;; -- Effect Handlers -----------------------------------------------------
@@ -345,9 +344,9 @@
 (reg-event-fx
  :initialise
  [(inject-cofx :get-local-storage-key :best-times)
-  (inject-cofx :posix-time-ms)]
+  (inject-cofx :posix-time)]
  (fn [cofx _]
-   {:db (new-state :intermediate (:best-times cofx) (:posix-time-ms cofx))}))
+   {:db (new-state :intermediate (:best-times cofx) (:posix-time cofx))}))
 
 (reg-event-db
  :tick
@@ -371,10 +370,10 @@
 
 (reg-event-fx
  :reset
- [(inject-cofx :posix-time-ms)]
+ [(inject-cofx :posix-time)]
  (fn [cofx _]
    (let [state (:db cofx)]
-     {:db (new-state (:level-selected state) (:best-times state) (:posix-time-ms cofx))})))
+     {:db (new-state (:level-selected state) (:best-times state) (:posix-time cofx))})))
 
 (reg-event-fx
  :spread-sweep
@@ -496,7 +495,7 @@
   (let [time-started (subscribe [:time-started])
         tick-count (subscribe [:tick-count])]
     [:div.ms-timer "Time "
-     [:span (gstring/format "%03d" (- (/ (posix-time-ms!) 1000) @time-started))]
+     [:span (gstring/format "%03d" (int (- (posix-time!) @time-started)))]
      [:span.ms-display-none @tick-count]]))
 
 (defn info-view
