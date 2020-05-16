@@ -1,7 +1,7 @@
 CLJS Mines
 ==========
 
-Try it here: https://robjinman.github.io/cljsmines/target/index.html
+Try it here: https://robertconsidine.github.io/cljsmines/target/index.html
 
 
 Building CLJS Mines
